@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GardenRenderer } from "../scene/GardenRenderer";
-import { type Garden, type GardenBed, type Plant, type PlantType, type Fence } from "../schemas/garden";
+import { type Garden, type GardenBed, type Plant, type PlantType, type Fence, type BirdNetting } from "../schemas/garden";
 import { GardenLayoutSchema, type LayoutBed, type GardenLayout } from "../schemas/layout";
 
 // Dynamically import all layout JSON files from research directory
@@ -39,6 +39,7 @@ interface GardenViewProps {
   selectedLayout?: string;
   onLayoutChange?: (slug: string) => void;
   onGardenInfoChange?: (info: GardenInfo | null) => void;
+  sunTime?: number;
 }
 
 // Export for use in other components
@@ -50,10 +51,13 @@ export function GardenView({
   selectedBedId,
   selectedLayout: controlledLayout,
   onGardenInfoChange,
+  sunTime = 12,
 }: GardenViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<GardenRenderer | null>(null);
   const layoutRef = useRef<GardenLayout | null>(null);
+  const onBedSelectRef = useRef(onBedSelect);
+  onBedSelectRef.current = onBedSelect; // Keep ref updated
   const [error, setError] = useState<string | null>(null);
   const [garden, setGarden] = useState<Garden | null>(null);
   // Use controlled layout if provided, otherwise use first available
@@ -239,6 +243,70 @@ export function GardenView({
       // Get ground color from layout if available
       const groundColor = layout.ground_areas?.[0]?.color || "#4a7c23";
 
+      // Convert bird netting from layout
+      let birdNetting: BirdNetting | undefined;
+      const birdProtection = layout.protection.bird;
+      if (birdProtection.type === "netting_full_garden" && fence) {
+        const peakHeight = birdProtection.peak_height_ft || fence.height + 2;
+
+        // Auto-generate support posts if not specified
+        let supportPosts: BirdNetting["supportPosts"];
+        if (birdProtection.support_posts && birdProtection.support_posts.length > 0) {
+          // Use manually specified posts
+          supportPosts = birdProtection.support_posts.map(post => ({
+            id: post.id,
+            position: { x: post.position.x, y: 0, z: post.position.y },
+            height: post.height_ft,
+          }));
+        } else {
+          // Auto-generate single post in the bed corner closest to garden center
+          const gardenCenterX = siteW / 2;
+          const gardenCenterZ = siteL / 2;
+
+          let bestCornerX = siteW / 2;
+          let bestCornerZ = siteL / 2;
+          let bestDist = Infinity;
+
+          // Check all 4 corners of each bed to find the one closest to center
+          for (const bed of layout.beds) {
+            const corners = [
+              { x: bed.position.x + 0.5, z: bed.position.y + 0.5 }, // NW
+              { x: bed.position.x + bed.dimensions.width - 0.5, z: bed.position.y + 0.5 }, // NE
+              { x: bed.position.x + 0.5, z: bed.position.y + bed.dimensions.length - 0.5 }, // SW
+              { x: bed.position.x + bed.dimensions.width - 0.5, z: bed.position.y + bed.dimensions.length - 0.5 }, // SE
+            ];
+
+            for (const corner of corners) {
+              const dist = Math.sqrt(
+                (corner.x - gardenCenterX) ** 2 +
+                (corner.z - gardenCenterZ) ** 2
+              );
+              if (dist < bestDist) {
+                bestDist = dist;
+                bestCornerX = corner.x;
+                bestCornerZ = corner.z;
+              }
+            }
+          }
+
+          supportPosts = [
+            {
+              id: "auto-center",
+              position: { x: bestCornerX, y: 0, z: bestCornerZ },
+              height: peakHeight,
+            },
+          ];
+        }
+
+        birdNetting = {
+          enabled: true,
+          supportPosts,
+          meshColor: birdProtection.mesh_color || "#222222",
+          sagFactor: birdProtection.sag_factor ?? 0.15,
+          fenceTopHeight: fence.height,
+        };
+      }
+
       // Generate scattered plants (pollinator flowers, etc.)
       const scatteredPlants: Garden["scatteredPlants"] = [];
       if (layout.scattered_plants?.enabled && layout.scattered_plants.plants) {
@@ -314,6 +382,7 @@ export function GardenView({
         beds,
         paths,
         fence,
+        birdNetting,
         groundColor,
         scatteredPlants,
       });
@@ -365,14 +434,38 @@ export function GardenView({
       const camera = renderer.getCamera();
       const deltaX = e.clientX - previousMousePosition.x;
       const deltaY = e.clientY - previousMousePosition.y;
-      // Get position relative to garden center
-      const offset = camera.position.clone().sub(gardenCenter);
-      const spherical = new THREE.Spherical().setFromVector3(offset);
-      spherical.theta -= deltaX * 0.01;
-      spherical.phi -= deltaY * 0.01;
-      spherical.phi = Math.max(0.1, Math.min(Math.PI / 2 - 0.1, spherical.phi));
-      offset.setFromSpherical(spherical);
-      camera.position.copy(gardenCenter).add(offset);
+
+      if (e.shiftKey) {
+        // Shift+drag: pan the view origin
+        // Get camera's right and forward vectors projected onto XZ plane
+        const forward = new THREE.Vector3();
+        camera.getWorldDirection(forward);
+        forward.y = 0;
+        forward.normalize();
+        const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
+
+        // Pan speed scales with distance from target
+        const distance = camera.position.distanceTo(gardenCenter);
+        const panSpeed = distance * 0.002;
+
+        // Move the orbit center
+        gardenCenter.addScaledVector(right, deltaX * panSpeed);
+        gardenCenter.addScaledVector(forward, deltaY * panSpeed);
+
+        // Move camera to maintain same relative position
+        camera.position.addScaledVector(right, deltaX * panSpeed);
+        camera.position.addScaledVector(forward, deltaY * panSpeed);
+      } else {
+        // Normal drag: rotate around center
+        const offset = camera.position.clone().sub(gardenCenter);
+        const spherical = new THREE.Spherical().setFromVector3(offset);
+        spherical.theta -= deltaX * 0.01;
+        spherical.phi -= deltaY * 0.01;
+        spherical.phi = Math.max(0.1, Math.min(Math.PI / 2 - 0.1, spherical.phi));
+        offset.setFromSpherical(spherical);
+        camera.position.copy(gardenCenter).add(offset);
+      }
+
       camera.lookAt(gardenCenter);
       previousMousePosition = { x: e.clientX, y: e.clientY };
       renderer.requestRender();
@@ -384,13 +477,13 @@ export function GardenView({
       const dy = e.clientY - mouseDownPosition.y;
       const wasClick = Math.sqrt(dx * dx + dy * dy) < 5;
 
-      if (wasClick && renderer && onBedSelect && layoutRef.current) {
+      if (wasClick && renderer && onBedSelectRef.current && layoutRef.current) {
         const bedId = renderer.getBedAtPoint(e.clientX, e.clientY);
         if (bedId) {
           const bed = layoutRef.current.beds.find(b => b.id === bedId);
-          onBedSelect(bed || null);
+          onBedSelectRef.current(bed || null);
         } else {
-          onBedSelect(null);
+          onBedSelectRef.current(null);
         }
       }
 
@@ -420,6 +513,7 @@ export function GardenView({
 
       renderer = new GardenRenderer(container);
       renderer.renderGarden(garden);
+      renderer.setSunTime(sunTime); // Initialize sun position
       rendererRef.current = renderer;
     };
 
@@ -442,7 +536,8 @@ export function GardenView({
         rendererRef.current = null;
       }
     };
-  }, [garden, onBedSelect]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [garden]); // sunTime handled by separate effect
 
   // Update selection highlight when selectedBedId changes
   useEffect(() => {
@@ -450,6 +545,13 @@ export function GardenView({
       rendererRef.current.selectBed(selectedBedId || null);
     }
   }, [selectedBedId]);
+
+  // Update sun position when time changes
+  useEffect(() => {
+    if (rendererRef.current) {
+      rendererRef.current.setSunTime(sunTime);
+    }
+  }, [sunTime]);
 
   if (loading) {
     return (
@@ -504,7 +606,7 @@ export function GardenView({
         color: "#fff",
         zIndex: 10,
       }}>
-        Drag to rotate · Scroll to zoom · Click bed to select
+        Drag to rotate · Shift+drag to pan · Scroll to zoom · Click bed to select
       </div>
     </div>
   );

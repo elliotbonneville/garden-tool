@@ -82,6 +82,22 @@ export const ScatteredPlantRenderSchema = z.object({
   color: ColorSchema.default("#ff69b4"),
 });
 
+// Support post for bird netting (3D position)
+export const BirdNettingSupportPostRenderSchema = z.object({
+  id: z.string(),
+  position: Vector3Schema.describe("Base position of the support post (x, 0, z)"),
+  height: z.number().positive().describe("Height of the post in world units"),
+});
+
+// Bird netting configuration for rendering
+export const BirdNettingSchema = z.object({
+  enabled: z.boolean().default(false),
+  supportPosts: z.array(BirdNettingSupportPostRenderSchema).default([]),
+  meshColor: ColorSchema.default("#222222"),
+  sagFactor: z.number().min(0).max(1).default(0.15).describe("How much the mesh sags (0 = taut, 1 = maximum sag)"),
+  fenceTopHeight: z.number().positive().describe("Height of the fence top where netting attaches"),
+});
+
 export const GardenSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1),
@@ -92,6 +108,7 @@ export const GardenSchema = z.object({
   beds: z.array(GardenBedSchema).default([]),
   paths: z.array(PathSchema).default([]),
   fence: FenceSchema.optional(),
+  birdNetting: BirdNettingSchema.optional(),
   groundColor: ColorSchema.default("#7CFC00"),
   scatteredPlants: z.array(ScatteredPlantRenderSchema).default([]),
 });
@@ -105,4 +122,6 @@ export type Path = z.infer<typeof PathSchema>;
 export type FenceGate = z.infer<typeof FenceGateSchema>;
 export type Fence = z.infer<typeof FenceSchema>;
 export type ScatteredPlantRender = z.infer<typeof ScatteredPlantRenderSchema>;
+export type BirdNettingSupportPostRender = z.infer<typeof BirdNettingSupportPostRenderSchema>;
+export type BirdNetting = z.infer<typeof BirdNettingSchema>;
 export type Garden = z.infer<typeof GardenSchema>;

@@ -164,6 +164,16 @@
       "notes": "Replant annually"
     },
     {
+      "id": "bed-14",
+      "name": "Fennel & Overflow",
+      "type": "vegetable",
+      "position": { "x": 8, "y": 32 },
+      "dimensions": { "width": 4, "length": 6, "height": 18 },
+      "material": "cedar",
+      "crops": ["fennel_bulb", "swiss_chard", "spinach"],
+      "notes": "Fennel inhibits many plants - keep isolated. Overflow space for succession planting."
+    },
+    {
       "id": "bed-15",
       "name": "Pollinator Flowers",
       "type": "flower",
@@ -326,8 +336,10 @@
       "installation": "bottom_and_buried_sides"
     },
     "bird": {
-      "type": "netting_with_frame",
-      "areas": ["bed-17"]
+      "type": "netting_full_garden",
+      "mesh_color": "#1a1a1a",
+      "sag_factor": 0.10,
+      "peak_height_ft": 10
     }
   },
 

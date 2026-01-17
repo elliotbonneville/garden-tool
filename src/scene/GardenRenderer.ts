@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { Garden, GardenBed, Plant, Path, Fence } from "../schemas/garden";
+import type { Garden, GardenBed, Plant, Path, Fence, BirdNetting } from "../schemas/garden";
 
 export const SCALE = 1; // 1 unit = 1 foot
 const TEXTURE_TILE_SIZE = 4; // Each texture tile covers 4ft x 4ft
@@ -18,13 +18,15 @@ export class GardenRenderer {
   private textures: Map<string, THREE.Texture> = new Map();
   private needsRender = true;
   private animationFrameId: number | null = null;
+  private sunLight: THREE.DirectionalLight | null = null;
+  private gardenCenter: THREE.Vector3 = new THREE.Vector3();
 
   constructor(container: HTMLElement) {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x87ceeb);
 
-    // Add fog for depth
-    this.scene.fog = new THREE.Fog(0x87ceeb, 50, 150);
+    // Add fog for depth (extends to horizon)
+    this.scene.fog = new THREE.Fog(0x87ceeb, 80, 400);
 
     this.camera = new THREE.PerspectiveCamera(
       60,
@@ -84,24 +86,68 @@ export class GardenRenderer {
     this.scene.add(hemiLight);
 
     // Main sun light
-    const sunLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
-    sunLight.position.set(20, 30, 20);
-    sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 1024;
-    sunLight.shadow.mapSize.height = 1024;
-    sunLight.shadow.camera.near = 0.5;
-    sunLight.shadow.camera.far = 100;
-    sunLight.shadow.camera.left = -30;
-    sunLight.shadow.camera.right = 30;
-    sunLight.shadow.camera.top = 30;
-    sunLight.shadow.camera.bottom = -30;
-    sunLight.shadow.bias = -0.0001;
-    this.scene.add(sunLight);
+    this.sunLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
+    this.sunLight.position.set(20, 30, 20);
+    this.sunLight.castShadow = true;
+    this.sunLight.shadow.mapSize.width = 2048;
+    this.sunLight.shadow.mapSize.height = 2048;
+    this.sunLight.shadow.camera.near = 0.5;
+    this.sunLight.shadow.camera.far = 150;
+    this.sunLight.shadow.camera.left = -50;
+    this.sunLight.shadow.camera.right = 50;
+    this.sunLight.shadow.camera.top = 50;
+    this.sunLight.shadow.camera.bottom = -50;
+    this.sunLight.shadow.bias = -0.0005;
+    this.scene.add(this.sunLight);
 
-    // Fill light
+    // Fill light (opposite side, softer)
     const fillLight = new THREE.DirectionalLight(0x8ec8f2, 0.3);
     fillLight.position.set(-10, 10, -10);
     this.scene.add(fillLight);
+  }
+
+  // Update sun position based on time of day (0-24 hours)
+  setSunTime(hour: number): void {
+    if (!this.sunLight) return;
+
+    // Convert hour to angle (6am = sunrise east, 12pm = noon south, 6pm = sunset west)
+    // Hour 6 = 0°, Hour 12 = 90°, Hour 18 = 180°
+    const dayProgress = (hour - 6) / 12; // 0 at 6am, 1 at 6pm
+    const angle = dayProgress * Math.PI; // 0 to PI
+
+    // Sun arc: rises in east (positive X), peaks in south, sets in west (negative X)
+    const radius = 50;
+    const elevation = Math.sin(angle) * radius * 0.8; // Max height at noon
+    const x = Math.cos(angle) * radius;
+    const z = -20; // Slightly south
+
+    // Position sun relative to garden center
+    this.sunLight.position.set(
+      this.gardenCenter.x + x,
+      Math.max(5, elevation), // Keep minimum height
+      this.gardenCenter.z + z
+    );
+    this.sunLight.target.position.copy(this.gardenCenter);
+    this.sunLight.target.updateMatrixWorld();
+
+    // Adjust light color based on time (warmer at sunrise/sunset)
+    const midday = Math.abs(hour - 12);
+    if (midday > 4) {
+      // Golden hour
+      this.sunLight.color.setHex(0xffcc66);
+      this.sunLight.intensity = 0.8;
+    } else {
+      // Midday
+      this.sunLight.color.setHex(0xfff5e6);
+      this.sunLight.intensity = 1.2;
+    }
+
+    // Update sky color
+    const skyBrightness = Math.max(0.3, Math.sin(angle));
+    const skyColor = new THREE.Color(0x87ceeb).multiplyScalar(skyBrightness);
+    this.scene.background = skyColor;
+
+    this.requestRender();
   }
 
   private setupResizeHandler(container: HTMLElement): void {
@@ -139,10 +185,23 @@ export class GardenRenderer {
     this.selectedBedId = null;
     this.pathIndex = 0;
 
-    // Calculate garden center for camera positioning
+    // Calculate garden center for camera positioning and sun tracking
     // Garden coordinates: (0,0) to (width, length)
     const centerX = garden.dimensions.width / 2;
     const centerZ = garden.dimensions.length / 2;
+    this.gardenCenter.set(centerX, 0, centerZ);
+
+    // Update shadow camera to cover garden
+    if (this.sunLight) {
+      const maxDim = Math.max(garden.dimensions.width, garden.dimensions.length);
+      this.sunLight.shadow.camera.left = -maxDim;
+      this.sunLight.shadow.camera.right = maxDim;
+      this.sunLight.shadow.camera.top = maxDim;
+      this.sunLight.shadow.camera.bottom = -maxDim;
+      this.sunLight.shadow.camera.updateProjectionMatrix();
+      this.sunLight.target.position.copy(this.gardenCenter);
+      this.scene.add(this.sunLight.target);
+    }
 
     // Update camera to look at garden center
     this.camera.position.set(centerX + 35, 35, centerZ + 35);
@@ -154,6 +213,11 @@ export class GardenRenderer {
     // Fence border - use fence from garden data if available
     if (garden.fence) {
       this.renderFenceFromData(garden.fence);
+    }
+
+    // Bird netting over the garden
+    if (garden.birdNetting?.enabled) {
+      this.renderBirdNetting(garden.birdNetting, garden.dimensions);
     }
 
     // Render beds
@@ -222,8 +286,8 @@ export class GardenRenderer {
     const centerX = garden.dimensions.width / 2;
     const centerZ = garden.dimensions.length / 2;
 
-    // Outer grass (surrounding the fence)
-    const outerGrassSize = Math.max(garden.dimensions.width, garden.dimensions.length) + 30;
+    // Outer grass (extending to horizon)
+    const outerGrassSize = 500; // Large enough to reach the fog/horizon
     const outerGrassGeometry = new THREE.PlaneGeometry(outerGrassSize, outerGrassSize);
     const outerGrassTexture = this.getRepeatingTexture("grass", outerGrassSize, outerGrassSize);
     const outerGrassMaterial = new THREE.MeshStandardMaterial({
@@ -532,6 +596,244 @@ export class GardenRenderer {
     this.gardenGroup.add(mesh);
   }
 
+  // Render bird netting over the entire garden (ridge-tent style)
+  private renderBirdNetting(
+    birdNetting: BirdNetting,
+    dimensions: { width: number; length: number }
+  ): void {
+    const fenceHeight = birdNetting.fenceTopHeight;
+    const sagFactor = birdNetting.sagFactor;
+    const w = dimensions.width;
+    const l = dimensions.length;
+
+    // Wood material for support posts
+    const woodMaterial = new THREE.MeshStandardMaterial({
+      color: 0x6b5344,
+      roughness: 0.85,
+      metalness: 0.0,
+    });
+
+    // Cable material
+    const cableMaterial = new THREE.MeshStandardMaterial({
+      color: 0x2a2a2a,
+      roughness: 0.5,
+    });
+
+    // Bird netting material - semi-transparent mesh
+    const nettingMaterial = new THREE.MeshStandardMaterial({
+      color: birdNetting.meshColor,
+      transparent: true,
+      opacity: 0.12,
+      side: THREE.DoubleSide,
+    });
+
+    // Render support posts
+    const posts = birdNetting.supportPosts;
+    for (const post of posts) {
+      const postSize = 0.33;
+      const postGeometry = new THREE.BoxGeometry(postSize, post.height, postSize);
+      const postMesh = new THREE.Mesh(postGeometry, woodMaterial);
+      postMesh.position.set(post.position.x, post.height / 2, post.position.z);
+      postMesh.castShadow = true;
+      this.gardenGroup.add(postMesh);
+
+      // Decorative cap
+      const capGeometry = new THREE.ConeGeometry(0.25, 0.3, 4);
+      const cap = new THREE.Mesh(capGeometry, woodMaterial);
+      cap.position.set(post.position.x, post.height + 0.15, post.position.z);
+      cap.rotation.y = Math.PI / 4;
+      this.gardenGroup.add(cap);
+    }
+
+    // Build cable network for structure
+    const cables: Array<{ x1: number; y1: number; z1: number; x2: number; y2: number; z2: number }> = [];
+
+    // Ridge cable between posts (if multiple posts)
+    if (posts.length >= 2) {
+      for (let i = 0; i < posts.length - 1; i++) {
+        const p1 = posts[i]!;
+        const p2 = posts[i + 1]!;
+        cables.push({
+          x1: p1.position.x, y1: p1.height, z1: p1.position.z,
+          x2: p2.position.x, y2: p2.height, z2: p2.position.z,
+        });
+        this.addSaggingCable(
+          p1.position.x, p1.height, p1.position.z,
+          p2.position.x, p2.height, p2.position.z,
+          sagFactor * 0.2, cableMaterial
+        );
+      }
+    }
+
+    // Cables from posts to fence corners and midpoints
+    const fenceAnchors = [
+      { x: 0, z: 0 }, { x: w, z: 0 }, { x: w, z: l }, { x: 0, z: l }, // corners
+      { x: w / 2, z: 0 }, { x: w, z: l / 2 }, { x: w / 2, z: l }, { x: 0, z: l / 2 }, // midpoints
+    ];
+
+    for (const post of posts) {
+      for (const anchor of fenceAnchors) {
+        cables.push({
+          x1: post.position.x, y1: post.height, z1: post.position.z,
+          x2: anchor.x, y2: fenceHeight, z2: anchor.z,
+        });
+        this.addSaggingCable(
+          post.position.x, post.height, post.position.z,
+          anchor.x, fenceHeight, anchor.z,
+          sagFactor * 0.4, cableMaterial
+        );
+      }
+    }
+
+    // Perimeter cables along fence top
+    const perimeterPoints = [
+      { x: 0, z: 0 }, { x: w / 2, z: 0 }, { x: w, z: 0 },
+      { x: w, z: l / 2 }, { x: w, z: l },
+      { x: w / 2, z: l }, { x: 0, z: l },
+      { x: 0, z: l / 2 }, { x: 0, z: 0 },
+    ];
+    for (let i = 0; i < perimeterPoints.length - 1; i++) {
+      const p1 = perimeterPoints[i]!;
+      const p2 = perimeterPoints[i + 1]!;
+      this.addSaggingCable(
+        p1.x, fenceHeight, p1.z,
+        p2.x, fenceHeight, p2.z,
+        sagFactor * 0.15, cableMaterial
+      );
+    }
+
+    // Create the mesh surface
+    this.renderRidgeTentMesh(dimensions, posts, fenceHeight, sagFactor, nettingMaterial);
+  }
+
+  // Create ridge-tent style mesh that follows cable structure
+  private renderRidgeTentMesh(
+    dimensions: { width: number; length: number },
+    posts: BirdNetting["supportPosts"],
+    fenceHeight: number,
+    sagFactor: number,
+    material: THREE.Material
+  ): void {
+    const w = dimensions.width;
+    const l = dimensions.length;
+    const segmentsX = Math.ceil(w * 3);
+    const segmentsZ = Math.ceil(l * 3);
+
+    const geometry = new THREE.PlaneGeometry(w, l, segmentsX, segmentsZ);
+    geometry.rotateX(-Math.PI / 2);
+    geometry.translate(w / 2, 0, l / 2);
+
+    const positions = geometry.attributes.position as THREE.BufferAttribute;
+
+    // For ridge-tent: height depends on position relative to ridge line and edges
+    // Ridge runs along Z at the average X of posts
+    const ridgeX = posts.length > 0
+      ? posts.reduce((sum, p) => sum + p.position.x, 0) / posts.length
+      : w / 2;
+    const ridgeZ = posts.length > 0
+      ? posts.reduce((sum, p) => sum + p.position.z, 0) / posts.length
+      : l / 2;
+    const peakHeight = posts.length > 0
+      ? Math.max(...posts.map(p => p.height))
+      : fenceHeight + 2;
+
+    for (let i = 0; i < positions.count; i++) {
+      const x = positions.getX(i);
+      const z = positions.getZ(i);
+
+      // Calculate base height using tent geometry
+      // Height decreases linearly from ridge to fence edges
+
+      // Distance to nearest edge (fence)
+      const distToLeft = x;
+      const distToRight = w - x;
+      const distToTop = z;
+      const distToBottom = l - z;
+      const minDistToEdge = Math.min(distToLeft, distToRight, distToTop, distToBottom);
+
+      // Distance to ridge line (for ridge-tent, ridge runs through posts)
+      let distToRidge: number;
+      if (posts.length >= 2) {
+        // Ridge line between first and last post
+        const p1 = posts[0]!;
+        const p2 = posts[posts.length - 1]!;
+        // Point-to-line distance
+        const dx = p2.position.x - p1.position.x;
+        const dz = p2.position.z - p1.position.z;
+        const lineLen = Math.sqrt(dx * dx + dz * dz);
+        if (lineLen > 0) {
+          const t = Math.max(0, Math.min(1,
+            ((x - p1.position.x) * dx + (z - p1.position.z) * dz) / (lineLen * lineLen)
+          ));
+          const closestX = p1.position.x + t * dx;
+          const closestZ = p1.position.z + t * dz;
+          distToRidge = Math.sqrt((x - closestX) ** 2 + (z - closestZ) ** 2);
+        } else {
+          distToRidge = Math.sqrt((x - ridgeX) ** 2 + (z - ridgeZ) ** 2);
+        }
+      } else {
+        distToRidge = Math.sqrt((x - ridgeX) ** 2 + (z - ridgeZ) ** 2);
+      }
+
+      // Max possible distance to ridge (from corners)
+      const maxRidgeDist = Math.max(
+        Math.sqrt(ridgeX ** 2 + ridgeZ ** 2),
+        Math.sqrt((w - ridgeX) ** 2 + ridgeZ ** 2),
+        Math.sqrt(ridgeX ** 2 + (l - ridgeZ) ** 2),
+        Math.sqrt((w - ridgeX) ** 2 + (l - ridgeZ) ** 2)
+      );
+
+      // Tent slope: height interpolates from peak at ridge to fence height at edges
+      const ridgeRatio = Math.min(distToRidge / maxRidgeDist, 1);
+      const baseHeight = peakHeight - (peakHeight - fenceHeight) * ridgeRatio;
+
+      // Apply catenary sag based on distance from nearest support cable
+      // More sag in the middle of panels, less near cables
+      const panelCenter = Math.min(distToRidge, minDistToEdge);
+      const maxPanelDist = Math.min(maxRidgeDist / 2, Math.min(w, l) / 2);
+      const sagRatio = Math.min(panelCenter / maxPanelDist, 1);
+
+      // Parabolic sag profile
+      const sagDepth = sagFactor * maxPanelDist * sagRatio * (1 - sagRatio * 0.3);
+      const height = baseHeight - sagDepth;
+
+      positions.setY(i, height);
+    }
+
+    geometry.computeVertexNormals();
+
+    const mesh = new THREE.Mesh(geometry, material);
+    this.gardenGroup.add(mesh);
+  }
+
+  // Create a cable/rope that sags between two points
+  private addSaggingCable(
+    x1: number, y1: number, z1: number,
+    x2: number, y2: number, z2: number,
+    sagAmount: number,
+    material: THREE.Material
+  ): void {
+    const segments = 16;
+    const points: THREE.Vector3[] = [];
+    const span = Math.sqrt((x2 - x1) ** 2 + (z2 - z1) ** 2);
+
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      const x = x1 + (x2 - x1) * t;
+      const z = z1 + (z2 - z1) * t;
+      const baseY = y1 + (y2 - y1) * t;
+
+      // Catenary sag (parabolic approximation)
+      const sag = sagAmount * span * 4 * t * (1 - t);
+      points.push(new THREE.Vector3(x, baseY - sag, z));
+    }
+
+    const curve = new THREE.CatmullRomCurve3(points);
+    const tubeGeometry = new THREE.TubeGeometry(curve, segments, 0.015, 6, false);
+    const cable = new THREE.Mesh(tubeGeometry, material);
+    this.gardenGroup.add(cable);
+  }
+
   private renderBed(bed: GardenBed): void {
     const isMetalBed = bed.frameMaterial === "galvanized_metal";
     const boardThickness = isMetalBed ? 0.05 : 0.15;
@@ -556,6 +858,7 @@ export class GardenRenderer {
       bed.position.y + (bed.dimensions.height - 0.05) / 2,
       bed.position.z
     );
+    soil.castShadow = true;
     soil.receiveShadow = true;
     bedGroup.add(soil);
     this.bedMeshes.set(soil, bed.id);

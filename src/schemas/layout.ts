@@ -101,9 +101,28 @@ export const RodentProtectionSchema = z.object({
   installation: z.enum(["bottom_only", "bottom_and_buried_sides"]),
 });
 
+// Support post for bird netting structure
+export const BirdNettingSupportPostSchema = z.object({
+  id: z.string(),
+  position: PositionSchema.describe("Position of the support post"),
+  height_ft: z.number().describe("Height of the support post in feet (should be taller than fence)"),
+});
+
+// Cable/wire run between support points
+export const BirdNettingCableSchema = z.object({
+  from: z.string().describe("ID of start post (or 'fence_corner_nw', 'fence_corner_ne', etc.)"),
+  to: z.string().describe("ID of end post (or fence corner)"),
+});
+
 export const BirdProtectionSchema = z.object({
-  type: z.enum(["netting_with_frame", "netting_draped", "none"]),
-  areas: z.array(z.string()).describe("Bed IDs that need bird protection"),
+  type: z.enum(["netting_full_garden", "netting_with_frame", "netting_draped", "none"]),
+  areas: z.array(z.string()).optional().describe("Bed IDs that need bird protection (for partial coverage)"),
+  // Full garden netting configuration
+  support_posts: z.array(BirdNettingSupportPostSchema).optional().describe("Internal support posts for the netting"),
+  cables: z.array(BirdNettingCableSchema).optional().describe("Cable runs between supports"),
+  mesh_color: z.string().optional().default("#222222").describe("Color of the bird netting mesh"),
+  sag_factor: z.number().min(0).max(1).optional().default(0.15).describe("How much the mesh sags between supports (0 = taut, 1 = maximum sag)"),
+  peak_height_ft: z.number().optional().describe("Height at the peak/center of the netting"),
 });
 
 export const ProtectionSchema = z.object({
@@ -138,11 +157,31 @@ export const MetadataSchema = z.object({
   name: z.string(),
   location: LocationSchema,
   created_date: z.string(),
+  updated_date: z.string().optional(),
   families: z.number(),
   people: z.object({
     adults: z.number(),
     children: z.number(),
   }),
+});
+
+export const DifficultySchema = z.enum(["beginner", "intermediate", "advanced"]);
+
+export const GardenSummarySchema = z.object({
+  difficulty: DifficultySchema.describe("Overall difficulty rating for this garden layout"),
+  overview: z.string().describe("Markdown-formatted overview of the garden, its philosophy, and what to expect"),
+  time_commitment: z.object({
+    peak_season_hours_per_week: z.number().describe("Expected hours per week during peak growing season (Jun-Aug)"),
+    off_season_hours_per_week: z.number().describe("Expected hours per week during off season"),
+    spring_setup_hours: z.number().describe("One-time spring setup/planting hours"),
+    fall_cleanup_hours: z.number().describe("Fall cleanup and winterization hours"),
+  }),
+  water_requirements: z.object({
+    gallons_per_week_peak: z.number().describe("Gallons per week during hot/dry peak season"),
+    gallons_per_week_average: z.number().describe("Average gallons per week across growing season"),
+    notes: z.string().describe("Notes about irrigation approach"),
+  }),
+  tips: z.array(z.string()).describe("Key tips and reminders for working this garden"),
 });
 
 export const SiteSchema = z.object({
@@ -267,6 +306,7 @@ export const ClimateSchema = z.object({
 export const GardenLayoutSchema = z.object({
   version: z.string(),
   metadata: MetadataSchema,
+  summary: GardenSummarySchema.optional().describe("Overview, difficulty, time commitment, and tips for working this garden"),
   site: SiteSchema,
   growing_method: GrowingMethodSchema,
   beds: z.array(LayoutBedSchema),
@@ -293,6 +333,8 @@ export type BedMaterial = z.infer<typeof BedMaterialSchema>;
 export type LayoutBed = z.infer<typeof LayoutBedSchema>;
 export type LayoutFence = z.infer<typeof FenceSchema>;
 export type RodentProtection = z.infer<typeof RodentProtectionSchema>;
+export type BirdNettingSupportPost = z.infer<typeof BirdNettingSupportPostSchema>;
+export type BirdNettingCable = z.infer<typeof BirdNettingCableSchema>;
 export type BirdProtection = z.infer<typeof BirdProtectionSchema>;
 export type Protection = z.infer<typeof ProtectionSchema>;
 export type WaterSource = z.infer<typeof WaterSourceSchema>;
@@ -312,4 +354,6 @@ export type LaborBudget = z.infer<typeof LaborBudgetSchema>;
 export type Budget = z.infer<typeof BudgetSchema>;
 export type Timeline = z.infer<typeof TimelineSchema>;
 export type Climate = z.infer<typeof ClimateSchema>;
+export type Difficulty = z.infer<typeof DifficultySchema>;
+export type GardenSummary = z.infer<typeof GardenSummarySchema>;
 export type GardenLayout = z.infer<typeof GardenLayoutSchema>;

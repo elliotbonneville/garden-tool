@@ -21,6 +21,8 @@ interface BedDetailsPanelProps {
   layouts?: LayoutOption[];
   selectedLayout?: string;
   onLayoutChange?: (slug: string) => void;
+  sunTime?: number;
+  onSunTimeChange?: (time: number) => void;
 }
 
 // Convert crop ID to URL slug
@@ -35,13 +37,24 @@ function formatCropName(crop: string): string {
   return crop.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 }
 
+// Format time for display (e.g., "12:00 PM")
+function formatTime(hour: number): string {
+  const h = Math.floor(hour);
+  const m = Math.round((hour - h) * 60);
+  const period = h >= 12 ? "PM" : "AM";
+  const displayHour = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${displayHour}:${m.toString().padStart(2, "0")} ${period}`;
+}
+
 export function BedDetailsPanel({
   bed,
   onClose,
   gardenInfo,
   layouts,
   selectedLayout,
-  onLayoutChange
+  onLayoutChange,
+  sunTime = 12,
+  onSunTimeChange
 }: BedDetailsPanelProps) {
   // Garden info header (always shown)
   const GardenHeader = () => (
@@ -76,6 +89,51 @@ export function BedDetailsPanel({
               </option>
             ))}
           </select>
+        </div>
+      )}
+
+      {/* Time of day slider */}
+      {onSunTimeChange && (
+        <div style={{ marginBottom: 12 }}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 4,
+          }}>
+            <label style={{ fontSize: 11, color: "#6b7280" }}>
+              Time of Day
+            </label>
+            <span style={{
+              fontSize: 11,
+              color: "#374151",
+              fontVariantNumeric: "tabular-nums",
+            }}>{formatTime(sunTime)}</span>
+          </div>
+          <input
+            type="range"
+            min="5"
+            max="20"
+            step="0.25"
+            value={sunTime}
+            onChange={(e) => onSunTimeChange(parseFloat(e.target.value))}
+            style={{
+              width: "100%",
+              cursor: "pointer",
+              accentColor: "#f59e0b",
+            }}
+          />
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontSize: 9,
+            color: "#9ca3af",
+            marginTop: 2,
+          }}>
+            <span>5 AM</span>
+            <span>Noon</span>
+            <span>8 PM</span>
+          </div>
         </div>
       )}
 
@@ -200,6 +258,19 @@ export function BedDetailsPanel({
 
       {/* Content */}
       <div style={{ padding: 20 }}>
+        {/* Dimensions */}
+        <Section title="Dimensions">
+          <Grid>
+            <InfoItem label="Width" value={`${bed.dimensions.width} ft`} />
+            <InfoItem label="Length" value={`${bed.dimensions.length} ft`} />
+            <InfoItem label="Height" value={`${bed.dimensions.height || 12} in`} />
+            <InfoItem
+              label="Area"
+              value={`${bed.dimensions.width * bed.dimensions.length} sq ft`}
+            />
+          </Grid>
+        </Section>
+
         {/* Description */}
         {bed.description && (
           <Section title="Description">
@@ -240,19 +311,6 @@ export function BedDetailsPanel({
             </div>
           </Section>
         )}
-
-        {/* Dimensions */}
-        <Section title="Dimensions">
-          <Grid>
-            <InfoItem label="Width" value={`${bed.dimensions.width} ft`} />
-            <InfoItem label="Length" value={`${bed.dimensions.length} ft`} />
-            <InfoItem label="Height" value={`${bed.dimensions.height || 12} in`} />
-            <InfoItem
-              label="Area"
-              value={`${bed.dimensions.width * bed.dimensions.length} sq ft`}
-            />
-          </Grid>
-        </Section>
 
         {/* Material */}
         <Section title="Construction">

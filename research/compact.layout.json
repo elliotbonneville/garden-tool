@@ -1,18 +1,59 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "metadata": {
-    "name": "Exeter Garden - Compact Layout",
+    "name": "Exeter Garden - Compact Layout (4x8 Beds)",
     "location": {
       "city": "Exeter",
       "state": "RI",
       "usda_zone": "6b"
     },
     "created_date": "2025-01-17",
+    "updated_date": "2025-01-17",
     "families": 2,
     "people": {
       "adults": 4,
       "children": 3
     }
+  },
+
+  "summary": {
+    "difficulty": "intermediate",
+    "overview": "## Back to Eden Garden for 2 Families (7 people)\n\nThis garden uses the **Back to Eden** method with **hugelkultur base** - meaning significantly less watering, no tilling, and improving soil over time. The buried logs act as a water reservoir, and the wood chip mulch suppresses weeds and retains moisture.\n\n### Philosophy\n- **Low water**: After establishment, the hugelkultur base and mulch mean you may only need to water during extended dry spells\n- **No-till**: Never disturb the soil layers - just add more compost and mulch on top each year\n- **Feed the soil**: The decomposing wood feeds soil biology for years\n\n### What to Expect Year 1\nYear 1 is the hardest - you're building infrastructure and the hugelkultur is still \"cooking.\" Expect:\n- Heavy initial labor for bed construction and log burial\n- Nitrogen tie-up as wood decomposes (add extra compost)\n- Learning curve with pest management\n\n### Years 2+\nThe garden gets **easier every year** as:\n- Soil biology establishes\n- Wood chips break down into rich compost\n- You learn your microclimates\n- Perennials mature and produce more",
+    "time_commitment": {
+      "peak_season_hours_per_week": 6,
+      "off_season_hours_per_week": 1,
+      "spring_setup_hours": 30,
+      "fall_cleanup_hours": 10
+    },
+    "water_requirements": {
+      "gallons_per_week_peak": 150,
+      "gallons_per_week_average": 50,
+      "notes": "Back to Eden method dramatically reduces watering. The hugelkultur base acts as a sponge, and wood chip mulch prevents evaporation. After establishment (year 2+), you may only need supplemental water during droughts. Drip irrigation with timer handles most needs automatically."
+    },
+    "tips": [
+      "**Morning harvest**: Pick vegetables in the morning when sugar content is highest",
+      "**Succession plant**: Don't plant all lettuce at once - stagger every 2-3 weeks",
+      "**Mulch heavily**: 4-6 inches of wood chips. If you see bare soil, add more",
+      "**Never till**: The soil ecosystem takes years to build. Adding amendments? Top-dress only",
+      "**Pest patrol**: Walk the garden daily. Catch problems early. Hand-pick hornworms and beetles",
+      "**Feed the soil, not the plants**: Add compost in spring, let soil biology do the rest",
+      "**Keep paths clear**: Wood chip paths need refreshing yearly. They're also growing medium!",
+      "**Rotate nightshades**: Tomatoes, peppers, eggplant, potatoes share diseases. 3-year rotation minimum",
+      "**Plant garlic in fall**: October/November planting = bigger bulbs next July",
+      "**Don't rush spring**: Zone 6b last frost is mid-May. Patience prevents replanting",
+      "**Take notes**: What worked? What didn't? Your garden journal is your best tool"
+    ]
+  },
+
+  "bed_configuration": {
+    "reference": "beds.json",
+    "type": "standard_4x8",
+    "product_id": "vegega-17-4x8",
+    "count": 12,
+    "dimensions_each": { "width": 4, "length": 8, "height": 17 },
+    "total_growing_sqft": 384,
+    "cost_per_bed": 200,
+    "total_bed_cost": 2400
   },
 
   "site": {
@@ -29,101 +70,153 @@
   "growing_method": {
     "type": "back_to_eden",
     "mulch_type": "wood_chips",
+    "hugelkultur": {
+      "enabled": true,
+      "log_diameter_in": 18,
+      "pit_depth_in": 18,
+      "notes": "Excavate 18\" pits under each bed for logs"
+    },
     "base_layers": ["logs", "branches", "leaves", "mushroom_compost", "wood_chips"]
   },
 
   "beds": [
     {
       "id": "bed-01",
-      "name": "Nightshades & Herbs",
-      "description": "Nightshades (tomatoes, peppers, eggplant) share similar growing needs: **full sun**, **consistent water**, and **warm soil**. Basil and parsley are classic tomato companions that improve flavor and deter pests.\n\n### Layout\n- **North end**: Tomatoes (they grow 6ft+ tall and will shade other plants)\n- **South end**: Peppers and eggplant\n- **Interplanted**: Basil between tomatoes, parsley along edges\n\n### Cautions\n- Heavy feeders - amend soil generously\n- Watch for: tomato hornworms, aphids, early blight\n- **3-year rotation** - don't plant where nightshades grew recently\n- Stake or cage tomatoes *early* before roots establish",
+      "name": "Tomatoes",
+      "description": "Dedicated tomato bed with basil companion. Tomatoes need **full sun**, **consistent water**, and **warm soil**.\n\n### Layout\n- **North end**: Indeterminate varieties (grow tallest)\n- **South end**: Determinate/bush types\n- **Interplanted**: Basil throughout (improves flavor, deters pests)\n\n### Cautions\n- Heavy feeders - amend soil generously\n- Cage or stake **early** before roots establish\n- Watch for: tomato hornworms, aphids, early blight\n- **3-year rotation** - don't plant where nightshades grew recently",
       "type": "vegetable",
-      "position": { "x": 4, "y": 4 },
-      "dimensions": { "width": 8, "length": 14, "height": 18 },
+      "position": { "x": 6, "y": 5 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
       "material": "galvanized_metal",
-      "crops": [
-        "tomato_cherry", "tomato_slicing", "tomato_paste",
-        "bell_pepper", "hot_pepper", "eggplant",
-        "basil", "parsley_flat", "parsley_curly"
-      ]
+      "crops": ["tomato_cherry", "tomato_slicing", "tomato_paste", "basil"],
+      "notes": "Cage or stake early. Heavy feeders - amend generously."
     },
     {
       "id": "bed-02",
-      "name": "Cucurbits",
-      "description": "All cucurbits are **vining/sprawling plants** that need space and share pest profiles. Dill attracts beneficial insects and improves cucumber flavor. Radishes work as an early trap crop for flea beetles.\n\n### Layout\n- **One end**: Summer squash & cucumbers (harvest frequently)\n- **Other end**: Winter squash & watermelon (long season, heavy sprawl)\n- **Middle**: Tomatillos & ground cherries (technically nightshades but sprawl like cucurbits)\n- **Early season**: Plant radishes before vines take over\n\n### Cautions\n- ⚠️ Vines **WILL** escape into paths - plan for it\n- Watch for: squash vine borers, cucumber beetles, powdery mildew\n- Hand-pollinate if bee activity is low\n- **Drip irrigation only** - overhead water causes mildew",
+      "name": "Peppers & Eggplant",
+      "description": "Nightshade companions that share similar growing needs. Both love heat and have similar pest profiles.\n\n### Layout\n- **Peppers**: 18\" spacing, mix bell and hot varieties\n- **Eggplant**: 24\" spacing (larger plants)\n- **Parsley**: Along edges as beneficial insect attractor\n\n### Cautions\n- Same family as tomatoes - rotate together on 3-year cycle\n- Slower to establish than tomatoes\n- Watch for: aphids, flea beetles\n- Mulch heavily to retain moisture",
       "type": "vegetable",
-      "position": { "x": 16, "y": 4 },
-      "dimensions": { "width": 8, "length": 14, "height": 18 },
+      "position": { "x": 14, "y": 5 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
       "material": "galvanized_metal",
-      "crops": [
-        "zucchini", "yellow_squash",
-        "cucumber_slicing", "cucumber_pickling",
-        "tomatillo", "ground_cherry",
-        "butternut_squash", "spaghetti_squash", "watermelon",
-        "dill", "radish"
-      ]
+      "crops": ["bell_pepper", "hot_pepper", "eggplant", "parsley"],
+      "notes": "Same family as tomatoes - rotate together."
     },
     {
       "id": "bed-03",
-      "name": "Greens & Legumes",
-      "description": "**Legumes fix nitrogen** in soil, which directly benefits leafy greens. Greens are cool-season crops and legumes tolerate light shade - this pairing maximizes soil fertility naturally.\n\n### Layout\n- **North end**: Peas (need 4-5ft trellis)\n- **Middle rows**: Bush beans and edamame\n- **Throughout**: All greens - succession plant lettuce every 2-3 weeks\n- Kale and collards can stay all season\n\n### Cautions\n- Greens **bolt in heat** - provide afternoon shade or use heat-tolerant varieties\n- Watch for: aphids, cabbage worms on brassica greens\n- Peas need trellis or support\n- ⚠️ **Keep legumes away from allium bed** - they're antagonists",
+      "name": "Summer Squash & Cucumbers",
+      "description": "Fast-producing cucurbits that need frequent harvest. Dill is a classic cucumber companion.\n\n### Layout\n- **Zucchini/Yellow squash**: 1-2 plants each (very productive!)\n- **Cucumbers**: Trellis or let sprawl\n- **Dill**: Corners - attracts beneficial insects\n\n### Cautions\n- ⚠️ Harvest every 1-2 days or they get huge\n- Vines **will** escape into paths\n- Watch for: squash vine borers, cucumber beetles, powdery mildew\n- **Drip irrigation only** - overhead water causes mildew",
       "type": "vegetable",
-      "position": { "x": 28, "y": 4 },
-      "dimensions": { "width": 8, "length": 14, "height": 18 },
+      "position": { "x": 22, "y": 5 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
       "material": "galvanized_metal",
-      "crops": [
-        "lettuce_leaf", "lettuce_romaine", "lettuce_butterhead", "arugula",
-        "kale_curly", "collard_greens", "bok_choy", "mustard_greens",
-        "bush_bean", "snap_pea", "edamame"
-      ]
+      "crops": ["zucchini", "yellow_squash", "cucumber_slicing", "cucumber_pickling", "dill"],
+      "notes": "Harvest frequently. Vines will sprawl into paths."
     },
     {
       "id": "bed-04",
-      "name": "Roots & Alliums",
-      "description": "Alliums (onion family) **naturally deter carrot fly** and other root pests with their strong scent. Root crops share similar needs: deep, loose, rock-free soil. Cilantro bolts to coriander seed which benefits this bed.\n\n### Layout\n- **Garlic**: Plant in fall, overwinters, harvest early summer\n- **Onions**: From sets in early spring\n- **Center**: Carrots and parsnips (need deepest soil)\n- **Edges**: Beets and turnips\n- **Succession plant**: Cilantro every few weeks (bolts quickly)\n\n### Cautions\n- Soil **must** be loose and rock-free for straight roots\n- Thin carrots ruthlessly - they need space\n- Garlic needs cold period - plant before first frost\n- ⚠️ **Keep AWAY from legumes** - alliums inhibit their growth\n- Watch for: onion maggots",
+      "name": "Winter Squash & Melons",
+      "description": "Long-season crops that sprawl heavily. Plant and let them take over.\n\n### Layout\n- **Butternut/Spaghetti squash**: One plant each\n- **Watermelon**: 1-2 plants (needs lots of space)\n- **Tomatillo**: Corner - technically nightshade but sprawls like cucurbit\n\n### Cautions\n- ⚠️ Heavy sprawl - vines will go 10+ feet\n- Long season (90-120 days) - plant early\n- Hand-pollinate if bee activity is low\n- Harvest when stem dries and skin hardens",
       "type": "vegetable",
-      "position": { "x": 4, "y": 22 },
-      "dimensions": { "width": 8, "length": 14, "height": 18 },
+      "position": { "x": 30, "y": 5 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
       "material": "galvanized_metal",
-      "crops": [
-        "carrot", "beet", "turnip", "parsnip",
-        "garlic_hardneck", "onion_yellow", "scallion", "shallot",
-        "cilantro"
-      ]
+      "crops": ["butternut_squash", "spaghetti_squash", "watermelon", "tomatillo"],
+      "notes": "Long season crops. Heavy sprawl - needs space."
     },
     {
       "id": "bed-05",
-      "name": "Brassicas & Potatoes",
-      "description": "Potatoes and brassicas are **compatible companions** - potatoes don't compete with brassicas and both prefer cool weather. Chamomile improves brassica growth and flavor.\n\n### Layout\n- **Half the bed**: Potatoes (they spread underground)\n  - Plant in trenches, hill soil as they grow\n- **Other half**: Brassicas with 18-24\" spacing\n- **Interplanted**: Chamomile between brassicas\n- Stevia tucked in corners\n\n### Cautions\n- Potatoes need **hilling 2-3 times** as they grow\n- Watch for: Colorado potato beetles, cabbage worms, aphids\n- Both are heavy feeders - amend well\n- ⚠️ **Don't plant potatoes where tomatoes/peppers grew** (same disease family)\n- Harvest potatoes after vines die back completely",
+      "name": "Salad Greens",
+      "description": "Cool-season crops for continuous harvest. Succession plant for steady supply.\n\n### Layout\n- **Lettuce varieties**: Rows across bed\n- **Arugula**: Fast-growing, plant every 2 weeks\n- **Spinach**: Spring and fall (bolts in heat)\n\n### Cautions\n- ⚠️ **Bolt in heat** - provide afternoon shade in summer\n- Succession plant every 2-3 weeks\n- Cut-and-come-again harvest extends production\n- Watch for: aphids, slugs",
       "type": "vegetable",
-      "position": { "x": 16, "y": 22 },
-      "dimensions": { "width": 8, "length": 14, "height": 18 },
+      "position": { "x": 6, "y": 16 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
       "material": "galvanized_metal",
-      "crops": [
-        "cauliflower", "cabbage", "broccoli_raab",
-        "potato",
-        "chamomile", "stevia"
-      ]
+      "crops": ["lettuce_leaf", "lettuce_romaine", "lettuce_butterhead", "arugula", "spinach"],
+      "notes": "Succession plant every 2-3 weeks. Bolt in heat."
     },
     {
       "id": "bed-06",
-      "name": "Perennials",
-      "description": "All **perennials that return yearly** - grouped together so annual bed prep doesn't disturb them. Mediterranean herbs share similar preferences: **full sun, good drainage, low water**.\n\n### Layout\n- **One end**: Asparagus (spreads via roots, needs dedicated space)\n- **Corner**: Rhubarb (large plant, toxic leaves - away from paths)\n- **Contained area**: Horseradish (use buried barrier!)\n- **Acidic pocket**: Blueberries (need separate soil amendment)\n- **Fence trellis**: Grapes\n- **Clustered**: All Mediterranean herbs together\n\n### Cautions\n- ⚠️ **DO NOT disturb** this bed with annual tilling\n- Asparagus: 2-3 years to establish, then produces 15+ years\n- ⚠️ **Horseradish WILL take over** - use bottomless bucket or root barrier\n- Blueberries need **pH 4.5-5.5** - test soil and amend with sulfur\n- Prune grapes in late winter when dormant",
-      "type": "perennial",
-      "position": { "x": 28, "y": 22 },
-      "dimensions": { "width": 8, "length": 14, "height": 18 },
+      "name": "Cooking Greens",
+      "description": "Hardy greens that produce all season. More heat-tolerant than salad greens.\n\n### Layout\n- **Kale**: Center (gets large)\n- **Collards**: 1-2 plants (very large)\n- **Bok choy/Mustard**: Edges, faster crops\n- **Swiss chard**: Colorful, harvest outer leaves\n\n### Cautions\n- Kale and collards can stay through light frost\n- Watch for: cabbage worms, aphids\n- Harvest outer leaves to extend production\n- Bok choy bolts faster - plant for spring/fall",
+      "type": "vegetable",
+      "position": { "x": 14, "y": 16 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
       "material": "galvanized_metal",
-      "crops": [
-        "asparagus", "rhubarb", "horseradish",
-        "oregano", "thyme", "rosemary", "sage", "tarragon", "lavender",
-        "blueberry", "grape"
-      ]
+      "crops": ["kale_curly", "collard_greens", "bok_choy", "mustard_greens", "swiss_chard"],
+      "notes": "Hardy - can stay all season. Watch for cabbage worms."
+    },
+    {
+      "id": "bed-07",
+      "name": "Legumes",
+      "description": "Nitrogen-fixing crops that improve soil fertility. Great for rotation.\n\n### Layout\n- **Snap peas**: North end with trellis (4-5ft)\n- **Bush beans**: Center rows, no support needed\n- **Edamame**: South end, bushy plants\n\n### Cautions\n- ⚠️ **Keep AWAY from alliums** (bed-09) - they're antagonists\n- Peas need trellis or support\n- Beans are frost-sensitive - plant after last frost\n- Inoculate seeds with rhizobium for best nitrogen fixation",
+      "type": "vegetable",
+      "position": { "x": 22, "y": 16 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
+      "material": "galvanized_metal",
+      "crops": ["bush_bean", "snap_pea", "edamame"],
+      "notes": "Fix nitrogen in soil. Keep away from alliums. Peas need trellis."
+    },
+    {
+      "id": "bed-08",
+      "name": "Root Vegetables",
+      "description": "Underground crops that need deep, loose, rock-free soil. The hugelkultur base helps!\n\n### Layout\n- **Carrots**: Center (need deepest soil)\n- **Parsnips**: Next to carrots (similar needs, longer season)\n- **Beets/Turnips**: Edges (shallower roots)\n- **Radishes**: Interplant as quick crop\n\n### Cautions\n- Soil **must** be loose and rock-free for straight roots\n- Thin ruthlessly - crowded roots fork\n- Radishes ready in 25-30 days\n- Parsnips need full season (100+ days)",
+      "type": "vegetable",
+      "position": { "x": 30, "y": 16 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
+      "material": "galvanized_metal",
+      "crops": ["carrot", "beet", "turnip", "parsnip", "radish"],
+      "notes": "Soil must be loose and rock-free. Thin ruthlessly."
+    },
+    {
+      "id": "bed-09",
+      "name": "Alliums",
+      "description": "Onion family crops with strong scent that deters many pests. Plant garlic in fall!\n\n### Layout\n- **Garlic**: Plant October-November, harvest July\n- **Onions**: From sets in early spring\n- **Scallions/Shallots**: Interplant as needed\n- **Leeks**: Long season, start early\n\n### Cautions\n- ⚠️ **Keep AWAY from legumes** (bed-07) - alliums inhibit their growth\n- Garlic needs cold period - plant before first frost\n- Onions need consistent moisture for bulb development\n- Watch for: onion maggots",
+      "type": "vegetable",
+      "position": { "x": 6, "y": 27 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
+      "material": "galvanized_metal",
+      "crops": ["garlic_hardneck", "onion_yellow", "scallion", "shallot", "leek"],
+      "notes": "Plant garlic in fall. Keep AWAY from legumes."
+    },
+    {
+      "id": "bed-10",
+      "name": "Brassicas",
+      "description": "Cole crops that prefer cool weather. Plant for spring and fall harvests.\n\n### Layout\n- **Broccoli**: 18-24\" spacing\n- **Cauliflower**: 24\" spacing (needs room)\n- **Cabbage**: 18\" spacing\n- **Brussels sprouts**: 24\" (tall plants)\n\n### Cautions\n- Heavy feeders - amend soil well\n- ⚠️ Watch for: cabbage worms, aphids, cabbage loopers\n- Use row cover to prevent pest damage\n- Brussels sprouts need longest season - plant early",
+      "type": "vegetable",
+      "position": { "x": 14, "y": 27 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
+      "material": "galvanized_metal",
+      "crops": ["broccoli", "cauliflower", "cabbage", "brussels_sprouts"],
+      "notes": "Heavy feeders. Watch for cabbage worms and aphids."
+    },
+    {
+      "id": "bed-11",
+      "name": "Potatoes & Herbs",
+      "description": "Potatoes with herb companions. Chamomile improves potato flavor and health.\n\n### Layout\n- **Potatoes**: Most of bed, planted in trenches\n- **Cilantro**: Edges (succession plant - bolts quickly)\n- **Chamomile**: Corners (beneficial companion)\n- **Stevia**: Corner (perennial in warmer zones)\n\n### Cautions\n- Hill potatoes 2-3 times as they grow\n- ⚠️ **Don't plant where tomatoes/peppers grew** (same disease family)\n- Harvest potatoes after vines die back completely\n- Cilantro bolts fast - plant every 3 weeks",
+      "type": "vegetable",
+      "position": { "x": 22, "y": 27 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
+      "material": "galvanized_metal",
+      "crops": ["potato", "cilantro", "chamomile", "stevia"],
+      "notes": "Hill potatoes 2-3 times as they grow. Don't plant where nightshades grew."
+    },
+    {
+      "id": "bed-12",
+      "name": "Perennials",
+      "description": "Permanent plantings that return yearly. **Do not disturb with annual tilling.**\n\n### Layout\n- **Asparagus**: One end (spreads via roots, needs dedicated space)\n- **Rhubarb**: Corner (large plant, toxic leaves)\n- **Herbs**: Clustered together (oregano, thyme, rosemary, sage, lavender)\n\n### Cautions\n- ⚠️ **DO NOT disturb** this bed with annual tilling\n- Asparagus: 2-3 years to establish, then produces 15+ years\n- Mediterranean herbs prefer **full sun, good drainage, low water**\n- Rosemary may not survive Zone 6b winters - mulch heavily or pot up",
+      "type": "perennial",
+      "position": { "x": 30, "y": 27 },
+      "dimensions": { "width": 4, "length": 8, "height": 17 },
+      "material": "galvanized_metal",
+      "crops": ["asparagus", "rhubarb", "oregano", "thyme", "rosemary", "sage", "lavender"],
+      "notes": "DO NOT disturb annually. Asparagus takes 2-3 years to establish."
     }
   ],
 
   "paths": {
     "main_width_ft": 4,
-    "secondary_width_ft": 4,
+    "secondary_width_ft": 3,
     "material": "wood_chips"
   },
 
@@ -132,8 +225,8 @@
       "id": "path-col-1-2",
       "name": "Path between columns 1 & 2",
       "points": [
-        { "x": 14, "y": 4 },
-        { "x": 14, "y": 36 }
+        { "x": 12, "y": 0 },
+        { "x": 12, "y": 40 }
       ],
       "width_ft": 4,
       "material": "wood_chips"
@@ -142,8 +235,18 @@
       "id": "path-col-2-3",
       "name": "Path between columns 2 & 3",
       "points": [
-        { "x": 26, "y": 4 },
-        { "x": 26, "y": 36 }
+        { "x": 20, "y": 0 },
+        { "x": 20, "y": 40 }
+      ],
+      "width_ft": 4,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-col-3-4",
+      "name": "Path between columns 3 & 4",
+      "points": [
+        { "x": 28, "y": 0 },
+        { "x": 28, "y": 40 }
       ],
       "width_ft": 4,
       "material": "wood_chips"
@@ -152,50 +255,20 @@
       "id": "path-row-1-2",
       "name": "Path between rows 1 & 2",
       "points": [
-        { "x": 4, "y": 20 },
-        { "x": 36, "y": 20 }
+        { "x": 0, "y": 14.5 },
+        { "x": 40, "y": 14.5 }
       ],
-      "width_ft": 4,
+      "width_ft": 3,
       "material": "wood_chips"
     },
     {
-      "id": "path-perimeter-top",
-      "name": "Top perimeter path",
+      "id": "path-row-2-3",
+      "name": "Path between rows 2 & 3",
       "points": [
-        { "x": 2, "y": 2 },
-        { "x": 38, "y": 2 }
+        { "x": 0, "y": 25.5 },
+        { "x": 40, "y": 25.5 }
       ],
-      "width_ft": 4,
-      "material": "wood_chips"
-    },
-    {
-      "id": "path-perimeter-bottom",
-      "name": "Bottom perimeter path",
-      "points": [
-        { "x": 2, "y": 38 },
-        { "x": 38, "y": 38 }
-      ],
-      "width_ft": 4,
-      "material": "wood_chips"
-    },
-    {
-      "id": "path-perimeter-left",
-      "name": "Left perimeter path",
-      "points": [
-        { "x": 2, "y": 2 },
-        { "x": 2, "y": 38 }
-      ],
-      "width_ft": 4,
-      "material": "wood_chips"
-    },
-    {
-      "id": "path-perimeter-right",
-      "name": "Right perimeter path",
-      "points": [
-        { "x": 38, "y": 2 },
-        { "x": 38, "y": 38 }
-      ],
-      "width_ft": 4,
+      "width_ft": 3,
       "material": "wood_chips"
     }
   ],
@@ -222,25 +295,18 @@
         "scale_range": { "min": 0.6, "max": 1.2 }
       },
       {
-        "type": "cosmos",
-        "color": "#dda0dd",
-        "count": 12,
-        "avoid_beds": true,
-        "scale_range": { "min": 0.5, "max": 1.0 }
-      },
-      {
-        "type": "sunflower",
-        "color": "#ffd700",
-        "count": 8,
-        "avoid_beds": true,
-        "scale_range": { "min": 1.0, "max": 1.8 }
-      },
-      {
         "type": "marigold",
         "color": "#ffa500",
         "count": 20,
         "avoid_beds": true,
         "scale_range": { "min": 0.4, "max": 0.8 }
+      },
+      {
+        "type": "sunflower",
+        "color": "#ffd700",
+        "count": 6,
+        "avoid_beds": true,
+        "scale_range": { "min": 1.0, "max": 1.8 }
       }
     ]
   },
@@ -256,18 +322,20 @@
         {
           "position": "north",
           "offset_ft": 20,
-          "width_ft": 8
+          "width_ft": 4
         }
       ]
     },
     "rodent": {
       "type": "hardware_cloth",
       "mesh_size_inches": 0.25,
-      "installation": "bottom_and_buried_sides"
+      "installation": "bottom_only"
     },
     "bird": {
-      "type": "netting_with_frame",
-      "areas": ["bed-06"]
+      "type": "netting_full_garden",
+      "mesh_color": "#1a1a1a",
+      "sag_factor": 0.10,
+      "peak_height_ft": 10
     }
   },
 
@@ -281,19 +349,19 @@
 
   "budget": {
     "materials": {
-      "beds": 1500,
+      "beds": 2400,
       "fence": 1250,
-      "hardware_cloth": 1200,
-      "soil_compost": 600,
+      "hardware_cloth": 500,
+      "soil_compost": 800,
       "irrigation": 250,
       "bird_netting": 150
     },
     "labor": {
-      "estimated_hours": 50,
-      "rate_per_hour": 65,
-      "total": 3250
+      "estimated_hours": 46,
+      "rate_per_hour": 50,
+      "total": 2300
     },
-    "total": 8200
+    "total": 7650
   },
 
   "timeline": {

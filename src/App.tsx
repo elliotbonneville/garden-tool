@@ -13,12 +13,13 @@ export function App() {
   const [rightPaneVisible, setRightPaneVisible] = useState(true);
   const [selectedLayout, setSelectedLayout] = useState<string>(availableLayouts[0]?.slug || "");
   const [gardenInfo, setGardenInfo] = useState<GardenInfo | null>(null);
+  const [sunTime, setSunTime] = useState(12); // Noon default
 
   const handleBedSelect = (bed: LayoutBed | null) => {
     setSelectedBed(bed);
-    // Auto-show right pane when a bed is selected
-    if (bed && !rightPaneVisible) {
-      setRightPaneVisible(true);
+    // Auto-show left pane when a bed is selected
+    if (bed && !leftPaneVisible) {
+      setLeftPaneVisible(true);
     }
   };
 
@@ -31,10 +32,11 @@ export function App() {
     <BrowserRouter>
       <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
         <Allotment>
+          {/* Details pane (left) */}
           <Allotment.Pane
-            minSize={leftPaneVisible ? 300 : 0}
-            maxSize={leftPaneVisible ? 600 : 0}
-            preferredSize={leftPaneVisible ? 450 : 0}
+            minSize={leftPaneVisible ? 250 : 0}
+            maxSize={leftPaneVisible ? 400 : 0}
+            preferredSize={leftPaneVisible ? 300 : 0}
             visible={leftPaneVisible}
           >
             <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -48,7 +50,7 @@ export function App() {
                 borderBottom: "1px solid #e5e7eb",
                 flexShrink: 0,
               }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>Research</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>Details</span>
                 <button
                   onClick={() => setLeftPaneVisible(false)}
                   style={{
@@ -64,19 +66,27 @@ export function App() {
                     fontSize: 12,
                     color: "#6b7280",
                   }}
-                  title="Hide research panel"
+                  title="Hide panel"
                 >
                   ←
                 </button>
               </div>
               <div style={{ flex: 1, overflow: "hidden" }}>
-                <Routes>
-                  <Route path="/" element={<ResearchPanel />} />
-                  <Route path="/research/*" element={<ResearchPanel />} />
-                </Routes>
+                <BedDetailsPanel
+                  bed={selectedBed}
+                  onClose={() => setSelectedBed(null)}
+                  gardenInfo={gardenInfo}
+                  layouts={availableLayouts}
+                  selectedLayout={selectedLayout}
+                  onLayoutChange={handleLayoutChange}
+                  sunTime={sunTime}
+                  onSunTimeChange={setSunTime}
+                />
               </div>
             </div>
           </Allotment.Pane>
+
+          {/* Garden view (center) */}
           <Allotment.Pane minSize={400}>
             <GardenView
               onBedSelect={handleBedSelect}
@@ -84,12 +94,15 @@ export function App() {
               selectedLayout={selectedLayout}
               onLayoutChange={handleLayoutChange}
               onGardenInfoChange={setGardenInfo}
+              sunTime={sunTime}
             />
           </Allotment.Pane>
+
+          {/* Research pane (right) */}
           <Allotment.Pane
-            minSize={rightPaneVisible ? 250 : 0}
-            maxSize={rightPaneVisible ? 400 : 0}
-            preferredSize={rightPaneVisible ? 300 : 0}
+            minSize={rightPaneVisible ? 300 : 0}
+            maxSize={rightPaneVisible ? 600 : 0}
+            preferredSize={rightPaneVisible ? 450 : 0}
             visible={rightPaneVisible}
           >
             <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -103,7 +116,7 @@ export function App() {
                 borderBottom: "1px solid #e5e7eb",
                 flexShrink: 0,
               }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>Details</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>Research</span>
                 <button
                   onClick={() => setRightPaneVisible(false)}
                   style={{
@@ -119,26 +132,22 @@ export function App() {
                     fontSize: 12,
                     color: "#6b7280",
                   }}
-                  title="Hide panel"
+                  title="Hide research panel"
                 >
                   →
                 </button>
               </div>
               <div style={{ flex: 1, overflow: "hidden" }}>
-                <BedDetailsPanel
-                  bed={selectedBed}
-                  onClose={() => setSelectedBed(null)}
-                  gardenInfo={gardenInfo}
-                  layouts={availableLayouts}
-                  selectedLayout={selectedLayout}
-                  onLayoutChange={handleLayoutChange}
-                />
+                <Routes>
+                  <Route path="/" element={<ResearchPanel />} />
+                  <Route path="/research/*" element={<ResearchPanel />} />
+                </Routes>
               </div>
             </div>
           </Allotment.Pane>
         </Allotment>
 
-        {/* Show button when left pane is hidden */}
+        {/* Show button when left pane (Details) is hidden */}
         {!leftPaneVisible && (
           <button
             onClick={() => setLeftPaneVisible(true)}
@@ -160,13 +169,13 @@ export function App() {
               color: "#374151",
               fontFamily: "system-ui, sans-serif",
             }}
-            title="Show research panel"
+            title="Show details panel"
           >
-            Research →
+            Details →
           </button>
         )}
 
-        {/* Show button when right pane is hidden */}
+        {/* Show button when right pane (Research) is hidden */}
         {!rightPaneVisible && (
           <button
             onClick={() => setRightPaneVisible(true)}
@@ -188,9 +197,9 @@ export function App() {
               color: "#374151",
               fontFamily: "system-ui, sans-serif",
             }}
-            title="Show bed details"
+            title="Show research panel"
           >
-            ← Bed Details
+            ← Research
           </button>
         )}
       </div>
