@@ -38,6 +38,7 @@ export function GardenView() {
     setSelectedBed,
     setLayoutData,
     sunTime,
+    setLeftPaneVisible,
   } = useGardenStore();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -384,10 +385,21 @@ export function GardenView() {
       isDragging = true;
       previousMousePosition = { x: e.clientX, y: e.clientY };
       mouseDownPosition = { x: e.clientX, y: e.clientY };
+      container.style.cursor = "grabbing";
     };
 
     const onMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !renderer) return;
+      if (!renderer) return;
+
+      // Handle hover detection (when not dragging)
+      if (!isDragging) {
+        const bedId = renderer.getBedAtPoint(e.clientX, e.clientY);
+        renderer.setHoveredBed(bedId);
+        // Update cursor style
+        container.style.cursor = bedId ? "pointer" : "grab";
+        return;
+      }
+
       const camera = renderer.getCamera();
       const deltaX = e.clientX - previousMousePosition.x;
       const deltaY = e.clientY - previousMousePosition.y;
@@ -432,14 +444,41 @@ export function GardenView() {
         if (bedId) {
           const bed = layoutRef.current.beds.find(b => b.id === bedId);
           setSelectedBed(bed || null);
+          // Open the left drawer to show bed details
+          if (bed) {
+            setLeftPaneVisible(true);
+          }
         } else {
           setSelectedBed(null);
         }
       }
 
       isDragging = false;
+      // Restore appropriate cursor after drag ends
+      if (renderer) {
+        const bedId = renderer.getBedAtPoint(e.clientX, e.clientY);
+        container.style.cursor = bedId ? "pointer" : "grab";
+      }
     };
-    const onMouseLeave = () => { isDragging = false; };
+
+    const onMouseLeave = () => {
+      isDragging = false;
+      container.style.cursor = "grab";
+      // Clear hover state when mouse leaves
+      if (renderer) {
+        renderer.setHoveredBed(null);
+      }
+    };
+
+    // Stop click propagation when clicking on a bed (prevents App.tsx from closing drawers)
+    const onClick = (e: MouseEvent) => {
+      if (renderer) {
+        const bedId = renderer.getBedAtPoint(e.clientX, e.clientY);
+        if (bedId) {
+          e.stopPropagation();
+        }
+      }
+    };
 
     const onWheel = (e: WheelEvent) => {
       if (!renderer) return;
@@ -464,6 +503,7 @@ export function GardenView() {
       renderer.renderGarden(garden);
       renderer.setSunTime(sunTime);
       rendererRef.current = renderer;
+      container.style.cursor = "grab";
     };
 
     initRenderer();
@@ -472,6 +512,7 @@ export function GardenView() {
     container.addEventListener("mousemove", onMouseMove);
     container.addEventListener("mouseup", onMouseUp);
     container.addEventListener("mouseleave", onMouseLeave);
+    container.addEventListener("click", onClick);
     container.addEventListener("wheel", onWheel, { passive: false });
 
     return () => {
@@ -479,6 +520,7 @@ export function GardenView() {
       container.removeEventListener("mousemove", onMouseMove);
       container.removeEventListener("mouseup", onMouseUp);
       container.removeEventListener("mouseleave", onMouseLeave);
+      container.removeEventListener("click", onClick);
       container.removeEventListener("wheel", onWheel);
       if (renderer) {
         renderer.dispose();

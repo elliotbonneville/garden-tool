@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useGardenStore } from "../store/gardenStore";
@@ -32,6 +32,7 @@ export function BedDetailsPanel() {
     layoutData,
     detailsTab,
     setDetailsTab,
+    setRightPaneVisible,
   } = useGardenStore();
 
   // No layout loaded
@@ -313,9 +314,12 @@ export function BedDetailsPanel() {
           <Section title={`Crops (${bed.crops.length})`}>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
               {bed.crops.map((crop, i) => (
-                <Link
+                <button
                   key={i}
-                  to={`/research/plants/${cropToSlug(crop)}`}
+                  onClick={() => {
+                    navigate(`/research/plants/${cropToSlug(crop)}`);
+                    setRightPaneVisible(true);
+                  }}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -328,6 +332,10 @@ export function BedDetailsPanel() {
                     fontWeight: "var(--weight-medium)",
                     textDecoration: "none",
                     color: "var(--text-primary)",
+                    cursor: "pointer",
+                    width: "100%",
+                    textAlign: "left",
+                    fontFamily: "var(--font-body)",
                     transition: "all var(--transition-fast)",
                   }}
                   onMouseEnter={(e) => {
@@ -341,7 +349,7 @@ export function BedDetailsPanel() {
                 >
                   <span>{formatCropName(crop)}</span>
                   <span style={{ color: "var(--accent-secondary)", fontSize: "var(--text-sm)" }}>→</span>
-                </Link>
+                </button>
               ))}
             </div>
           </Section>

@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "mcp__plugin_playwright_playwright__browser_click",
-      "mcp__plugin_playwright_playwright__browser_take_screenshot"
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "Bash(/Applications/Blender.app/Contents/MacOS/Blender --background --python-expr \"\nimport bpy\n\n# Clear default scene\nbpy.ops.wm.read_factory_settings\\(use_empty=True\\)\n\n# Import the holding walk animation FBX\nbpy.ops.import_scene.fbx\\(filepath=''/Users/elliot/Downloads/Farming Pack/holding walk.fbx''\\)\n\n# Export as GLB with animation\nbpy.ops.export_scene.gltf\\(\n    filepath=''/Users/elliot/dev/tools/garden-tool/public/models/anim-walk.glb'',\n    export_format=''GLB'',\n    export_animations=True\n\\)\nprint\\(''Walk animation exported!''\\)\n\")",
+      "Bash(npm install:*)",
+      "Bash(/Applications/Blender.app/Contents/MacOS/Blender:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

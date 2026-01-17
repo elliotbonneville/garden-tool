@@ -59,7 +59,11 @@ plantDocs.sort((a, b) => a.title.localeCompare(b.title));
 // Build slug lookup for internal link detection
 const slugSet = new Set([...researchDocs.map(d => d.slug), ...plantDocs.map(d => d.slug)]);
 
-export function ResearchPanel() {
+interface ResearchPanelProps {
+  onClose?: () => void;
+}
+
+export function ResearchPanel({ onClose }: ResearchPanelProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -130,14 +134,14 @@ export function ResearchPanel() {
       background: "var(--bg-primary)",
       fontFamily: "var(--font-body)",
     }}>
-      {/* Navigation bar */}
+      {/* Header bar */}
       <div style={{
         display: "flex",
         alignItems: "center",
         gap: "var(--space-3)",
-        padding: "var(--space-3) var(--space-4)",
+        padding: "var(--space-4) var(--space-5)",
         borderBottom: "1px solid var(--bg-tertiary)",
-        background: "var(--bg-secondary)",
+        flexShrink: 0,
       }}>
         {/* Back button */}
         <button
@@ -152,7 +156,7 @@ export function ResearchPanel() {
             height: 32,
             border: "1px solid var(--bg-tertiary)",
             borderRadius: "var(--border-radius-sm)",
-            background: history.length === 0 ? "var(--bg-secondary)" : "var(--bg-elevated)",
+            background: "transparent",
             color: history.length === 0 ? "var(--text-tertiary)" : "var(--text-secondary)",
             cursor: history.length === 0 ? "not-allowed" : "pointer",
             fontSize: "var(--text-base)",
@@ -162,22 +166,8 @@ export function ResearchPanel() {
           ←
         </button>
 
-        {/* Current page title */}
-        <div style={{
-          flex: 1,
-          fontFamily: "var(--font-display)",
-          fontSize: "var(--text-base)",
-          fontWeight: "var(--weight-semibold)",
-          color: "var(--text-primary)",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}>
-          {currentDoc?.title || "Document"}
-        </div>
-
-        {/* Menu dropdown */}
-        <div ref={menuRef} style={{ position: "relative" }}>
+        {/* Title as dropdown trigger */}
+        <div ref={menuRef} style={{ position: "relative", flex: 1 }}>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
@@ -186,20 +176,25 @@ export function ResearchPanel() {
               display: "flex",
               alignItems: "center",
               gap: "var(--space-2)",
-              padding: "var(--space-2) var(--space-3)",
-              border: "1px solid var(--bg-tertiary)",
-              borderRadius: "var(--border-radius)",
-              background: menuOpen ? "var(--bg-tertiary)" : "var(--bg-elevated)",
-              color: "var(--text-secondary)",
+              background: "transparent",
+              border: "none",
+              padding: 0,
               cursor: "pointer",
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-medium)",
-              fontFamily: "var(--font-body)",
+              fontFamily: "var(--font-display)",
+              fontSize: "var(--text-lg)",
+              fontWeight: "var(--weight-semibold)",
+              color: "var(--text-primary)",
               transition: "all var(--transition-fast)",
             }}
           >
-            Jump to
-            <span style={{ fontSize: "var(--text-xs)" }}>{menuOpen ? "▲" : "▼"}</span>
+            {currentDoc?.title || "Document"}
+            <span style={{
+              fontSize: "var(--text-xs)",
+              color: "var(--text-tertiary)",
+              marginLeft: "var(--space-1)",
+            }}>
+              {menuOpen ? "▲" : "▼"}
+            </span>
           </button>
 
           {menuOpen && (
@@ -208,8 +203,8 @@ export function ResearchPanel() {
               style={{
                 position: "absolute",
                 top: "100%",
-                right: 0,
-                marginTop: "var(--space-1)",
+                left: 0,
+                marginTop: "var(--space-2)",
                 background: "var(--bg-elevated)",
                 border: "1px solid var(--bg-tertiary)",
                 borderRadius: "var(--border-radius)",
@@ -316,6 +311,39 @@ export function ResearchPanel() {
             </div>
           )}
         </div>
+
+        {/* Close button */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            aria-label="Close drawer"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 32,
+              height: 32,
+              background: "transparent",
+              border: "1px solid var(--bg-tertiary)",
+              borderRadius: "var(--border-radius-sm)",
+              color: "var(--text-tertiary)",
+              cursor: "pointer",
+              transition: "all var(--transition-fast)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--bg-tertiary)";
+              e.currentTarget.style.color = "var(--text-primary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.color = "var(--text-tertiary)";
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M1 1l12 12M13 1L1 13" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Content area */}

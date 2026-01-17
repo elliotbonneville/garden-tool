@@ -1,30 +1,17 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Import design system (includes fonts, tokens, base styles) */
+@import './styles/design-system.css';
 
-html, body, #app {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-}
-
-/* Allotment sash styling */
+/* Allotment sash styling - keeping for transition period */
 .sash {
-  --focus-border: #0969da;
-  --separator-border: #d0d7de;
+  --focus-border: var(--accent-primary);
+  --separator-border: var(--accent-tertiary);
 }
 
 .sash-container > .sash {
-  background: #e1e4e8;
+  background: var(--bg-tertiary);
 }
 
 .sash-container > .sash:hover {
-  background: #0969da;
-  transition: background 0.1s ease;
+  background: var(--accent-primary);
+  transition: background var(--transition-fast);
 }

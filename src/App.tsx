@@ -1,20 +1,22 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
-import { Allotment } from "allotment";
-import "allotment/dist/style.css";
 import { GardenView, availableLayouts } from "./components/GardenView";
 import { ResearchPanel } from "./components/ResearchPanel";
 import { BedDetailsPanel } from "./components/BedDetailsPanel";
+import { TopBar } from "./components/layout/TopBar";
+import { Drawer } from "./components/layout/Drawer";
+import { AgentBar } from "./components/layout/AgentBar";
 import { useGardenStore } from "./store/gardenStore";
 
 export function App() {
   const {
     selectedLayout,
     setSelectedLayout,
-    leftPaneVisible,
-    rightPaneVisible,
-    setLeftPaneVisible,
-    setRightPaneVisible,
+    setSelectedBed,
+    leftPaneVisible: leftDrawerOpen,
+    rightPaneVisible: rightDrawerOpen,
+    setLeftPaneVisible: setLeftDrawerOpen,
+    setRightPaneVisible: setRightDrawerOpen,
   } = useGardenStore();
 
   // Initialize layout on mount
@@ -26,162 +28,74 @@ export function App() {
 
   return (
     <BrowserRouter>
-      <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
-        <Allotment proportionalLayout={false}>
-          {/* Details pane (left) */}
-          <Allotment.Pane
-            minSize={250}
-            maxSize={400}
-            preferredSize={300}
-            visible={leftPaneVisible}
-          >
-            <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-              {/* Header with collapse button */}
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "8px 12px",
-                background: "#f9fafb",
-                borderBottom: "1px solid #e5e7eb",
-                flexShrink: 0,
-              }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>Details</span>
-                <button
-                  onClick={() => setLeftPaneVisible(false)}
-                  style={{
-                    background: "#fff",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: 4,
-                    width: 24,
-                    height: 24,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 12,
-                    color: "#6b7280",
-                  }}
-                  title="Hide panel"
-                >
-                  ←
-                </button>
-              </div>
-              <div style={{ flex: 1, overflow: "hidden" }}>
-                <BedDetailsPanel />
-              </div>
-            </div>
-          </Allotment.Pane>
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          overflow: "hidden",
+          background: "var(--bg-canvas)",
+        }}
+      >
+        {/* Top bar */}
+        <TopBar
+          onToggleLeftDrawer={() => setLeftDrawerOpen(!leftDrawerOpen)}
+          onToggleRightDrawer={() => setRightDrawerOpen(!rightDrawerOpen)}
+          leftDrawerOpen={leftDrawerOpen}
+          rightDrawerOpen={rightDrawerOpen}
+        />
 
-          {/* Garden view (center) */}
-          <Allotment.Pane minSize={400}>
-            <GardenView />
-          </Allotment.Pane>
+        {/* Main canvas area */}
+        <main
+          onClick={() => {
+            if (leftDrawerOpen) {
+              setLeftDrawerOpen(false);
+              setSelectedBed(null);
+            }
+            if (rightDrawerOpen) {
+              setRightDrawerOpen(false);
+            }
+          }}
+          style={{
+            position: "fixed",
+            top: "var(--topbar-height)",
+            left: 0,
+            right: 0,
+            bottom: "var(--agentbar-height)",
+          }}
+        >
+          <GardenView />
+        </main>
 
-          {/* Research pane (right) */}
-          <Allotment.Pane
-            minSize={300}
-            maxSize={600}
-            preferredSize={450}
-            visible={rightPaneVisible}
-          >
-            <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-              {/* Header with collapse button */}
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "8px 12px",
-                background: "#f9fafb",
-                borderBottom: "1px solid #e5e7eb",
-                flexShrink: 0,
-              }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>Research</span>
-                <button
-                  onClick={() => setRightPaneVisible(false)}
-                  style={{
-                    background: "#fff",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: 4,
-                    width: 24,
-                    height: 24,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 12,
-                    color: "#6b7280",
-                  }}
-                  title="Hide research panel"
-                >
-                  →
-                </button>
-              </div>
-              <div style={{ flex: 1, overflow: "hidden" }}>
-                <Routes>
-                  <Route path="/" element={<ResearchPanel />} />
-                  <Route path="/research/*" element={<ResearchPanel />} />
-                </Routes>
-              </div>
-            </div>
-          </Allotment.Pane>
-        </Allotment>
+        {/* Left drawer - Bed details */}
+        <Drawer
+          isOpen={leftDrawerOpen}
+          onClose={() => {
+            setLeftDrawerOpen(false);
+            setSelectedBed(null);
+          }}
+          side="left"
+          width={380}
+          title="Garden Details"
+        >
+          <BedDetailsPanel />
+        </Drawer>
 
-        {/* Show button when left pane (Details) is hidden */}
-        {!leftPaneVisible && (
-          <button
-            onClick={() => setLeftPaneVisible(true)}
-            style={{
-              position: "fixed",
-              left: 16,
-              top: "50%",
-              transform: "translateY(-50%)",
-              background: "#fff",
-              border: "1px solid #e5e7eb",
-              borderRadius: "0 4px 4px 0",
-              padding: "12px 8px",
-              cursor: "pointer",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              zIndex: 100,
-              writingMode: "vertical-rl",
-              textOrientation: "mixed",
-              fontSize: 12,
-              color: "#374151",
-              fontFamily: "system-ui, sans-serif",
-            }}
-            title="Show details panel"
-          >
-            Details →
-          </button>
-        )}
+        {/* Right drawer - Research */}
+        <Drawer
+          isOpen={rightDrawerOpen}
+          onClose={() => setRightDrawerOpen(false)}
+          side="right"
+          width={480}
+          noHeader
+        >
+          <Routes>
+            <Route path="/" element={<ResearchPanel onClose={() => setRightDrawerOpen(false)} />} />
+            <Route path="/research/*" element={<ResearchPanel onClose={() => setRightDrawerOpen(false)} />} />
+          </Routes>
+        </Drawer>
 
-        {/* Show button when right pane (Research) is hidden */}
-        {!rightPaneVisible && (
-          <button
-            onClick={() => setRightPaneVisible(true)}
-            style={{
-              position: "fixed",
-              right: 16,
-              top: "50%",
-              transform: "translateY(-50%)",
-              background: "#fff",
-              border: "1px solid #e5e7eb",
-              borderRadius: "4px 0 0 4px",
-              padding: "12px 8px",
-              cursor: "pointer",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              zIndex: 100,
-              writingMode: "vertical-rl",
-              textOrientation: "mixed",
-              fontSize: 12,
-              color: "#374151",
-              fontFamily: "system-ui, sans-serif",
-            }}
-            title="Show research panel"
-          >
-            ← Research
-          </button>
-        )}
+        {/* Agent bar */}
+        <AgentBar />
       </div>
     </BrowserRouter>
   );

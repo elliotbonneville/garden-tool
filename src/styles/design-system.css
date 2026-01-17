@@ -1,0 +1,286 @@
+/* ============================================
+   Garden Plotter Design System
+   "Greenhouse Journal" Theme
+   ============================================ */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ----------------------------------------
+     Colors
+     ---------------------------------------- */
+
+  /* Backgrounds */
+  --bg-canvas: #1a2e1a;           /* Deep forest - 3D view background */
+  --bg-primary: #faf8f5;          /* Warm cream - main panel bg */
+  --bg-secondary: #f3f0eb;        /* Soft parchment - cards, inputs */
+  --bg-tertiary: #ebe7e0;         /* Aged paper - hover states */
+  --bg-elevated: #ffffff;         /* Pure white - floating elements */
+
+  /* Text */
+  --text-primary: #2d3a2d;        /* Dark forest - headings */
+  --text-secondary: #4a5a4a;      /* Muted green - body text */
+  --text-tertiary: #6b7a6b;       /* Soft sage - captions, hints */
+  --text-inverted: #faf8f5;       /* Cream - on dark backgrounds */
+
+  /* Accents */
+  --accent-primary: #4a7c59;      /* Garden green - primary actions */
+  --accent-primary-hover: #3d6849; /* Darker garden green */
+  --accent-secondary: #c17f59;    /* Terracotta - highlights, links */
+  --accent-secondary-hover: #a86b48;
+  --accent-tertiary: #a89a8a;     /* Warm taupe - borders, dividers */
+  --accent-warning: #c9a227;      /* Goldenrod - warnings, tips */
+  --accent-warning-bg: #fef9e7;
+  --accent-success: #5a8f5a;      /* Leaf green - success states */
+  --accent-error: #b54a4a;        /* Muted red */
+
+  /* Bed Type Colors */
+  --bed-vegetable: #4a7c59;       /* Garden green */
+  --bed-flower: #c17f8e;          /* Dusty rose */
+  --bed-perennial: #7b6fa0;       /* Lavender */
+  --bed-berry: #a05a5a;           /* Berry red */
+
+  /* ----------------------------------------
+     Typography
+     ---------------------------------------- */
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+  /* Font sizes */
+  --text-xs: 13px;
+  --text-sm: 15px;
+  --text-base: 17px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 28px;
+  --text-3xl: 34px;
+
+  /* Font weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Line heights */
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* ----------------------------------------
+     Spacing
+     ---------------------------------------- */
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ----------------------------------------
+     Layout
+     ---------------------------------------- */
+
+  --topbar-height: 56px;
+  --agentbar-height: 72px;
+  --drawer-width: 380px;
+  --drawer-width-wide: 480px;
+  --border-radius-sm: 4px;
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+
+  /* ----------------------------------------
+     Shadows
+     ---------------------------------------- */
+
+  --shadow-soft: 0 2px 8px rgba(45, 58, 45, 0.06);
+  --shadow-medium: 0 4px 16px rgba(45, 58, 45, 0.1);
+  --shadow-strong: 0 8px 32px rgba(45, 58, 45, 0.14);
+  --shadow-drawer: 4px 0 24px rgba(45, 58, 45, 0.15);
+
+  /* ----------------------------------------
+     Transitions
+     ---------------------------------------- */
+
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease-out;
+  --transition-drawer: 320ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-secondary);
+  background: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   Typography Utilities
+   ============================================ */
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6,
+.heading-1, .heading-2, .heading-3 {
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  line-height: var(--leading-tight);
+}
+
+h1, .heading-1 {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-semibold);
+}
+
+h2, .heading-2 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+}
+
+h3, .heading-3 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+/* ============================================
+   Focus States (Accessibility)
+   ============================================ */
+
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-tertiary) transparent;
+}
+
+/* ============================================
+   Selection
+   ============================================ */
+
+::selection {
+  background: rgba(74, 124, 89, 0.2);
+  color: var(--text-primary);
+}
+
+/* ============================================
+   Markdown Content Typography
+   ============================================ */
+
+.markdown-content ul {
+  list-style-type: "•  ";
+}
+
+.markdown-content ul ul {
+  list-style-type: "◦  ";
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+}
+
+.markdown-content > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-content > *:first-child {
+  margin-top: 0 !important;
+}
+
+/* Add spacing between consecutive paragraphs */
+.markdown-content p + p {
+  margin-top: 0.5em;
+}
+
+/* Tighten spacing when paragraph is followed by list */
+.markdown-content p + ul,
+.markdown-content p + ol {
+  margin-top: -0.25em;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

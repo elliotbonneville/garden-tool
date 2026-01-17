@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { Garden, GardenBed, Plant, Path, Fence, BirdNetting } from "../schemas/garden";
+import { FarmerCharacter } from "./FarmerCharacter";
 
 export const SCALE = 1; // 1 unit = 1 foot
 const TEXTURE_TILE_SIZE = 4; // Each texture tile covers 4ft x 4ft
@@ -41,13 +42,19 @@ export class GardenRenderer {
   private bedGroups: Map<string, THREE.Group> = new Map();
   private raycaster: THREE.Raycaster = new THREE.Raycaster();
   private selectedBedId: string | null = null;
+  private hoveredBedId: string | null = null;
   private originalMaterials: Map<THREE.Object3D, THREE.Material> = new Map();
+  private originalPositions: Map<string, number> = new Map(); // Store original Y positions for beds
+  private glowClock: THREE.Clock = new THREE.Clock(); // For animated glow effect
   private textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
   private textures: Map<string, THREE.Texture> = new Map();
   private needsRender = true;
   private animationFrameId: number | null = null;
   private sunLight: THREE.DirectionalLight | null = null;
   private gardenCenter: THREE.Vector3 = new THREE.Vector3();
+
+  // Farmer character
+  private farmer: FarmerCharacter | null = null;
 
   constructor(container: HTMLElement) {
     this.scene = new THREE.Scene();
@@ -218,11 +225,63 @@ export class GardenRenderer {
 
   private animate = (): void => {
     this.animationFrameId = requestAnimationFrame(this.animate);
+
+    // Update farmer animation and movement
+    if (this.farmer) {
+      this.farmer.update();
+      this.needsRender = true;
+    }
+
+    // Animate glow effect for hovered/selected beds
+    if (this.hoveredBedId || this.selectedBedId) {
+      this.updateGlowAnimation();
+      this.needsRender = true;
+    }
+
     if (this.needsRender) {
       this.renderer.render(this.scene, this.camera);
       this.needsRender = false;
     }
   };
+
+  // Update glow intensity with pulsing animation
+  private updateGlowAnimation(): void {
+    const time = this.glowClock.getElapsedTime();
+
+    // Pulse parameters
+    const pulseSpeed = 1; // Cycles per second
+    const pulseAmount = 0.3; // How much the glow varies (0-1)
+    const pulse = Math.sin(time * pulseSpeed * Math.PI * 2) * 0.5 + 0.5; // 0 to 1
+
+    // Update hovered bed glow
+    if (this.hoveredBedId && this.hoveredBedId !== this.selectedBedId) {
+      const group = this.bedGroups.get(this.hoveredBedId);
+      if (group) {
+        const baseIntensity = 0.4;
+        const intensity = baseIntensity + pulse * pulseAmount;
+        group.traverse((obj) => {
+          if (obj instanceof THREE.Mesh && obj.material instanceof THREE.MeshStandardMaterial) {
+            obj.material.emissiveIntensity = intensity;
+          }
+        });
+      }
+    }
+
+    // Update selected bed glow (slower, more subtle pulse)
+    if (this.selectedBedId) {
+      const group = this.bedGroups.get(this.selectedBedId);
+      if (group) {
+        const slowPulse = Math.sin(time * 0.5 * Math.PI * 2) * 0.5 + 0.5;
+        const baseIntensity = 0.5;
+        const intensity = baseIntensity + slowPulse * 0.2;
+        group.traverse((obj) => {
+          if (obj instanceof THREE.Mesh && obj.material instanceof THREE.MeshStandardMaterial) {
+            obj.material.emissiveIntensity = intensity;
+          }
+        });
+      }
+    }
+  }
 
   // Request a re-render on next frame
   requestRender(): void {
@@ -236,6 +295,10 @@ export class GardenRenderer {
     this.originalMaterials.clear();
     this.selectedBedId = null;
     this.pathIndex = 0;
+
+    // Clean up previous farmer
+    this.farmer?.dispose();
+    this.farmer = null;
 
     // Calculate garden center for camera positioning and sun tracking
     // Garden coordinates: (0,0) to (width, length)
@@ -290,6 +353,10 @@ export class GardenRenderer {
     for (const plant of garden.scatteredPlants) {
       this.renderScatteredPlant(plant);
     }
+
+    // Load the farmer character
+    this.farmer = new FarmerCharacter(this.scene);
+    this.farmer.load(garden);
 
     this.requestRender();
   }
@@ -1028,6 +1095,7 @@ export class GardenRenderer {
     // Add bed group to garden and track it
     this.gardenGroup.add(bedGroup);
     this.bedGroups.set(bed.id, bedGroup);
+    this.originalPositions.set(bed.id, bedGroup.position.y);
 
     for (const plant of bed.plants) {
       this.renderPlant(plant, bed);
@@ -1713,44 +1781,117 @@ export class GardenRenderer {
     return null;
   }
 
-  // Highlight selected bed
-  selectBed(bedId: string | null): void {
-    // Restore previous selection
-    if (this.selectedBedId) {
-      const prevGroup = this.bedGroups.get(this.selectedBedId);
-      if (prevGroup) {
-        prevGroup.traverse((obj) => {
-          if (obj instanceof THREE.Mesh) {
-            const originalMat = this.originalMaterials.get(obj);
-            if (originalMat) {
-              obj.material = originalMat;
-            }
+  // Apply visual effect to a bed (hover or selection)
+  private applyBedEffect(bedId: string, type: "hover" | "selected" | "none"): void {
+    const group = this.bedGroups.get(bedId);
+    if (!group) return;
+
+    const originalY = this.originalPositions.get(bedId) ?? 0;
+
+    // Visual parameters based on effect type
+    const effects = {
+      hover: {
+        lift: 0.2,            // Subtle lift
+        emissiveColor: 0xffcc66, // Warm golden glow
+        emissiveIntensity: 0.5,  // Strong glow effect
+      },
+      selected: {
+        lift: 0.35,           // More pronounced lift
+        emissiveColor: 0x81c784, // Natural green glow (matches garden theme)
+        emissiveIntensity: 0.6,  // Stronger glow for selection
+      },
+      none: {
+        lift: 0,
+        emissiveColor: 0x000000,
+        emissiveIntensity: 0,
+      },
+    };
+
+    const effect = effects[type];
+
+    // Apply lift animation
+    group.position.y = originalY + effect.lift;
+
+    // Apply material effect
+    group.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        // Store original material if not already stored
+        if (!this.originalMaterials.has(obj)) {
+          this.originalMaterials.set(obj, (obj.material as THREE.Material).clone());
+        }
+
+        if (type === "none") {
+          // Restore original material
+          const originalMat = this.originalMaterials.get(obj);
+          if (originalMat) {
+            obj.material = originalMat.clone();
           }
-        });
-      }
-    }
-
-    this.selectedBedId = bedId;
-
-    // Highlight new selection
-    if (bedId) {
-      const group = this.bedGroups.get(bedId);
-      if (group) {
-        group.traverse((obj) => {
-          if (obj instanceof THREE.Mesh) {
-            // Store original material if not already stored
-            if (!this.originalMaterials.has(obj)) {
-              this.originalMaterials.set(obj, obj.material as THREE.Material);
-            }
-            // Create highlighted material
-            const originalMat = obj.material as THREE.MeshStandardMaterial;
+        } else {
+          // Apply highlighted material
+          const originalMat = this.originalMaterials.get(obj) as THREE.MeshStandardMaterial;
+          if (originalMat) {
             const highlightMat = originalMat.clone();
-            highlightMat.emissive = new THREE.Color(0x4488ff);
-            highlightMat.emissiveIntensity = 0.3;
+            highlightMat.emissive = new THREE.Color(effect.emissiveColor);
+            highlightMat.emissiveIntensity = effect.emissiveIntensity;
             obj.material = highlightMat;
           }
-        });
+        }
       }
+    });
+  }
+
+  // Update bed visual state based on hover and selection
+  private updateBedVisuals(bedId: string): void {
+    const isSelected = this.selectedBedId === bedId;
+    const isHovered = this.hoveredBedId === bedId;
+
+    if (isSelected) {
+      this.applyBedEffect(bedId, "selected");
+    } else if (isHovered) {
+      this.applyBedEffect(bedId, "hover");
+    } else {
+      this.applyBedEffect(bedId, "none");
+    }
+  }
+
+  // Set hovered bed (called on mouse move)
+  setHoveredBed(bedId: string | null): void {
+    if (this.hoveredBedId === bedId) return; // No change
+
+    const previousHovered = this.hoveredBedId;
+    this.hoveredBedId = bedId;
+
+    // Update previous hovered bed
+    if (previousHovered) {
+      this.updateBedVisuals(previousHovered);
+    }
+
+    // Update new hovered bed
+    if (bedId) {
+      this.updateBedVisuals(bedId);
+    }
+
+    this.requestRender();
+  }
+
+  // Get currently hovered bed
+  getHoveredBedId(): string | null {
+    return this.hoveredBedId;
+  }
+
+  // Highlight selected bed
+  selectBed(bedId: string | null): void {
+    const previousSelected = this.selectedBedId;
+    this.selectedBedId = bedId;
+
+    // Update previous selected bed (might now be just hovered or nothing)
+    if (previousSelected) {
+      this.updateBedVisuals(previousSelected);
+    }
+
+    // Update new selected bed
+    if (bedId) {
+      this.updateBedVisuals(bedId);
     }
 
     this.requestRender();
@@ -1787,6 +1928,7 @@ export class GardenRenderer {
     // Clear maps
     this.bedMeshes.clear();
     this.bedGroups.clear();
+    this.originalPositions.clear();
 
     // Dispose renderer and remove canvas
     this.renderer.dispose();
