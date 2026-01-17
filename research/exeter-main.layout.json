@@ -1,0 +1,374 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "name": "Exeter Family Garden",
+    "location": {
+      "city": "Exeter",
+      "state": "RI",
+      "usda_zone": "6b"
+    },
+    "created_date": "2025-01-17",
+    "families": 2,
+    "people": {
+      "adults": 4,
+      "children": 3
+    }
+  },
+
+  "site": {
+    "dimensions": {
+      "width": 40,
+      "length": 40
+    },
+    "total_sqft": 1600,
+    "sun_hours": 8.5,
+    "soil_type": "heavy_clay",
+    "terrain": "flat"
+  },
+
+  "growing_method": {
+    "type": "back_to_eden",
+    "mulch_type": "wood_chips",
+    "base_layers": ["logs", "branches", "leaves", "mushroom_compost", "wood_chips"]
+  },
+
+  "beds": [
+    {
+      "id": "bed-01",
+      "name": "Tomatoes",
+      "type": "vegetable",
+      "position": { "x": 2, "y": 2 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["tomato_cherry", "tomato_slicing", "tomato_paste"],
+      "notes": "8-10 plants, caged"
+    },
+    {
+      "id": "bed-02",
+      "name": "Peppers & Eggplant",
+      "type": "vegetable",
+      "position": { "x": 8, "y": 2 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["bell_pepper", "hot_pepper", "eggplant"],
+      "notes": "Similar growing requirements"
+    },
+    {
+      "id": "bed-03",
+      "name": "Summer Squash",
+      "type": "vegetable",
+      "position": { "x": 14, "y": 2 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["zucchini", "yellow_squash"],
+      "notes": "3-4 plants, very productive"
+    },
+    {
+      "id": "bed-04",
+      "name": "Cucumbers & Friends",
+      "type": "vegetable",
+      "position": { "x": 20, "y": 2 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["cucumber_slicing", "cucumber_pickling", "tomatillo", "ground_cherry"],
+      "notes": "Bush varieties"
+    },
+    {
+      "id": "bed-05",
+      "name": "Winter Squash & Melon",
+      "type": "vegetable",
+      "position": { "x": 2, "y": 12 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["butternut_squash", "spaghetti_squash", "watermelon"],
+      "notes": "SPRAWL ZONE - vines extend into paths"
+    },
+    {
+      "id": "bed-06",
+      "name": "Salad Greens",
+      "type": "vegetable",
+      "position": { "x": 8, "y": 12 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["lettuce_leaf", "lettuce_romaine", "lettuce_butterhead", "arugula"],
+      "notes": "Succession plant every 2-3 weeks"
+    },
+    {
+      "id": "bed-07",
+      "name": "Cooking Greens",
+      "type": "vegetable",
+      "position": { "x": 14, "y": 12 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["kale_curly", "collard_greens", "bok_choy", "mustard_greens"],
+      "notes": "Cut-and-come-again all season"
+    },
+    {
+      "id": "bed-08",
+      "name": "Root Vegetables",
+      "type": "vegetable",
+      "position": { "x": 20, "y": 12 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["carrot", "beet", "radish", "turnip", "parsnip"],
+      "notes": "Pull back mulch for direct seeding"
+    },
+    {
+      "id": "bed-09",
+      "name": "Potatoes",
+      "type": "vegetable",
+      "position": { "x": 2, "y": 22 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["potato"],
+      "notes": "Great for BTE method, keep mounding"
+    },
+    {
+      "id": "bed-10",
+      "name": "Legumes",
+      "type": "vegetable",
+      "position": { "x": 8, "y": 22 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["bush_bean", "snap_pea", "edamame"],
+      "notes": "Succession plant beans every 2-3 weeks"
+    },
+    {
+      "id": "bed-11",
+      "name": "Alliums",
+      "type": "vegetable",
+      "position": { "x": 14, "y": 22 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["garlic_hardneck", "onion_yellow", "scallion", "shallot"],
+      "notes": "Plant garlic in fall"
+    },
+    {
+      "id": "bed-12",
+      "name": "Brassicas",
+      "type": "vegetable",
+      "position": { "x": 20, "y": 22 },
+      "dimensions": { "width": 4, "length": 8, "height": 18 },
+      "material": "cedar",
+      "crops": ["cauliflower", "cabbage", "broccoli_raab"],
+      "notes": "Cool season crops, watch for caterpillars"
+    },
+    {
+      "id": "bed-13",
+      "name": "Annual Herbs",
+      "type": "vegetable",
+      "position": { "x": 2, "y": 32 },
+      "dimensions": { "width": 4, "length": 6, "height": 18 },
+      "material": "cedar",
+      "crops": ["basil", "cilantro", "parsley_flat", "parsley_curly", "dill", "chamomile", "stevia"],
+      "notes": "Replant annually"
+    },
+    {
+      "id": "bed-15",
+      "name": "Pollinator Flowers",
+      "type": "flower",
+      "position": { "x": 14, "y": 32 },
+      "dimensions": { "width": 10, "length": 6, "height": 18 },
+      "material": "cedar",
+      "crops": ["zinnia", "cosmos", "sunflower", "marigold"],
+      "notes": "Attracts pollinators, cutting flowers"
+    },
+    {
+      "id": "bed-16",
+      "name": "Perennial Strip",
+      "type": "perennial",
+      "position": { "x": 26, "y": 2 },
+      "dimensions": { "width": 4, "length": 24, "height": 18 },
+      "material": "cedar",
+      "crops": ["asparagus", "rhubarb", "horseradish", "oregano", "thyme", "rosemary", "sage", "tarragon", "lavender"],
+      "notes": "Plant once, harvest for years. Contain horseradish. Rosemary may need winter protection in 6b."
+    },
+    {
+      "id": "bed-17",
+      "name": "Blueberries",
+      "type": "berry",
+      "position": { "x": 32, "y": 2 },
+      "dimensions": { "width": 6, "length": 10, "height": 18 },
+      "material": "cedar",
+      "crops": ["blueberry"],
+      "notes": "Needs acidic soil amendment. Bird netting frame required."
+    },
+    {
+      "id": "bed-18",
+      "name": "Grapes",
+      "type": "berry",
+      "position": { "x": 32, "y": 14 },
+      "dimensions": { "width": 6, "length": 10, "height": 18 },
+      "material": "cedar",
+      "crops": ["grape"],
+      "notes": "Needs trellis/arbor structure"
+    }
+  ],
+
+  "paths": {
+    "main_width_ft": 2,
+    "secondary_width_ft": 2,
+    "material": "wood_chips"
+  },
+
+  "explicit_paths": [
+    {
+      "id": "path-ns-1",
+      "name": "N-S Path between beds 1-2",
+      "points": [
+        { "x": 7, "y": 1 },
+        { "x": 7, "y": 39 }
+      ],
+      "width_ft": 2,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-ns-2",
+      "name": "N-S Path between beds 2-3",
+      "points": [
+        { "x": 13, "y": 1 },
+        { "x": 13, "y": 39 }
+      ],
+      "width_ft": 2,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-ns-3",
+      "name": "N-S Path between beds 3-4",
+      "points": [
+        { "x": 19, "y": 1 },
+        { "x": 19, "y": 31 }
+      ],
+      "width_ft": 2,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-ns-4",
+      "name": "N-S Path to perennial/berries",
+      "points": [
+        { "x": 25, "y": 1 },
+        { "x": 25, "y": 31 }
+      ],
+      "width_ft": 2,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-ns-5",
+      "name": "N-S Path between perennial and berries",
+      "points": [
+        { "x": 31, "y": 1 },
+        { "x": 31, "y": 25 }
+      ],
+      "width_ft": 2,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-row1-row2",
+      "name": "E-W Path between Row 1 and Row 2",
+      "points": [
+        { "x": 1, "y": 11 },
+        { "x": 25, "y": 11 }
+      ],
+      "width_ft": 2,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-row2-row3",
+      "name": "E-W Path between Row 2 and Row 3",
+      "points": [
+        { "x": 1, "y": 21 },
+        { "x": 25, "y": 21 }
+      ],
+      "width_ft": 2,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-row3-row4",
+      "name": "E-W Path between Row 3 and Row 4",
+      "points": [
+        { "x": 1, "y": 31 },
+        { "x": 25, "y": 31 }
+      ],
+      "width_ft": 2,
+      "material": "wood_chips"
+    }
+  ],
+
+  "ground_areas": [
+    {
+      "id": "ground-main",
+      "name": "Main Garden Area",
+      "position": { "x": 0, "y": 0 },
+      "dimensions": { "width": 40, "length": 40 },
+      "type": "grass",
+      "color": "#4a7c23"
+    }
+  ],
+
+  "protection": {
+    "deer": {
+      "type": "deer_mesh",
+      "height_ft": 8,
+      "material": "poly_mesh",
+      "position": { "x": 0, "y": 0 },
+      "dimensions": { "width": 40, "length": 40 },
+      "gates": [
+        {
+          "position": "north",
+          "offset_ft": 20,
+          "width_ft": 8
+        }
+      ]
+    },
+    "rodent": {
+      "type": "hardware_cloth",
+      "mesh_size_inches": 0.25,
+      "installation": "bottom_and_buried_sides"
+    },
+    "bird": {
+      "type": "netting_with_frame",
+      "areas": ["bed-17"]
+    }
+  },
+
+  "irrigation": {
+    "type": "drip_with_timer",
+    "water_source": {
+      "type": "hose_faucet",
+      "distance_ft": 10
+    }
+  },
+
+  "budget": {
+    "materials": {
+      "beds": 2310,
+      "fence": 1250,
+      "hardware_cloth": 2100,
+      "soil_compost": 800,
+      "irrigation": 300,
+      "bird_netting": 200
+    },
+    "labor": {
+      "estimated_hours": 80,
+      "rate_per_hour": 65,
+      "total": 5200
+    },
+    "total": 12160
+  },
+
+  "timeline": {
+    "start_date": "2025-01-17",
+    "build_phase": {
+      "start": "2025-02-15",
+      "end": "2025-04-15"
+    },
+    "planting_date": "2025-05-15",
+    "first_harvest": "2025-06-15"
+  },
+
+  "climate": {
+    "last_frost": "05-15",
+    "first_frost": "10-15",
+    "growing_days": 150
+  }
+}
