@@ -1,32 +1,28 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
-import { GardenView, availableLayouts, type GardenInfo } from "./components/GardenView";
+import { GardenView, availableLayouts } from "./components/GardenView";
 import { ResearchPanel } from "./components/ResearchPanel";
 import { BedDetailsPanel } from "./components/BedDetailsPanel";
-import type { LayoutBed } from "./schemas/layout";
+import { useGardenStore } from "./store/gardenStore";
 
 export function App() {
-  const [selectedBed, setSelectedBed] = useState<LayoutBed | null>(null);
-  const [leftPaneVisible, setLeftPaneVisible] = useState(true);
-  const [rightPaneVisible, setRightPaneVisible] = useState(true);
-  const [selectedLayout, setSelectedLayout] = useState<string>(availableLayouts[0]?.slug || "");
-  const [gardenInfo, setGardenInfo] = useState<GardenInfo | null>(null);
-  const [sunTime, setSunTime] = useState(12); // Noon default
+  const {
+    selectedLayout,
+    setSelectedLayout,
+    leftPaneVisible,
+    rightPaneVisible,
+    setLeftPaneVisible,
+    setRightPaneVisible,
+  } = useGardenStore();
 
-  const handleBedSelect = (bed: LayoutBed | null) => {
-    setSelectedBed(bed);
-    // Auto-show left pane when a bed is selected
-    if (bed && !leftPaneVisible) {
-      setLeftPaneVisible(true);
+  // Initialize layout on mount
+  useEffect(() => {
+    if (!selectedLayout && availableLayouts[0]) {
+      setSelectedLayout(availableLayouts[0].slug);
     }
-  };
-
-  const handleLayoutChange = (slug: string) => {
-    setSelectedLayout(slug);
-    setSelectedBed(null); // Clear bed selection when layout changes
-  };
+  }, [selectedLayout, setSelectedLayout]);
 
   return (
     <BrowserRouter>
@@ -72,30 +68,14 @@ export function App() {
                 </button>
               </div>
               <div style={{ flex: 1, overflow: "hidden" }}>
-                <BedDetailsPanel
-                  bed={selectedBed}
-                  onClose={() => setSelectedBed(null)}
-                  gardenInfo={gardenInfo}
-                  layouts={availableLayouts}
-                  selectedLayout={selectedLayout}
-                  onLayoutChange={handleLayoutChange}
-                  sunTime={sunTime}
-                  onSunTimeChange={setSunTime}
-                />
+                <BedDetailsPanel />
               </div>
             </div>
           </Allotment.Pane>
 
           {/* Garden view (center) */}
           <Allotment.Pane minSize={400}>
-            <GardenView
-              onBedSelect={handleBedSelect}
-              selectedBedId={selectedBed?.id}
-              selectedLayout={selectedLayout}
-              onLayoutChange={handleLayoutChange}
-              onGardenInfoChange={setGardenInfo}
-              sunTime={sunTime}
-            />
+            <GardenView />
           </Allotment.Pane>
 
           {/* Research pane (right) */}

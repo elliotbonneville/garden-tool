@@ -286,10 +286,10 @@ export class GardenRenderer {
     const centerX = garden.dimensions.width / 2;
     const centerZ = garden.dimensions.length / 2;
 
-    // Outer grass (extending to horizon)
-    const outerGrassSize = 500; // Large enough to reach the fog/horizon
-    const outerGrassGeometry = new THREE.PlaneGeometry(outerGrassSize, outerGrassSize);
-    const outerGrassTexture = this.getRepeatingTexture("grass", outerGrassSize, outerGrassSize);
+    // Outer grass (extending to horizon) - circular for natural appearance
+    const outerGrassRadius = 300;
+    const outerGrassGeometry = new THREE.CircleGeometry(outerGrassRadius, 64);
+    const outerGrassTexture = this.getRepeatingTexture("grass", outerGrassRadius * 2, outerGrassRadius * 2);
     const outerGrassMaterial = new THREE.MeshStandardMaterial({
       map: outerGrassTexture,
       color: 0xcccccc, // Slightly tint to darken outer grass

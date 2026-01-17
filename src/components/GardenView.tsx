@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GardenRenderer } from "../scene/GardenRenderer";
 import { type Garden, type GardenBed, type Plant, type PlantType, type Fence, type BirdNetting } from "../schemas/garden";
-import { GardenLayoutSchema, type LayoutBed, type GardenLayout } from "../schemas/layout";
+import { GardenLayoutSchema, type GardenLayout } from "../schemas/layout";
+import { useGardenStore } from "../store/gardenStore";
 
 // Dynamically import all layout JSON files from research directory
 const layoutModules = import.meta.glob("../../research/*.layout.json", { eager: false });
@@ -27,41 +28,23 @@ for (const path of Object.keys(layoutModules)) {
 // Sort alphabetically
 availableLayouts.sort((a, b) => a.name.localeCompare(b.name));
 
-interface GardenInfo {
-  name: string;
-  dimensions: { width: number; length: number };
-  bedCount: number;
-}
-
-interface GardenViewProps {
-  onBedSelect?: (bed: LayoutBed | null) => void;
-  selectedBedId?: string | null;
-  selectedLayout?: string;
-  onLayoutChange?: (slug: string) => void;
-  onGardenInfoChange?: (info: GardenInfo | null) => void;
-  sunTime?: number;
-}
-
 // Export for use in other components
 export { availableLayouts };
-export type { GardenInfo };
 
-export function GardenView({
-  onBedSelect,
-  selectedBedId,
-  selectedLayout: controlledLayout,
-  onGardenInfoChange,
-  sunTime = 12,
-}: GardenViewProps) {
+export function GardenView() {
+  const {
+    selectedLayout,
+    selectedBed,
+    setSelectedBed,
+    setGardenInfo,
+    sunTime,
+  } = useGardenStore();
+
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<GardenRenderer | null>(null);
   const layoutRef = useRef<GardenLayout | null>(null);
-  const onBedSelectRef = useRef(onBedSelect);
-  onBedSelectRef.current = onBedSelect; // Keep ref updated
   const [error, setError] = useState<string | null>(null);
   const [garden, setGarden] = useState<Garden | null>(null);
-  // Use controlled layout if provided, otherwise use first available
-  const selectedLayout = controlledLayout || availableLayouts[0]?.slug || "";
   const [layoutData, setLayoutData] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,7 +52,11 @@ export function GardenView({
   useEffect(() => {
     if (!selectedLayout || !layoutLoaders[selectedLayout]) {
       setLoading(false);
-      setError("No layouts found. Create a .layout.json file in the research directory.");
+      if (!selectedLayout) {
+        setError("No layout selected.");
+      } else {
+        setError("No layouts found. Create a .layout.json file in the research directory.");
+      }
       return;
     }
 
@@ -78,7 +65,6 @@ export function GardenView({
 
     layoutLoaders[selectedLayout]()
       .then((module) => {
-        // Handle both default exports and direct exports
         const data = (module as { default?: unknown }).default || module;
         setLayoutData(data);
         setLoading(false);
@@ -118,11 +104,7 @@ export function GardenView({
       const siteL = layout.site.dimensions.length;
       const pathWidth = layout.paths.main_width_ft;
 
-      // Use JSON coordinates directly
-      // Layout: x from left edge, y from top edge (in feet)
-      // 3D: x = layout x, z = layout y, y = height
       const beds: GardenBed[] = layout.beds.map((bed) => {
-        // Position is the center of the bed
         const centerX = bed.position.x + bed.dimensions.width / 2;
         const centerZ = bed.position.y + bed.dimensions.length / 2;
         const heightFt = (bed.dimensions.height || 12) / 12;
@@ -154,7 +136,7 @@ export function GardenView({
         });
 
         return {
-          id: bed.id,  // Use original ID from layout for click detection
+          id: bed.id,
           name: bed.name,
           position: { x: centerX, y: 0, z: centerZ },
           dimensions: { width: bed.dimensions.width, length: bed.dimensions.length, height: heightFt },
@@ -164,10 +146,9 @@ export function GardenView({
         };
       });
 
-      // Convert paths from layout - use explicit_paths if available, otherwise auto-generate
       const paths: Garden["paths"] = [];
       const pathMaterialMap: Record<string, "gravel" | "stone" | "brick" | "wood"> = {
-        wood_chips: "wood", // wood_chips uses wood-chips texture
+        wood_chips: "wood",
         gravel: "gravel",
         stone: "stone",
         brick: "brick",
@@ -175,7 +156,6 @@ export function GardenView({
       };
 
       if (layout.explicit_paths && layout.explicit_paths.length > 0) {
-        // Use explicitly defined paths from schema
         for (const p of layout.explicit_paths) {
           paths.push({
             id: p.id,
@@ -185,11 +165,9 @@ export function GardenView({
           });
         }
       } else {
-        // Auto-generate paths based on bed positions
         const rowYs = [...new Set(layout.beds.map(b => b.position.y))].sort((a, b) => a - b);
         const centerX = siteW / 2;
 
-        // Main vertical path
         paths.push({
           id: crypto.randomUUID(),
           points: [
@@ -200,7 +178,6 @@ export function GardenView({
           material: "gravel",
         });
 
-        // Horizontal paths between rows
         for (let i = 0; i < rowYs.length - 1; i++) {
           const rowY = rowYs[i]!;
           const bedsInRow = layout.beds.filter(b => b.position.y === rowY);
@@ -220,7 +197,6 @@ export function GardenView({
         }
       }
 
-      // Convert fence from layout
       let fence: Fence | undefined;
       const deerFence = layout.protection.deer;
       if (deerFence.type !== "none" && deerFence.position && deerFence.dimensions) {
@@ -240,26 +216,21 @@ export function GardenView({
         };
       }
 
-      // Get ground color from layout if available
       const groundColor = layout.ground_areas?.[0]?.color || "#4a7c23";
 
-      // Convert bird netting from layout
       let birdNetting: BirdNetting | undefined;
       const birdProtection = layout.protection.bird;
       if (birdProtection.type === "netting_full_garden" && fence) {
         const peakHeight = birdProtection.peak_height_ft || fence.height + 2;
 
-        // Auto-generate support posts if not specified
         let supportPosts: BirdNetting["supportPosts"];
         if (birdProtection.support_posts && birdProtection.support_posts.length > 0) {
-          // Use manually specified posts
           supportPosts = birdProtection.support_posts.map(post => ({
             id: post.id,
             position: { x: post.position.x, y: 0, z: post.position.y },
             height: post.height_ft,
           }));
         } else {
-          // Auto-generate single post in the bed corner closest to garden center
           const gardenCenterX = siteW / 2;
           const gardenCenterZ = siteL / 2;
 
@@ -267,13 +238,12 @@ export function GardenView({
           let bestCornerZ = siteL / 2;
           let bestDist = Infinity;
 
-          // Check all 4 corners of each bed to find the one closest to center
           for (const bed of layout.beds) {
             const corners = [
-              { x: bed.position.x + 0.5, z: bed.position.y + 0.5 }, // NW
-              { x: bed.position.x + bed.dimensions.width - 0.5, z: bed.position.y + 0.5 }, // NE
-              { x: bed.position.x + 0.5, z: bed.position.y + bed.dimensions.length - 0.5 }, // SW
-              { x: bed.position.x + bed.dimensions.width - 0.5, z: bed.position.y + bed.dimensions.length - 0.5 }, // SE
+              { x: bed.position.x + 0.5, z: bed.position.y + 0.5 },
+              { x: bed.position.x + bed.dimensions.width - 0.5, z: bed.position.y + 0.5 },
+              { x: bed.position.x + 0.5, z: bed.position.y + bed.dimensions.length - 0.5 },
+              { x: bed.position.x + bed.dimensions.width - 0.5, z: bed.position.y + bed.dimensions.length - 0.5 },
             ];
 
             for (const corner of corners) {
@@ -307,7 +277,6 @@ export function GardenView({
         };
       }
 
-      // Generate scattered plants (pollinator flowers, etc.)
       const scatteredPlants: Garden["scatteredPlants"] = [];
       if (layout.scattered_plants?.enabled && layout.scattered_plants.plants) {
         const flowerColors: Record<string, string> = {
@@ -320,14 +289,12 @@ export function GardenView({
           blackeyedsusan: "#ffb347",
         };
 
-        // Helper to check if a point is inside any bed
         const isInsideBed = (x: number, z: number): boolean => {
           for (const bed of layout.beds) {
             const bedLeft = bed.position.x;
             const bedRight = bed.position.x + bed.dimensions.width;
             const bedTop = bed.position.y;
             const bedBottom = bed.position.y + bed.dimensions.length;
-            // Add small buffer around beds
             const buffer = 0.5;
             if (x >= bedLeft - buffer && x <= bedRight + buffer &&
                 z >= bedTop - buffer && z <= bedBottom + buffer) {
@@ -342,7 +309,6 @@ export function GardenView({
           const scaleMin = plantConfig.scale_range?.min ?? 0.6;
           const scaleMax = plantConfig.scale_range?.max ?? 1.2;
 
-          // Determine scattering area
           const xMin = plantConfig.area?.x_min ?? 2;
           const xMax = plantConfig.area?.x_max ?? siteW - 2;
           const yMin = plantConfig.area?.y_min ?? 2;
@@ -350,14 +316,13 @@ export function GardenView({
 
           let placed = 0;
           let attempts = 0;
-          const maxAttempts = plantConfig.count * 20; // Avoid infinite loops
+          const maxAttempts = plantConfig.count * 20;
 
           while (placed < plantConfig.count && attempts < maxAttempts) {
             attempts++;
             const x = xMin + Math.random() * (xMax - xMin);
             const z = yMin + Math.random() * (yMax - yMin);
 
-            // Check if we should avoid beds
             if (plantConfig.avoid_beds !== false && isInsideBed(x, z)) {
               continue;
             }
@@ -387,8 +352,7 @@ export function GardenView({
         scatteredPlants,
       });
 
-      // Notify parent of garden info
-      onGardenInfoChange?.({
+      setGardenInfo({
         name: layout.metadata.name,
         dimensions: { width: siteW, length: siteL },
         bedCount: beds.length,
@@ -396,21 +360,19 @@ export function GardenView({
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to parse layout");
       console.error("Layout parse error:", e);
-      onGardenInfoChange?.(null);
+      setGardenInfo(null);
     }
-  }, [layoutData, onGardenInfoChange]);
+  }, [layoutData, setGardenInfo]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !garden) return;
 
-    // Clean up existing renderer when garden changes
     if (rendererRef.current) {
       rendererRef.current.dispose();
       rendererRef.current = null;
     }
 
-    // Garden center for camera orbit
     const gardenCenter = new THREE.Vector3(
       garden.dimensions.width / 2,
       0,
@@ -420,7 +382,6 @@ export function GardenView({
     let renderer: GardenRenderer | null = null;
     let isDragging = false;
     let previousMousePosition = { x: 0, y: 0 };
-
     let mouseDownPosition = { x: 0, y: 0 };
 
     const onMouseDown = (e: MouseEvent) => {
@@ -436,27 +397,21 @@ export function GardenView({
       const deltaY = e.clientY - previousMousePosition.y;
 
       if (e.shiftKey) {
-        // Shift+drag: pan the view origin
-        // Get camera's right and forward vectors projected onto XZ plane
         const forward = new THREE.Vector3();
         camera.getWorldDirection(forward);
         forward.y = 0;
         forward.normalize();
         const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
 
-        // Pan speed scales with distance from target
         const distance = camera.position.distanceTo(gardenCenter);
         const panSpeed = distance * 0.002;
 
-        // Move the orbit center
         gardenCenter.addScaledVector(right, deltaX * panSpeed);
         gardenCenter.addScaledVector(forward, deltaY * panSpeed);
 
-        // Move camera to maintain same relative position
         camera.position.addScaledVector(right, deltaX * panSpeed);
         camera.position.addScaledVector(forward, deltaY * panSpeed);
       } else {
-        // Normal drag: rotate around center
         const offset = camera.position.clone().sub(gardenCenter);
         const spherical = new THREE.Spherical().setFromVector3(offset);
         spherical.theta -= deltaX * 0.01;
@@ -472,18 +427,17 @@ export function GardenView({
     };
 
     const onMouseUp = (e: MouseEvent) => {
-      // Check if this was a click (minimal mouse movement)
       const dx = e.clientX - mouseDownPosition.x;
       const dy = e.clientY - mouseDownPosition.y;
       const wasClick = Math.sqrt(dx * dx + dy * dy) < 5;
 
-      if (wasClick && renderer && onBedSelectRef.current && layoutRef.current) {
+      if (wasClick && renderer && layoutRef.current) {
         const bedId = renderer.getBedAtPoint(e.clientX, e.clientY);
         if (bedId) {
           const bed = layoutRef.current.beds.find(b => b.id === bedId);
-          onBedSelectRef.current(bed || null);
+          setSelectedBed(bed || null);
         } else {
-          onBedSelectRef.current(null);
+          setSelectedBed(null);
         }
       }
 
@@ -503,7 +457,6 @@ export function GardenView({
       renderer.requestRender();
     };
 
-    // Wait for container to have dimensions then init
     const initRenderer = () => {
       if (renderer) return;
       if (container.clientWidth === 0 || container.clientHeight === 0) {
@@ -513,7 +466,7 @@ export function GardenView({
 
       renderer = new GardenRenderer(container);
       renderer.renderGarden(garden);
-      renderer.setSunTime(sunTime); // Initialize sun position
+      renderer.setSunTime(sunTime);
       rendererRef.current = renderer;
     };
 
@@ -537,14 +490,14 @@ export function GardenView({
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [garden]); // sunTime handled by separate effect
+  }, [garden]);
 
-  // Update selection highlight when selectedBedId changes
+  // Update selection highlight when selectedBed changes
   useEffect(() => {
     if (rendererRef.current) {
-      rendererRef.current.selectBed(selectedBedId || null);
+      rendererRef.current.selectBed(selectedBed?.id || null);
     }
-  }, [selectedBedId]);
+  }, [selectedBed]);
 
   // Update sun position when time changes
   useEffect(() => {

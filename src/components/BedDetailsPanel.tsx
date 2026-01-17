@@ -1,41 +1,8 @@
 import { Link } from "react-router";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { LayoutBed } from "../schemas/layout";
-
-interface GardenInfo {
-  name: string;
-  dimensions: { width: number; length: number };
-  bedCount: number;
-}
-
-interface LayoutOption {
-  slug: string;
-  name: string;
-}
-
-interface BedDetailsPanelProps {
-  bed: LayoutBed | null;
-  onClose: () => void;
-  gardenInfo?: GardenInfo | null;
-  layouts?: LayoutOption[];
-  selectedLayout?: string;
-  onLayoutChange?: (slug: string) => void;
-  sunTime?: number;
-  onSunTimeChange?: (time: number) => void;
-}
-
-// Convert crop ID to URL slug
-function cropToSlug(crop: string): string {
-  // Extract base crop name (e.g., "tomato_cherry" -> "tomato")
-  const baseCrop = crop.split("_")[0];
-  return baseCrop || crop;
-}
-
-// Format crop name for display
-function formatCropName(crop: string): string {
-  return crop.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-}
+import { useGardenStore } from "../store/gardenStore";
+import { availableLayouts } from "./GardenView";
 
 // Format time for display (e.g., "12:00 PM")
 function formatTime(hour: number): string {
@@ -46,16 +13,28 @@ function formatTime(hour: number): string {
   return `${displayHour}:${m.toString().padStart(2, "0")} ${period}`;
 }
 
-export function BedDetailsPanel({
-  bed,
-  onClose,
-  gardenInfo,
-  layouts,
-  selectedLayout,
-  onLayoutChange,
-  sunTime = 12,
-  onSunTimeChange
-}: BedDetailsPanelProps) {
+// Convert crop ID to URL slug
+function cropToSlug(crop: string): string {
+  const baseCrop = crop.split("_")[0];
+  return baseCrop || crop;
+}
+
+// Format crop name for display
+function formatCropName(crop: string): string {
+  return crop.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+
+export function BedDetailsPanel() {
+  const {
+    selectedBed: bed,
+    setSelectedBed,
+    gardenInfo,
+    selectedLayout,
+    setSelectedLayout,
+    sunTime,
+    setSunTime,
+  } = useGardenStore();
+
   // Garden info header (always shown)
   const GardenHeader = () => (
     <div style={{
@@ -64,14 +43,14 @@ export function BedDetailsPanel({
       borderBottom: "1px solid #e5e7eb",
     }}>
       {/* Layout selector */}
-      {layouts && layouts.length > 0 && onLayoutChange && (
+      {availableLayouts.length > 0 && (
         <div style={{ marginBottom: 12 }}>
           <label style={{ fontSize: 11, color: "#6b7280", display: "block", marginBottom: 4 }}>
             Layout
           </label>
           <select
             value={selectedLayout}
-            onChange={(e) => onLayoutChange(e.target.value)}
+            onChange={(e) => setSelectedLayout(e.target.value)}
             style={{
               width: "100%",
               padding: "8px 10px",
@@ -83,7 +62,7 @@ export function BedDetailsPanel({
               cursor: "pointer",
             }}
           >
-            {layouts.map((layout) => (
+            {availableLayouts.map((layout) => (
               <option key={layout.slug} value={layout.slug}>
                 {layout.name}
               </option>
@@ -93,49 +72,48 @@ export function BedDetailsPanel({
       )}
 
       {/* Time of day slider */}
-      {onSunTimeChange && (
-        <div style={{ marginBottom: 12 }}>
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 4,
-          }}>
-            <label style={{ fontSize: 11, color: "#6b7280" }}>
-              Time of Day
-            </label>
-            <span style={{
-              fontSize: 11,
-              color: "#374151",
-              fontVariantNumeric: "tabular-nums",
-            }}>{formatTime(sunTime)}</span>
-          </div>
-          <input
-            type="range"
-            min="5"
-            max="20"
-            step="0.25"
-            value={sunTime}
-            onChange={(e) => onSunTimeChange(parseFloat(e.target.value))}
-            style={{
-              width: "100%",
-              cursor: "pointer",
-              accentColor: "#f59e0b",
-            }}
-          />
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: 9,
-            color: "#9ca3af",
-            marginTop: 2,
-          }}>
-            <span>5 AM</span>
-            <span>Noon</span>
-            <span>8 PM</span>
-          </div>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 4,
+        }}>
+          <label style={{ fontSize: 11, color: "#6b7280" }}>
+            Time of Day
+          </label>
+          <span style={{
+            fontSize: 11,
+            color: "#374151",
+            fontVariantNumeric: "tabular-nums",
+          }}>{formatTime(sunTime)}</span>
         </div>
-      )}
+        <input
+          type="range"
+          min="5"
+          max="20"
+          step="0.1"
+          value={sunTime}
+          onInput={(e) => setSunTime(parseFloat((e.target as HTMLInputElement).value))}
+          onChange={() => {}}
+          style={{
+            width: "100%",
+            cursor: "pointer",
+            accentColor: "#f59e0b",
+          }}
+        />
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: 9,
+          color: "#9ca3af",
+          marginTop: 2,
+        }}>
+          <span>5 AM</span>
+          <span>Noon</span>
+          <span>8 PM</span>
+        </div>
+      </div>
 
       {/* Garden info */}
       {gardenInfo && (
@@ -240,7 +218,7 @@ export function BedDetailsPanel({
           </div>
         </div>
         <button
-          onClick={onClose}
+          onClick={() => setSelectedBed(null)}
           style={{
             background: "none",
             border: "none",
