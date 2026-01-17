@@ -4,3 +4,5 @@ dist
 .DS_Store
 .playwright-mcp/
 *:Zone.Identifier
+.vercel
+.envrc
