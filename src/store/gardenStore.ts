@@ -57,9 +57,9 @@ export const useGardenStore = create<GardenStore>((set) => ({
   sunTime: 12,
   setSunTime: (time) => set({ sunTime: time }),
 
-  // Panel visibility
+  // Panel visibility - research hidden by default for cleaner view
   leftPaneVisible: true,
-  rightPaneVisible: true,
+  rightPaneVisible: false,
   setLeftPaneVisible: (visible) => set({ leftPaneVisible: visible }),
   setRightPaneVisible: (visible) => set({ rightPaneVisible: visible }),
 }));

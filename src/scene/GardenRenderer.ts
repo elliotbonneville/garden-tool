@@ -4,6 +4,34 @@ import type { Garden, GardenBed, Plant, Path, Fence, BirdNetting } from "../sche
 export const SCALE = 1; // 1 unit = 1 foot
 const TEXTURE_TILE_SIZE = 4; // Each texture tile covers 4ft x 4ft
 
+// Simple 2D Perlin noise implementation
+const perlinNoise = (() => {
+  const permutation = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,68,175,74,165,71,134,139,48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,102,143,54,65,25,63,161,1,216,80,73,209,76,132,187,208,89,18,169,200,196,135,130,116,188,159,86,164,100,109,198,173,186,3,64,52,217,226,250,124,123,5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,223,183,170,213,119,248,152,2,44,154,163,70,221,153,101,155,167,43,172,9,129,22,39,253,19,98,108,110,79,113,224,232,178,185,112,104,218,246,97,228,251,34,242,193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,239,107,49,192,214,31,181,199,106,157,184,84,204,176,115,121,50,45,127,4,150,254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180];
+  const p = new Array(512);
+  for (let i = 0; i < 256; i++) p[256 + i] = p[i] = permutation[i];
+
+  const fade = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
+  const lerp = (t: number, a: number, b: number) => a + t * (b - a);
+  const grad = (hash: number, x: number, y: number) => {
+    const h = hash & 3;
+    const u = h < 2 ? x : y;
+    const v = h < 2 ? y : x;
+    return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
+  };
+
+  return (x: number, y: number): number => {
+    const X = Math.floor(x) & 255;
+    const Y = Math.floor(y) & 255;
+    x -= Math.floor(x);
+    y -= Math.floor(y);
+    const u = fade(x);
+    const v = fade(y);
+    const A = p[X] + Y, B = p[X + 1] + Y;
+    return lerp(v, lerp(u, grad(p[A], x, y), grad(p[B], x - 1, y)),
+                   lerp(u, grad(p[A + 1], x, y - 1), grad(p[B + 1], x - 1, y - 1)));
+  };
+})();
+
 export class GardenRenderer {
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
@@ -54,19 +82,40 @@ export class GardenRenderer {
   }
 
   private loadTextures(): void {
+    const onTextureLoad = () => {
+      this.needsRender = true;
+    };
+
     // Load grass texture
-    const grassTexture = this.textureLoader.load("/assets/grass.png");
+    const grassTexture = this.textureLoader.load("/assets/grass.png", onTextureLoad);
     grassTexture.wrapS = THREE.RepeatWrapping;
     grassTexture.wrapT = THREE.RepeatWrapping;
     grassTexture.colorSpace = THREE.SRGBColorSpace;
     this.textures.set("grass", grassTexture);
 
     // Load wood-chips texture
-    const woodChipsTexture = this.textureLoader.load("/assets/wood-chips.png");
+    const woodChipsTexture = this.textureLoader.load("/assets/wood-chips.png", onTextureLoad);
     woodChipsTexture.wrapS = THREE.RepeatWrapping;
     woodChipsTexture.wrapT = THREE.RepeatWrapping;
     woodChipsTexture.colorSpace = THREE.SRGBColorSpace;
     this.textures.set("wood-chips", woodChipsTexture);
+
+    // Load dirt/soil texture
+    const dirtTexture = this.textureLoader.load("/assets/dirt.png", onTextureLoad);
+    dirtTexture.wrapS = THREE.RepeatWrapping;
+    dirtTexture.wrapT = THREE.RepeatWrapping;
+    dirtTexture.colorSpace = THREE.SRGBColorSpace;
+    this.textures.set("dirt", dirtTexture);
+
+    // Load fence mesh texture (with alpha channel preserved)
+    const fenceTexture = this.textureLoader.load("/assets/fence.png", onTextureLoad);
+    fenceTexture.wrapS = THREE.RepeatWrapping;
+    fenceTexture.wrapT = THREE.RepeatWrapping;
+    fenceTexture.premultiplyAlpha = false;
+    fenceTexture.generateMipmaps = true;
+    fenceTexture.minFilter = THREE.LinearMipmapLinearFilter;
+    fenceTexture.magFilter = THREE.LinearFilter;
+    this.textures.set("fence", fenceTexture);
   }
 
   private getRepeatingTexture(name: string, widthFt: number, lengthFt: number): THREE.Texture | null {
@@ -128,7 +177,10 @@ export class GardenRenderer {
       this.gardenCenter.z + z
     );
     this.sunLight.target.position.copy(this.gardenCenter);
-    this.sunLight.target.updateMatrixWorld();
+    this.sunLight.target.updateMatrixWorld(true);
+    this.sunLight.updateMatrixWorld(true);
+    this.sunLight.shadow.camera.updateMatrixWorld(true);
+    this.sunLight.shadow.needsUpdate = true;
 
     // Adjust light color based on time (warmer at sunrise/sunset)
     const midday = Math.abs(hour - 12);
@@ -201,6 +253,10 @@ export class GardenRenderer {
       this.sunLight.shadow.camera.updateProjectionMatrix();
       this.sunLight.target.position.copy(this.gardenCenter);
       this.scene.add(this.sunLight.target);
+      this.sunLight.target.updateMatrixWorld(true);
+      this.sunLight.updateMatrixWorld(true);
+      this.sunLight.shadow.camera.updateMatrixWorld(true);
+      this.sunLight.shadow.needsUpdate = true;
     }
 
     // Update camera to look at garden center
@@ -288,16 +344,23 @@ export class GardenRenderer {
 
     // Outer grass (extending to horizon) - circular for natural appearance
     const outerGrassRadius = 300;
-    const outerGrassGeometry = new THREE.CircleGeometry(outerGrassRadius, 64);
-    const outerGrassTexture = this.getRepeatingTexture("grass", outerGrassRadius * 2, outerGrassRadius * 2);
-    const outerGrassMaterial = new THREE.MeshStandardMaterial({
-      map: outerGrassTexture,
-      color: 0xcccccc, // Slightly tint to darken outer grass
-      roughness: 0.95,
-    });
+    const outerGrassGeometry = new THREE.CircleGeometry(outerGrassRadius, 128);
+    outerGrassGeometry.rotateX(-Math.PI / 2);
+
+    // Add Perlin noise displacement to outer grass
+    const outerPositions = outerGrassGeometry.attributes.position;
+    for (let i = 0; i < outerPositions.count; i++) {
+      const x = outerPositions.getX(i) + centerX;
+      const z = outerPositions.getZ(i) + centerZ;
+      const noise = perlinNoise(x * 0.05, z * 0.05);
+      outerPositions.setY(i, outerPositions.getY(i) + noise * 0.15);
+    }
+    outerGrassGeometry.computeVertexNormals();
+
+    const outerGrassTexture = this.textures.get("grass") || null;
+    const outerGrassMaterial = this.createGrassMaterial(outerGrassTexture, 0x4a7a4a, 0xffffff);
     const outerGrass = new THREE.Mesh(outerGrassGeometry, outerGrassMaterial);
-    outerGrass.rotation.x = -Math.PI / 2;
-    outerGrass.position.set(centerX, -0.05, centerZ);
+    outerGrass.position.set(centerX, -0.20, centerZ);
     outerGrass.receiveShadow = true;
     this.gardenGroup.add(outerGrass);
 
@@ -305,27 +368,25 @@ export class GardenRenderer {
     const groundGeometry = new THREE.PlaneGeometry(
       garden.dimensions.width,
       garden.dimensions.length,
-      32,
-      32
+      48,
+      48
     );
+    groundGeometry.rotateX(-Math.PI / 2);
 
-    // Add slight vertex displacement for organic look
-    const positions = groundGeometry.attributes.position as THREE.BufferAttribute;
+    // Add Perlin noise displacement for organic undulating look
+    const positions = groundGeometry.attributes.position;
     for (let i = 0; i < positions.count; i++) {
-      const z = positions.getZ(i);
-      positions.setZ(i, z + (Math.random() - 0.5) * 0.05);
+      const x = positions.getX(i) + centerX;
+      const z = positions.getZ(i) + centerZ;
+      const noise = perlinNoise(x * 0.15, z * 0.15);
+      positions.setY(i, positions.getY(i) + noise * 0.08);
     }
     groundGeometry.computeVertexNormals();
 
-    const innerGrassTexture = this.getRepeatingTexture("grass", garden.dimensions.width, garden.dimensions.length);
-    const groundMaterial = new THREE.MeshStandardMaterial({
-      map: innerGrassTexture,
-      roughness: 0.9,
-      metalness: 0,
-    });
+    const innerGrassTexture = this.textures.get("grass") || null;
+    const groundMaterial = this.createGrassMaterial(innerGrassTexture, 0x4a7a4a, 0xffffff);
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.set(centerX, -0.01, centerZ);
+    ground.position.set(centerX, -0.12, centerZ);
     ground.receiveShadow = true;
     this.gardenGroup.add(ground);
   }
@@ -350,13 +411,44 @@ export class GardenRenderer {
       metalness: 0.0,
     });
 
-    // Black deer mesh material - nearly invisible
-    const meshMaterial = new THREE.MeshStandardMaterial({
-      color: 0x1a1a1a, // Very dark gray/black
-      transparent: true,
-      opacity: 0.25,
-      side: THREE.DoubleSide,
-    });
+    // Black deer mesh material with fence texture
+    const fenceTexture = this.textures.get("fence");
+    let meshMaterial: THREE.Material;
+    if (fenceTexture) {
+      meshMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          map: { value: fenceTexture },
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D map;
+          varying vec2 vUv;
+          void main() {
+            vec2 scaledUv = vUv * 2.0; // Scale down the pattern
+            vec4 texel = texture2D(map, scaledUv);
+            float brightness = (texel.r + texel.g + texel.b) / 3.0;
+            // Gray holes are brighter, mesh is darker
+            if (brightness > 0.3) discard;
+            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); // Black mesh
+          }
+        `,
+        transparent: true,
+        side: THREE.DoubleSide,
+      });
+    } else {
+      meshMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        transparent: true,
+        opacity: 0.25,
+        side: THREE.DoubleSide,
+      });
+    }
 
     // Define fence sides using absolute coordinates from schema
     const sides: Array<{ start: [number, number]; end: [number, number]; name: "north" | "south" | "east" | "west" }> = [
@@ -464,8 +556,14 @@ export class GardenRenderer {
           this.addFenceMeshSegment(sx, sz, ex, ez, currentStart / length, 1, fenceHeight, angle, meshMaterial);
         }
       } else {
-        // No gates - full mesh panel
+        // No gates - full mesh panel with proper UV tiling
         const meshGeometry = new THREE.PlaneGeometry(length, fenceHeight);
+        // Scale UVs for tiling (assume texture is 4ft x 4ft)
+        const uvAttr = meshGeometry.attributes.uv as THREE.BufferAttribute;
+        for (let i = 0; i < uvAttr.count; i++) {
+          uvAttr.setX(i, uvAttr.getX(i) * (length / 4));
+          uvAttr.setY(i, uvAttr.getY(i) * (fenceHeight / 4));
+        }
         const mesh = new THREE.Mesh(meshGeometry, meshMaterial);
         mesh.position.set((sx + ex) / 2, fenceHeight / 2, (sz + ez) / 2);
         mesh.rotation.y = angle + Math.PI / 2;
@@ -590,6 +688,12 @@ export class GardenRenderer {
     const segLen = Math.sqrt((x2 - x1) ** 2 + (z2 - z1) ** 2);
 
     const meshGeometry = new THREE.PlaneGeometry(segLen, height);
+    // Scale UVs for tiling (assume texture is 4ft x 4ft)
+    const uvAttr = meshGeometry.attributes.uv as THREE.BufferAttribute;
+    for (let i = 0; i < uvAttr.count; i++) {
+      uvAttr.setX(i, uvAttr.getX(i) * (segLen / 4));
+      uvAttr.setY(i, uvAttr.getY(i) * (height / 4));
+    }
     const mesh = new THREE.Mesh(meshGeometry, material);
     mesh.position.set((x1 + x2) / 2, height / 2, (z1 + z2) / 2);
     mesh.rotation.y = angle + Math.PI / 2;
@@ -842,26 +946,76 @@ export class GardenRenderer {
     const bedGroup = new THREE.Group();
     bedGroup.userData.bedId = bed.id;
 
-    // Soil
-    const soilGeometry = new THREE.BoxGeometry(
-      bed.dimensions.width - boardThickness * 2,
-      bed.dimensions.height - 0.05,
-      bed.dimensions.length - boardThickness * 2
-    );
+    // Soil with bulging top surface
+    const soilWidth = bed.dimensions.width - boardThickness * 2;
+    const soilLength = bed.dimensions.length - boardThickness * 2;
+    const soilHeight = bed.dimensions.height - 0.05;
+    const dirtTexture = this.getRepeatingTexture("dirt", soilWidth, soilLength);
     const soilMaterial = new THREE.MeshStandardMaterial({
-      color: bed.soilColor,
+      color: dirtTexture ? 0xffffff : bed.soilColor,
       roughness: 1,
+      map: dirtTexture || undefined,
     });
-    const soil = new THREE.Mesh(soilGeometry, soilMaterial);
-    soil.position.set(
+
+    // Base box for soil sides (slightly shorter to make room for bulging top)
+    const bulgeHeight = 0.15;
+    const baseGeometry = new THREE.BoxGeometry(soilWidth, soilHeight - bulgeHeight, soilLength);
+    const soilBase = new THREE.Mesh(baseGeometry, soilMaterial);
+    soilBase.position.set(
       bed.position.x,
-      bed.position.y + (bed.dimensions.height - 0.05) / 2,
+      bed.position.y + (soilHeight - bulgeHeight) / 2,
       bed.position.z
     );
-    soil.castShadow = true;
-    soil.receiveShadow = true;
-    bedGroup.add(soil);
-    this.bedMeshes.set(soil, bed.id);
+    soilBase.castShadow = true;
+    soilBase.receiveShadow = true;
+    bedGroup.add(soilBase);
+    this.bedMeshes.set(soilBase, bed.id);
+
+    // Bulging top surface with Perlin noise displacement
+    const segments = Math.max(16, Math.floor(Math.max(soilWidth, soilLength) * 4));
+    const topGeometry = new THREE.PlaneGeometry(soilWidth, soilLength, segments, segments);
+    topGeometry.rotateX(-Math.PI / 2);
+
+    const positions = topGeometry.attributes.position;
+    const noiseScale = 0.8;
+    const noiseStrength = 0.25; // ~3 inches of noise variation
+    const centerBulge = 0.4; // ~5 inches of center bulge
+
+    for (let i = 0; i < positions.count; i++) {
+      const x = positions.getX(i);
+      const z = positions.getZ(i);
+
+      // Normalized distance from center (0 at center, 1 at edges)
+      const nx = (x / (soilWidth / 2));
+      const nz = (z / (soilLength / 2));
+      const distFromCenter = Math.sqrt(nx * nx + nz * nz);
+
+      // Smooth falloff from center bulge (1 at center, 0 at edges)
+      const bulgeFactor = Math.max(0, 1 - distFromCenter * distFromCenter);
+
+      // Perlin noise for natural variation
+      const noise = perlinNoise(
+        (x + bed.position.x) * noiseScale,
+        (z + bed.position.z) * noiseScale
+      );
+
+      // Combine bulge and noise, with noise reduced at edges
+      const displacement = bulgeFactor * centerBulge + noise * noiseStrength * (0.3 + 0.7 * bulgeFactor);
+      positions.setY(i, displacement);
+    }
+
+    topGeometry.computeVertexNormals();
+
+    const soilTop = new THREE.Mesh(topGeometry, soilMaterial);
+    soilTop.position.set(
+      bed.position.x,
+      bed.position.y + soilHeight - bulgeHeight,
+      bed.position.z
+    );
+    soilTop.castShadow = true;
+    soilTop.receiveShadow = true;
+    bedGroup.add(soilTop);
+    this.bedMeshes.set(soilTop, bed.id);
 
     if (isMetalBed) {
       // Galvanized metal bed - corrugated appearance
@@ -950,6 +1104,7 @@ export class GardenRenderer {
       color: 0x8a9a9a, // Silver-gray
       roughness: 0.4,
       metalness: 0.8,
+      side: THREE.DoubleSide,
     });
 
     // Top rim material - slightly darker
@@ -957,6 +1112,7 @@ export class GardenRenderer {
       color: 0x6a7a7a,
       roughness: 0.3,
       metalness: 0.9,
+      side: THREE.DoubleSide,
     });
 
     // Create corrugated panels for each side
@@ -1237,6 +1393,229 @@ export class GardenRenderer {
 
   private pathIndex = 0;
 
+  // Grass uses THREE UV offsets for maximum variation since it covers large areas
+  private createGrassMaterial(texture: THREE.Texture | null, fallbackColor: number, tintColor?: number): THREE.ShaderMaterial | THREE.MeshStandardMaterial {
+    if (!texture) {
+      return new THREE.MeshStandardMaterial({ color: fallbackColor, roughness: 0.95 });
+    }
+
+    const tint = new THREE.Color(tintColor ?? 0xffffff);
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        map: { value: texture },
+        textureTileSize: { value: TEXTURE_TILE_SIZE },
+        uvOffset2: { value: new THREE.Vector2(0.41, 0.67) },
+        uvOffset3: { value: new THREE.Vector2(0.23, 0.31) },
+        noiseScale: { value: 0.25 },
+        tint: { value: tint },
+      },
+      vertexShader: `
+        varying vec3 vWorldPos;
+        void main() {
+          vec4 worldPos = modelMatrix * vec4(position, 1.0);
+          vWorldPos = worldPos.xyz;
+          gl_Position = projectionMatrix * viewMatrix * worldPos;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D map;
+        uniform float textureTileSize;
+        uniform vec2 uvOffset2;
+        uniform vec2 uvOffset3;
+        uniform float noiseScale;
+        uniform vec3 tint;
+        varying vec3 vWorldPos;
+
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+        float snoise(vec2 v) {
+          const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+          vec2 i = floor(v + dot(v, C.yy));
+          vec2 x0 = v - i + dot(i, C.xx);
+          vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+          vec4 x12 = x0.xyxy + C.xxzz;
+          x12.xy -= i1;
+          i = mod289(i);
+          vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+          vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+          m = m*m; m = m*m;
+          vec3 x = 2.0 * fract(p * C.www) - 1.0;
+          vec3 h = abs(x) - 0.5;
+          vec3 ox = floor(x + 0.5);
+          vec3 a0 = x - ox;
+          m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+          vec3 g;
+          g.x = a0.x * x0.x + h.x * x0.y;
+          g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+          return 130.0 * dot(m, g);
+        }
+
+        void main() {
+          vec2 worldUV = vWorldPos.xz / textureTileSize;
+
+          // Sample texture at three different UV offsets
+          vec4 color1 = texture2D(map, worldUV);
+          vec4 color2 = texture2D(map, worldUV + uvOffset2);
+          vec4 color3 = texture2D(map, worldUV + uvOffset3);
+
+          // Two noise layers at different scales for organic blending
+          float noise1 = snoise(vWorldPos.xz * noiseScale) * 0.5 + 0.5;
+          float noise2 = snoise(vWorldPos.xz * noiseScale * 2.3 + 100.0) * 0.5 + 0.5;
+
+          // Blend all three: first two, then mix in third
+          vec4 blend12 = mix(color1, color2, noise1);
+          vec4 finalColor = mix(blend12, color3, noise2 * 0.5);
+
+          finalColor.rgb *= tint;
+          gl_FragColor = finalColor;
+        }
+      `,
+    });
+  }
+
+  private createMulchMaterial(texture: THREE.Texture | null, fallbackColor: number): THREE.ShaderMaterial | THREE.MeshStandardMaterial {
+    if (!texture) {
+      return new THREE.MeshStandardMaterial({ color: fallbackColor, roughness: 0.95 });
+    }
+
+    // Custom shader with parallax occlusion mapping for per-pixel depth
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        map: { value: texture },
+        textureTileSize: { value: TEXTURE_TILE_SIZE },
+        uvOffset2: { value: new THREE.Vector2(0.37, 0.53) },
+        noiseScale: { value: 0.5 },
+        parallaxScale: { value: 0.004 }, // Depth scale for parallax
+        parallaxSteps: { value: 32.0 }, // Ray march steps
+      },
+      vertexShader: `
+        varying vec3 vWorldPos;
+        varying vec3 vViewDir;
+        varying vec3 vNormal;
+
+        void main() {
+          vec4 worldPos = modelMatrix * vec4(position, 1.0);
+          vWorldPos = worldPos.xyz;
+          vNormal = normalize(normalMatrix * normal);
+
+          // View direction in world space
+          vViewDir = normalize(cameraPosition - worldPos.xyz);
+
+          gl_Position = projectionMatrix * viewMatrix * worldPos;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D map;
+        uniform float textureTileSize;
+        uniform vec2 uvOffset2;
+        uniform float noiseScale;
+        uniform float parallaxScale;
+        uniform float parallaxSteps;
+        varying vec3 vWorldPos;
+        varying vec3 vViewDir;
+        varying vec3 vNormal;
+
+        // Simplex noise
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+        float snoise(vec2 v) {
+          const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+          vec2 i = floor(v + dot(v, C.yy));
+          vec2 x0 = v - i + dot(i, C.xx);
+          vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+          vec4 x12 = x0.xyxy + C.xxzz;
+          x12.xy -= i1;
+          i = mod289(i);
+          vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+          vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+          m = m*m; m = m*m;
+          vec3 x = 2.0 * fract(p * C.www) - 1.0;
+          vec3 h = abs(x) - 0.5;
+          vec3 ox = floor(x + 0.5);
+          vec3 a0 = x - ox;
+          m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+          vec3 g;
+          g.x = a0.x * x0.x + h.x * x0.y;
+          g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+          return 130.0 * dot(m, g);
+        }
+
+        // Sample height with box blur for smooth gradients
+        float getHeight(vec2 uv) {
+          vec2 texelSize = vec2(0.003);
+          float h = 0.0;
+          h += dot(texture2D(map, uv).rgb, vec3(0.299, 0.587, 0.114)) * 0.4;
+          h += dot(texture2D(map, uv + vec2(texelSize.x, 0.0)).rgb, vec3(0.299, 0.587, 0.114)) * 0.15;
+          h += dot(texture2D(map, uv - vec2(texelSize.x, 0.0)).rgb, vec3(0.299, 0.587, 0.114)) * 0.15;
+          h += dot(texture2D(map, uv + vec2(0.0, texelSize.y)).rgb, vec3(0.299, 0.587, 0.114)) * 0.15;
+          h += dot(texture2D(map, uv - vec2(0.0, texelSize.y)).rgb, vec3(0.299, 0.587, 0.114)) * 0.15;
+          return smoothstep(0.2, 0.8, h);
+        }
+
+        // Parallax with binary search refinement
+        vec2 parallaxMapping(vec2 uv, vec3 viewDir) {
+          float viewAngle = max(viewDir.y, 0.3);
+          vec2 uvOffset = viewDir.xz * parallaxScale / viewAngle;
+          float stepSize = 1.0 / parallaxSteps;
+          float currentLayerDepth = 0.0;
+          vec2 currentUV = uv;
+          float currentTexHeight = getHeight(currentUV);
+          vec2 prevUV = uv;
+          float prevLayerDepth = 0.0;
+
+          // Linear search
+          for (float i = 0.0; i < 32.0; i++) {
+            if (currentLayerDepth >= currentTexHeight) break;
+            prevUV = currentUV;
+            prevLayerDepth = currentLayerDepth;
+            currentLayerDepth += stepSize;
+            currentUV = uv - uvOffset * currentLayerDepth;
+            currentTexHeight = getHeight(currentUV);
+          }
+
+          // Binary search refinement
+          float d0 = prevLayerDepth;
+          float d1 = currentLayerDepth;
+          vec2 p0 = prevUV;
+          vec2 p1 = currentUV;
+          for (float j = 0.0; j < 6.0; j++) {
+            float midD = (d0 + d1) * 0.5;
+            vec2 midUV = uv - uvOffset * midD;
+            float midH = getHeight(midUV);
+            if (midD < midH) { d0 = midD; p0 = midUV; }
+            else { d1 = midD; p1 = midUV; }
+          }
+
+          // Smooth final interpolation
+          float h0 = getHeight(p0);
+          float h1 = getHeight(p1);
+          float t = clamp((d0 - h0) / ((d0 - h0) + (h1 - d1) + 0.0001), 0.0, 1.0);
+          t = t * t * (3.0 - 2.0 * t);
+          return mix(p0, p1, t);
+        }
+
+        void main() {
+          vec2 baseUV = vWorldPos.xz / textureTileSize;
+
+          // Apply parallax mapping
+          vec2 parallaxUV = parallaxMapping(baseUV, vViewDir);
+
+          // Sample with parallax-adjusted UVs
+          vec4 color1 = texture2D(map, parallaxUV);
+          vec4 color2 = texture2D(map, parallaxUV + uvOffset2);
+
+          // Blend layers with noise
+          float noise = snoise(vWorldPos.xz * noiseScale) * 0.5 + 0.5;
+          vec4 finalColor = mix(color1, color2, noise);
+
+          gl_FragColor = finalColor;
+        }
+      `,
+    });
+  }
+
   private renderPath(path: Path): void {
     const pathColors: Record<string, number> = {
       gravel: 0x9e9e9e,
@@ -1257,18 +1636,35 @@ export class GardenRenderer {
       const dz = end.z - start.z;
       const length = Math.sqrt(dx * dx + dz * dz);
       const angle = Math.atan2(dx, dz);
+      const centerX = (start.x + end.x) / 2;
+      const centerZ = (start.z + end.z) / 2;
 
-      const pathGeometry = new THREE.BoxGeometry(path.width, 0.08, length);
+      // Use PlaneGeometry with high segment count for texture-driven displacement
+      // ~24 segments per foot gives reasonable fidelity to texture detail
+      const segsPerFoot = 4; // Low count - parallax handles detail
+      const widthSegs = Math.max(4, Math.floor(path.width * segsPerFoot));
+      const lengthSegs = Math.max(4, Math.floor(length * segsPerFoot));
+      const pathGeometry = new THREE.PlaneGeometry(path.width, length, widthSegs, lengthSegs);
+      pathGeometry.rotateX(-Math.PI / 2);
+
+      // Add Perlin noise displacement
+      const positions = pathGeometry.attributes.position;
+      for (let j = 0; j < positions.count; j++) {
+        const localX = positions.getX(j);
+        const localZ = positions.getZ(j);
+        // Transform to world coordinates for consistent noise
+        const worldX = centerX + localX * Math.cos(angle) - localZ * Math.sin(angle);
+        const worldZ = centerZ + localX * Math.sin(angle) + localZ * Math.cos(angle);
+        const noise = perlinNoise(worldX * 0.5, worldZ * 0.5);
+        positions.setY(j, positions.getY(j) + noise * 0.04);
+      }
+      pathGeometry.computeVertexNormals();
 
       // Use wood-chips texture for wood material, fallback colors for others
-      let pathMaterial: THREE.MeshStandardMaterial;
+      let pathMaterial: THREE.ShaderMaterial | THREE.MeshStandardMaterial;
       if (path.material === "wood") {
         const woodChipsTexture = this.getRepeatingTexture("wood-chips", path.width, length);
-        pathMaterial = new THREE.MeshStandardMaterial({
-          map: woodChipsTexture,
-          color: woodChipsTexture ? 0xffffff : pathColors[path.material], // Fallback to brown if texture missing
-          roughness: 0.95,
-        });
+        pathMaterial = this.createMulchMaterial(woodChipsTexture, pathColors[path.material]!);
       } else {
         pathMaterial = new THREE.MeshStandardMaterial({
           color: pathColors[path.material],
@@ -1277,7 +1673,7 @@ export class GardenRenderer {
       }
 
       const pathMesh = new THREE.Mesh(pathGeometry, pathMaterial);
-      pathMesh.position.set((start.x + end.x) / 2, yOffset, (start.z + end.z) / 2);
+      pathMesh.position.set(centerX, yOffset, centerZ);
       pathMesh.rotation.y = angle;
       pathMesh.receiveShadow = true;
       this.gardenGroup.add(pathMesh);
