@@ -38,3 +38,6 @@ Avoid planting near: Potatoes, aromatic herbs
 
 ## Expected Yield
 10-20 cucumbers per plant
+
+## Learn More
+- [Wikipedia: Cucumber](https://en.wikipedia.org/wiki/Cucumber)

@@ -35,3 +35,6 @@ Avoid planting near: Tomatoes, squash, cucumbers
 
 ## Expected Yield
 5-10 lbs per plant
+
+## Learn More
+- [Wikipedia: Potato](https://en.wikipedia.org/wiki/Potato)

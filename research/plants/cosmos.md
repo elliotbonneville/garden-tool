@@ -38,3 +38,6 @@ Use as: Pollinator plant, cut flower, garden filler
 - Self-seeds for next year
 - Tolerates poor soil
 - Long bloom season
+
+## Learn More
+- [Wikipedia: Cosmos (plant)](https://en.wikipedia.org/wiki/Cosmos_(plant))

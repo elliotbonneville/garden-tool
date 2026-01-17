@@ -36,7 +36,7 @@ export function GardenView() {
     selectedLayout,
     selectedBed,
     setSelectedBed,
-    setGardenInfo,
+    setLayoutData,
     sunTime,
   } = useGardenStore();
 
@@ -45,7 +45,7 @@ export function GardenView() {
   const layoutRef = useRef<GardenLayout | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [garden, setGarden] = useState<Garden | null>(null);
-  const [layoutData, setLayoutData] = useState<unknown>(null);
+  const [rawLayoutData, setRawLayoutData] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
 
   // Load layout data when selection changes
@@ -66,7 +66,7 @@ export function GardenView() {
     layoutLoaders[selectedLayout]()
       .then((module) => {
         const data = (module as { default?: unknown }).default || module;
-        setLayoutData(data);
+        setRawLayoutData(data);
         setLoading(false);
       })
       .catch((e) => {
@@ -77,10 +77,10 @@ export function GardenView() {
 
   // Parse layout when data loads
   useEffect(() => {
-    if (!layoutData) return;
+    if (!rawLayoutData) return;
 
     try {
-      const layout = GardenLayoutSchema.parse(layoutData);
+      const layout = GardenLayoutSchema.parse(rawLayoutData);
       layoutRef.current = layout;
 
       const cropColors: Record<string, string> = {
@@ -352,17 +352,13 @@ export function GardenView() {
         scatteredPlants,
       });
 
-      setGardenInfo({
-        name: layout.metadata.name,
-        dimensions: { width: siteW, length: siteL },
-        bedCount: beds.length,
-      });
+      setLayoutData(layout);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to parse layout");
       console.error("Layout parse error:", e);
-      setGardenInfo(null);
+      setLayoutData(null);
     }
-  }, [layoutData, setGardenInfo]);
+  }, [rawLayoutData, setLayoutData]);
 
   useEffect(() => {
     const container = containerRef.current;

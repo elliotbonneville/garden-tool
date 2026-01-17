@@ -35,3 +35,6 @@ Avoid planting near: Dill
 
 ## Expected Yield
 1 lb per foot of row
+
+## Learn More
+- [Wikipedia: Carrot](https://en.wikipedia.org/wiki/Carrot)

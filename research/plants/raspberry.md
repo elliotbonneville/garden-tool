@@ -40,3 +40,6 @@ Avoid planting near: Blackberries (disease spread), nightshades
 
 ## Expected Yield
 1-2 quarts per plant per year (mature plants)
+
+## Learn More
+- [Wikipedia: Raspberry](https://en.wikipedia.org/wiki/Raspberry)

@@ -38,3 +38,6 @@ Use as: Trap crop for aphids, windbreak, bird food
 - Seeds feed birds
 - Kids love growing them
 - Natural garden focal point
+
+## Learn More
+- [Wikipedia: Sunflower](https://en.wikipedia.org/wiki/Sunflower)

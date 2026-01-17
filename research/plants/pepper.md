@@ -40,3 +40,6 @@ Avoid planting near: Fennel, kohlrabi
 ## Expected Yield
 - Bell: 5-10 peppers per plant
 - Hot: 20-50+ peppers per plant
+
+## Learn More
+- [Wikipedia: Capsicum](https://en.wikipedia.org/wiki/Capsicum)

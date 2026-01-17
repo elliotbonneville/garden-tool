@@ -1,3 +1,7 @@
+---
+title: Garden Layout Design
+---
+
 # Garden Layout Design - 40x40 Space
 
 ## Space Analysis

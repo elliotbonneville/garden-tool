@@ -1,3 +1,7 @@
+---
+title: Weekly Schedule & Workload
+---
+
 # Garden Workload & Weekly Schedules
 
 ## The Good News: Back to Eden Reduces Work

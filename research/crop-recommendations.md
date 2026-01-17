@@ -1,3 +1,7 @@
+---
+title: Crop Recommendations
+---
+
 # Crop Recommendations for Exeter RI Garden
 
 ## Selection Criteria

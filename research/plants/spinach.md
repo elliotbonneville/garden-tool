@@ -35,3 +35,6 @@ Avoid planting near: None significant
 
 ## Expected Yield
 1/4 - 1/2 lb per plant
+
+## Learn More
+- [Wikipedia: Spinach](https://en.wikipedia.org/wiki/Spinach)

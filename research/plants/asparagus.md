@@ -35,3 +35,6 @@ Avoid planting near: Garlic, onions, potatoes
 
 ## Expected Yield
 0.5 lb per plant per year (mature plants)
+
+## Learn More
+- [Wikipedia: Asparagus](https://en.wikipedia.org/wiki/Asparagus)

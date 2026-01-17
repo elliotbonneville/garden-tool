@@ -1,3 +1,7 @@
+---
+title: Bed Materials Comparison
+---
+
 # Raised Bed Materials - Cost Comparison
 
 ## The Problem with Cedar

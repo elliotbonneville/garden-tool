@@ -38,3 +38,6 @@ Avoid planting near: Strawberries, tomatoes
 
 ## Expected Yield
 1-2 lbs per plant over the season
+
+## Learn More
+- [Wikipedia: Kale](https://en.wikipedia.org/wiki/Kale)

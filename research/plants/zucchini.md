@@ -38,3 +38,6 @@ Avoid planting near: Potatoes
 
 ## Expected Yield
 6-10 lbs per plant (can be MUCH more!)
+
+## Learn More
+- [Wikipedia: Zucchini](https://en.wikipedia.org/wiki/Zucchini)

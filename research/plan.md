@@ -1,3 +1,7 @@
+---
+title: Exeter RI Garden Research Plan
+---
+
 # Exeter RI Garden Research Plan
 
 ## Project Overview
@@ -21,6 +25,7 @@
 | [bed-materials-comparison.md](bed-materials-comparison.md) | Complete | Cedar vs metal vs alternatives - metal wins |
 | [soil-ph-composition.md](soil-ph-composition.md) | Complete | **CRITICAL** - pH testing, mushroom compost risks, soil mix |
 | [weekly-schedule.md](weekly-schedule.md) | Complete | Workload at 3 effort levels |
+| [pest-management.md](pest-management.md) | Complete | BTE insect pest approach, slug mitigation |
 
 ## Research Phases
 
@@ -60,7 +65,7 @@
 ### Phase 5: Protection
 - [x] Deer fencing requirements
 - [x] Bird netting for berries
-- [ ] Other pest considerations - future enhancement
+- [x] Other pest considerations - see [pest-management.md](pest-management.md)
 
 ---
 

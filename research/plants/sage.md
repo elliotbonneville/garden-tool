@@ -35,3 +35,6 @@ Avoid planting near: Cucumbers
 
 ## Expected Yield
 Multiple harvests per season, dries excellently
+
+## Learn More
+- [Wikipedia: Salvia officinalis](https://en.wikipedia.org/wiki/Salvia_officinalis)

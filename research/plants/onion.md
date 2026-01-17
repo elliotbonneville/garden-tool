@@ -38,3 +38,6 @@ Avoid planting near: Beans, peas
 
 ## Expected Yield
 1 onion per plant
+
+## Learn More
+- [Wikipedia: Onion](https://en.wikipedia.org/wiki/Onion)

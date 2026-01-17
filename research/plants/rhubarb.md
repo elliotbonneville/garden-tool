@@ -35,3 +35,6 @@ Avoid planting near: Dock, other rhubarb (competition)
 
 ## Expected Yield
 2-3 lbs per plant per year (mature plants)
+
+## Learn More
+- [Wikipedia: Rhubarb](https://en.wikipedia.org/wiki/Rhubarb)

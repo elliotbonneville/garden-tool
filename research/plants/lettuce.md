@@ -35,3 +35,6 @@ Avoid planting near: None significant
 
 ## Expected Yield
 1/2 - 1 lb per plant
+
+## Learn More
+- [Wikipedia: Lettuce](https://en.wikipedia.org/wiki/Lettuce)

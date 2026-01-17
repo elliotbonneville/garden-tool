@@ -27,12 +27,12 @@ export function App() {
   return (
     <BrowserRouter>
       <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
-        <Allotment>
+        <Allotment proportionalLayout={false}>
           {/* Details pane (left) */}
           <Allotment.Pane
-            minSize={leftPaneVisible ? 250 : 0}
-            maxSize={leftPaneVisible ? 400 : 0}
-            preferredSize={leftPaneVisible ? 300 : 0}
+            minSize={250}
+            maxSize={400}
+            preferredSize={300}
             visible={leftPaneVisible}
           >
             <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -80,9 +80,9 @@ export function App() {
 
           {/* Research pane (right) */}
           <Allotment.Pane
-            minSize={rightPaneVisible ? 300 : 0}
-            maxSize={rightPaneVisible ? 600 : 0}
-            preferredSize={rightPaneVisible ? 450 : 0}
+            minSize={300}
+            maxSize={600}
+            preferredSize={450}
             visible={rightPaneVisible}
           >
             <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>

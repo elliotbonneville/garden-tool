@@ -1,3 +1,7 @@
+---
+title: Plant Wishlist
+---
+
 # Garden Wishlist - Full Plant List
 
 ## Fruiting Vegetables (15)

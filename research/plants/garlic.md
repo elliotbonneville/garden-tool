@@ -39,3 +39,6 @@ Avoid planting near: Beans, peas
 
 ## Expected Yield
 1 bulb per clove planted
+
+## Learn More
+- [Wikipedia: Garlic](https://en.wikipedia.org/wiki/Garlic)

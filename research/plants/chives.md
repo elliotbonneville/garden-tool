@@ -35,3 +35,6 @@ Avoid planting near: Beans, peas
 
 ## Expected Yield
 Continuous harvest all season
+
+## Learn More
+- [Wikipedia: Chives](https://en.wikipedia.org/wiki/Chives)

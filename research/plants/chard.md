@@ -38,3 +38,6 @@ Avoid planting near: Corn, potatoes
 
 ## Expected Yield
 1-2 lbs per plant over the season
+
+## Learn More
+- [Wikipedia: Chard](https://en.wikipedia.org/wiki/Chard)

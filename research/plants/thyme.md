@@ -35,3 +35,6 @@ Avoid planting near: None significant
 
 ## Expected Yield
 Multiple harvests per season
+
+## Learn More
+- [Wikipedia: Thyme](https://en.wikipedia.org/wiki/Thyme)

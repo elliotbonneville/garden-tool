@@ -35,3 +35,6 @@ Avoid planting near: Hyssop
 
 ## Expected Yield
 1 radish per inch of row
+
+## Learn More
+- [Wikipedia: Radish](https://en.wikipedia.org/wiki/Radish)

@@ -1,3 +1,7 @@
+---
+title: Soil pH & Composition
+---
+
 # Soil pH Testing & Composition
 
 ## Why This Matters - The High pH Trap

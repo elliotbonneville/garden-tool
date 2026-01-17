@@ -41,3 +41,6 @@ Avoid planting near: Cabbage family, fennel
 
 ## Expected Yield
 1-2 pints per plant per year
+
+## Learn More
+- [Wikipedia: Strawberry](https://en.wikipedia.org/wiki/Strawberry)

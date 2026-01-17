@@ -38,3 +38,6 @@ Use as: Pest deterrent, border plant, trap crop for aphids
 - Attracts beneficial insects
 - Easy and reliable
 - Edible flowers (remove white base)
+
+## Learn More
+- [Wikipedia: Marigold](https://en.wikipedia.org/wiki/Marigold)

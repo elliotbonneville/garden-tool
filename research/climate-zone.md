@@ -1,3 +1,7 @@
+---
+title: Exeter RI Climate & Growing Zone
+---
+
 # Exeter RI Climate & Growing Zone
 
 ## USDA Hardiness Zone

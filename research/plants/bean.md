@@ -38,3 +38,6 @@ Avoid planting near: Onions, garlic
 
 ## Expected Yield
 1/2 lb per foot of row
+
+## Learn More
+- [Wikipedia: Green bean](https://en.wikipedia.org/wiki/Green_bean)

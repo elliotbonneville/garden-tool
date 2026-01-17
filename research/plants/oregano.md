@@ -35,3 +35,6 @@ Avoid planting near: None significant
 
 ## Expected Yield
 Multiple harvests per season, dries well
+
+## Learn More
+- [Wikipedia: Oregano](https://en.wikipedia.org/wiki/Oregano)

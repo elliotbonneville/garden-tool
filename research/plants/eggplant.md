@@ -35,3 +35,6 @@ Avoid planting near: Fennel
 
 ## Expected Yield
 4-6 fruits per plant
+
+## Learn More
+- [Wikipedia: Eggplant](https://en.wikipedia.org/wiki/Eggplant)

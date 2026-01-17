@@ -35,3 +35,6 @@ Avoid planting near: Pole beans
 
 ## Expected Yield
 1 lb per foot of row
+
+## Learn More
+- [Wikipedia: Beetroot](https://en.wikipedia.org/wiki/Beetroot)

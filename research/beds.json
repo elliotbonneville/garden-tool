@@ -1,0 +1,283 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-01-17",
+
+  "configurations": {
+    "compact_8x12": {
+      "name": "8x12 ft Compact Bed",
+      "dimensions": {
+        "width_ft": 8,
+        "length_ft": 12,
+        "height_in": 17
+      },
+      "construction": {
+        "method": "two_4x12_side_by_side",
+        "components": [
+          {
+            "product_id": "vegega-17-4x8",
+            "quantity": 2,
+            "purpose": "base_kits"
+          },
+          {
+            "product_id": "vegega-17-2ft-extension",
+            "quantity": 4,
+            "purpose": "extend_to_12ft"
+          }
+        ]
+      },
+      "cost_estimate": {
+        "per_bed": 664,
+        "for_6_beds": 3984
+      },
+      "notes": "Each 8x12 bed is two 4x12 sections side-by-side. Small gap between sections."
+    },
+
+    "standard_4x8": {
+      "name": "4x8 ft Standard Bed (RECOMMENDED)",
+      "dimensions": {
+        "width_ft": 4,
+        "length_ft": 8,
+        "height_in": 17
+      },
+      "construction": {
+        "method": "single_kit",
+        "components": [
+          {
+            "product_id": "vegega-17-4x8",
+            "quantity": 1,
+            "purpose": "complete_bed"
+          }
+        ]
+      },
+      "cost_estimate": {
+        "per_bed": 200,
+        "for_12_beds": 2400,
+        "for_14_beds": 2800
+      },
+      "notes": "Most common size. No extensions needed. Best value."
+    },
+
+    "extended_4x12": {
+      "name": "4x12 ft Extended Bed",
+      "dimensions": {
+        "width_ft": 4,
+        "length_ft": 12,
+        "height_in": 17
+      },
+      "construction": {
+        "method": "base_plus_extensions",
+        "components": [
+          {
+            "product_id": "vegega-17-4x8",
+            "quantity": 1,
+            "purpose": "base_kit"
+          },
+          {
+            "product_id": "vegega-17-2ft-extension",
+            "quantity": 2,
+            "purpose": "extend_4ft"
+          }
+        ]
+      },
+      "cost_estimate": {
+        "per_bed": 332
+      }
+    }
+  },
+
+  "products": {
+    "vegega-17-4x8": {
+      "brand": "Vegega",
+      "name": "17\" Tall 4x8 Metal Raised Garden Bed (10-in-1)",
+      "sku": "17-tall-4x8-raised-garden-bed",
+      "dimensions": {
+        "width_ft": 4,
+        "length_ft": 8,
+        "height_in": 17
+      },
+      "material": "Zn-Al-Mg steel",
+      "lifespan_years": 20,
+      "price_usd": 199.95,
+      "url": "https://www.vegega.com/products/17-tall-4x8-raised-garden-bed",
+      "colors": ["reseda_green", "slate_grey", "oyster_white", "night_blue", "moss_green", "vibrant_orange"],
+      "discount_code": "Sub10",
+      "discount_percent": 10
+    },
+
+    "vegega-17-8x2": {
+      "brand": "Vegega",
+      "name": "17\" Tall 8x2 Metal Raised Garden Bed (9-in-1)",
+      "sku": "17-tall-8x2-planter-boxes",
+      "dimensions": {
+        "width_ft": 2,
+        "length_ft": 8,
+        "height_in": 17
+      },
+      "material": "Zn-Al-Mg steel",
+      "lifespan_years": 20,
+      "price_usd": 175.90,
+      "url": "https://www.vegega.com/products/17-tall-8x2-planter-boxes",
+      "colors": ["oyster_white", "reseda_green", "slate_grey", "night_blue", "vibrant_orange", "moss_green"]
+    },
+
+    "vegega-17-2ft-extension": {
+      "brand": "Vegega",
+      "name": "17\" Tall 2ft Extension Panel (with rods)",
+      "sku": "17-tall-2-ft-extension-kit-for-10-in-1-garden-bed",
+      "dimensions": {
+        "width_ft": 2,
+        "height_in": 17
+      },
+      "material": "Zn-Al-Mg steel",
+      "lifespan_years": 20,
+      "price_usd": 65.95,
+      "url": "https://www.vegega.com/products/17-tall-2-ft-extension-kit-for-10-in-1-garden-bed",
+      "includes": ["2x 2.5ft support rods"]
+    },
+
+    "vegega-17-1.5ft-extension": {
+      "brand": "Vegega",
+      "name": "17\" Tall 1.5ft Extension Panel",
+      "dimensions": {
+        "width_ft": 1.5,
+        "height_in": 17
+      },
+      "material": "Zn-Al-Mg steel",
+      "lifespan_years": 20,
+      "price_usd": 43.95,
+      "url": "https://www.vegega.com/collections/garden-extension-kit"
+    },
+
+    "vegega-32-4x8": {
+      "brand": "Vegega",
+      "name": "32\" Tall 8x4 Galvanized Steel Raised Bed (10-in-1)",
+      "sku": "32-tall-8x4-metal-raised-beds",
+      "dimensions": {
+        "width_ft": 4,
+        "length_ft": 8,
+        "height_in": 32
+      },
+      "material": "Zn-Al-Mg steel",
+      "lifespan_years": 20,
+      "price_usd": 280,
+      "price_note": "estimate, check website",
+      "url": "https://www.vegega.com/products/32-tall-8x4-metal-raised-beds",
+      "notes": "Use if skipping pit excavation for hugelkultur"
+    },
+
+    "vego-17-9in1": {
+      "brand": "Vego Garden",
+      "name": "17\" Tall 9-in-1 Modular Metal Raised Garden Bed",
+      "dimensions": {
+        "max_width_ft": 2,
+        "max_length_ft": 8,
+        "height_in": 17
+      },
+      "material": "VZ 2.0 Aluzinc steel",
+      "lifespan_years": 20,
+      "price_usd": 119.95,
+      "price_high_usd": 154.95,
+      "url": "https://www.vegogarden.com/products/9-in-1-modular-raised-garden-bed",
+      "retailers": ["vegogarden.com", "Home Depot", "Lowe's", "Amazon"]
+    },
+
+    "vego-17-10in1": {
+      "brand": "Vego Garden",
+      "name": "17\" Tall 10-in-1 Modular Metal Raised Garden Bed",
+      "dimensions": {
+        "max_width_ft": 4,
+        "max_length_ft": 8,
+        "height_in": 17
+      },
+      "material": "VZ 2.0 Aluzinc steel",
+      "lifespan_years": 20,
+      "price_usd": 150,
+      "price_high_usd": 180,
+      "url": "https://www.vegogarden.com/products/10-in-1-modular-raised-garden-bed-kit"
+    },
+
+    "vego-32-10in1": {
+      "brand": "Vego Garden",
+      "name": "32\" Extra Tall 10-in-1 Modular Metal Raised Garden Bed",
+      "dimensions": {
+        "max_width_ft": 4,
+        "max_length_ft": 8,
+        "height_in": 32
+      },
+      "material": "VZ 2.0 Aluzinc steel",
+      "lifespan_years": 20,
+      "price_usd": 200,
+      "price_high_usd": 280,
+      "url": "https://www.vegogarden.com/products/32-extra-tall-10-in-1-modular-raised-garden-bed-kit"
+    },
+
+    "landguard-12x4": {
+      "brand": "Land Guard",
+      "name": "12x4x1ft Galvanized Raised Garden Bed",
+      "dimensions": {
+        "width_ft": 4,
+        "length_ft": 12,
+        "height_in": 12
+      },
+      "material": "galvanized steel",
+      "thickness_mm": 0.78,
+      "lifespan_years": 10,
+      "price_usd": 120,
+      "price_note": "estimate, check Amazon",
+      "url": "https://www.amazon.com/Land-Guard-12%C3%974%C3%971ft-Galvanized-Vegetables/dp/B09Y8LNCF6",
+      "warning": "Only 12\" tall - too shallow for hugelkultur with 18\" logs"
+    },
+
+    "landguard-8x4": {
+      "brand": "Land Guard",
+      "name": "8x4x1ft Galvanized Raised Garden Bed",
+      "dimensions": {
+        "width_ft": 4,
+        "length_ft": 8,
+        "height_in": 12
+      },
+      "material": "galvanized steel",
+      "thickness_mm": 0.78,
+      "lifespan_years": 10,
+      "price_usd": 80,
+      "price_note": "estimate, check Amazon",
+      "url": "https://www.amazon.com/Land-Guard-Galvanized-Bed%EF%BC%8C8%C3%974%C3%971-Vegetables/dp/B096THJ8B6",
+      "warning": "Only 12\" tall - too shallow for hugelkultur with 18\" logs"
+    },
+
+    "foyuee-8x4": {
+      "brand": "FOYUEE",
+      "name": "8x4x1ft Galvanized Raised Garden Bed",
+      "dimensions": {
+        "width_ft": 4,
+        "length_ft": 8,
+        "height_in": 12
+      },
+      "material": "galvanized steel",
+      "lifespan_years": 10,
+      "price_usd": 70,
+      "price_note": "estimate, check Amazon",
+      "url": "https://www.amazon.com/Galvanized-Raised-Vegetables-Planter-8x4x1ft/dp/B07T499RHJ",
+      "warning": "Only 12\" tall - too shallow for hugelkultur with 18\" logs"
+    }
+  },
+
+  "custom_vendors": {
+    "metal_garden_beds_inc": {
+      "name": "Metal Garden Beds Inc",
+      "website": "https://metalgardenbeds.com/",
+      "service": "Custom design to exact dimensions",
+      "experience_years": 14,
+      "notes": "Send plot dimensions for personalized layout and quote"
+    }
+  },
+
+  "hugelkultur_requirements": {
+    "log_diameter_in": 18,
+    "recommended_bed_height_in": 17,
+    "pit_depth_in": 18,
+    "total_depth_in": 35,
+    "soil_above_logs_in": 17,
+    "notes": "With 18\" logs and 17\" beds, excavate 18\" pits for proper hugelkultur"
+  }
+}

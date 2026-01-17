@@ -1,3 +1,7 @@
+---
+title: Budget Summary
+---
+
 # Garden Budget Summary
 
 ## UPDATED: Hired Labor + Pit Excavation for Hugelkultur

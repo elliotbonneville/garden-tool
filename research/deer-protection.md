@@ -1,3 +1,7 @@
+---
+title: Deer Protection
+---
+
 # Deer Protection Strategy
 
 ## The Bottom Line

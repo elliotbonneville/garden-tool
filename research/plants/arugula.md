@@ -35,3 +35,6 @@ Avoid planting near: Strawberries
 
 ## Expected Yield
 Multiple harvests per planting
+
+## Learn More
+- [Wikipedia: Arugula](https://en.wikipedia.org/wiki/Arugula)

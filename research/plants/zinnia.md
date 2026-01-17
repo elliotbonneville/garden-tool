@@ -37,3 +37,6 @@ Use as: Cut flower, pollinator plant, trap crop
 - Attracts butterflies and bees
 - Long-lasting cut flowers
 - Easy for beginners
+
+## Learn More
+- [Wikipedia: Zinnia](https://en.wikipedia.org/wiki/Zinnia)

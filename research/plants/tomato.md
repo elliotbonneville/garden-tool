@@ -40,3 +40,6 @@ Avoid planting near: Brassicas, fennel
 ## Expected Yield
 - Cherry: 10-20 lbs per plant
 - Slicing: 10-15 lbs per plant
+
+## Learn More
+- [Wikipedia: Tomato](https://en.wikipedia.org/wiki/Tomato)

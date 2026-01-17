@@ -1,24 +1,24 @@
 import { create } from "zustand";
-import type { LayoutBed } from "../schemas/layout";
+import type { LayoutBed, GardenLayout } from "../schemas/layout";
 
-interface GardenInfo {
-  name: string;
-  dimensions: { width: number; length: number };
-  bedCount: number;
-}
+type DetailsTab = "overview" | "details" | "analysis";
 
 interface GardenStore {
   // Layout state
   selectedLayout: string;
   setSelectedLayout: (layout: string) => void;
 
+  // Full layout data
+  layoutData: GardenLayout | null;
+  setLayoutData: (layout: GardenLayout | null) => void;
+
   // Bed selection
   selectedBed: LayoutBed | null;
   setSelectedBed: (bed: LayoutBed | null) => void;
 
-  // Garden info
-  gardenInfo: GardenInfo | null;
-  setGardenInfo: (info: GardenInfo | null) => void;
+  // Details panel tab
+  detailsTab: DetailsTab;
+  setDetailsTab: (tab: DetailsTab) => void;
 
   // Sun/time of day
   sunTime: number;
@@ -34,19 +34,24 @@ interface GardenStore {
 export const useGardenStore = create<GardenStore>((set) => ({
   // Layout state
   selectedLayout: "",
-  setSelectedLayout: (layout) => set({ selectedLayout: layout, selectedBed: null }),
+  setSelectedLayout: (layout) => set({ selectedLayout: layout, selectedBed: null, layoutData: null }),
+
+  // Full layout data
+  layoutData: null,
+  setLayoutData: (layout) => set({ layoutData: layout }),
 
   // Bed selection
   selectedBed: null,
   setSelectedBed: (bed) => set((state) => ({
     selectedBed: bed,
-    // Auto-show left pane when bed selected
+    // Auto-show left pane and switch to details tab when bed selected
     leftPaneVisible: bed ? true : state.leftPaneVisible,
+    detailsTab: bed ? "details" : state.detailsTab,
   })),
 
-  // Garden info
-  gardenInfo: null,
-  setGardenInfo: (info) => set({ gardenInfo: info }),
+  // Details panel tab
+  detailsTab: "overview",
+  setDetailsTab: (tab) => set({ detailsTab: tab }),
 
   // Sun/time of day
   sunTime: 12,

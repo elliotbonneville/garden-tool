@@ -1,3 +1,7 @@
+---
+title: Rodent Protection
+---
+
 # Rodent Protection - Hardware Cloth
 
 ## UPDATE: Metal Beds Simplify This
