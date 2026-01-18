@@ -52,7 +52,7 @@ export function App() {
         <div
           style={{
             width: "100vw",
-            height: "100vh",
+            height: "100dvh", // Dynamic viewport height for Safari
             overflow: "hidden",
             background: "var(--bg-canvas)",
             display: "flex",
@@ -72,7 +72,7 @@ export function App() {
       <div
         style={{
           width: "100vw",
-          height: "100vh",
+          height: "100dvh", // Dynamic viewport height for Safari
           overflow: "hidden",
           background: "var(--bg-canvas)",
           display: "flex",
