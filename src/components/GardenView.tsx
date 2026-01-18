@@ -510,6 +510,7 @@ export function GardenView({ onBedSelect }: GardenViewProps = {}) {
     // Touch event handling for mobile
     let touchStartPosition = { x: 0, y: 0 };
     let lastTouchDistance = 0;
+    let lastTouchCenter = { x: 0, y: 0 };
     let isTouchDragging = false;
 
     const getTouchDistance = (touches: TouchList) => {
@@ -519,6 +520,14 @@ export function GardenView({ onBedSelect }: GardenViewProps = {}) {
       return Math.sqrt(dx * dx + dy * dy);
     };
 
+    const getTouchCenter = (touches: TouchList) => {
+      if (touches.length < 2) return { x: 0, y: 0 };
+      return {
+        x: (touches[0]!.clientX + touches[1]!.clientX) / 2,
+        y: (touches[0]!.clientY + touches[1]!.clientY) / 2,
+      };
+    };
+
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 1) {
         isTouchDragging = true;
@@ -526,6 +535,8 @@ export function GardenView({ onBedSelect }: GardenViewProps = {}) {
         previousMousePosition = { x: e.touches[0]!.clientX, y: e.touches[0]!.clientY };
       } else if (e.touches.length === 2) {
         lastTouchDistance = getTouchDistance(e.touches);
+        lastTouchCenter = getTouchCenter(e.touches);
+        isTouchDragging = false; // Cancel single-finger drag when second finger added
       }
     };
 
@@ -552,30 +563,64 @@ export function GardenView({ onBedSelect }: GardenViewProps = {}) {
         previousMousePosition = { x: touch.clientX, y: touch.clientY };
         renderer.requestRender();
       } else if (e.touches.length === 2) {
-        // Two finger pinch = zoom
+        const camera = renderer.getCamera();
         const newDistance = getTouchDistance(e.touches);
+        const newCenter = getTouchCenter(e.touches);
+
+        // Two finger pinch = zoom
         if (lastTouchDistance > 0) {
-          const camera = renderer.getCamera();
           const offset = camera.position.clone().sub(gardenCenter);
           const distance = offset.length();
           const scale = lastTouchDistance / newDistance;
           const newDist = distance * scale;
           offset.setLength(Math.max(15, Math.min(120, newDist)));
           camera.position.copy(gardenCenter).add(offset);
-          renderer.requestRender();
         }
+
+        // Two finger drag = pan (like shift+drag on desktop)
+        if (lastTouchCenter.x !== 0 || lastTouchCenter.y !== 0) {
+          const deltaX = newCenter.x - lastTouchCenter.x;
+          const deltaY = newCenter.y - lastTouchCenter.y;
+
+          const forward = new THREE.Vector3();
+          camera.getWorldDirection(forward);
+          forward.y = 0;
+          forward.normalize();
+          const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
+
+          const distance = camera.position.distanceTo(gardenCenter);
+          const panSpeed = distance * 0.002;
+
+          gardenCenter.addScaledVector(right, deltaX * panSpeed);
+          gardenCenter.addScaledVector(forward, deltaY * panSpeed);
+
+          camera.position.addScaledVector(right, deltaX * panSpeed);
+          camera.position.addScaledVector(forward, deltaY * panSpeed);
+        }
+
+        camera.lookAt(gardenCenter);
+        renderer.requestRender();
+
         lastTouchDistance = newDistance;
+        lastTouchCenter = newCenter;
       }
     };
 
     const onTouchEnd = (e: TouchEvent) => {
+      // Reset two-finger tracking when fingers lifted
+      if (e.touches.length < 2) {
+        lastTouchDistance = 0;
+        lastTouchCenter = { x: 0, y: 0 };
+      }
+
       if (e.touches.length === 0 && isTouchDragging) {
-        // Check if it was a tap (not a drag)
+        // Check if it was a tap (not a drag) - use stricter threshold
         const touch = e.changedTouches[0];
         if (touch) {
           const dx = touch.clientX - touchStartPosition.x;
           const dy = touch.clientY - touchStartPosition.y;
-          const wasTap = Math.sqrt(dx * dx + dy * dy) < 10;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const wasTap = distance < 8; // Stricter threshold for taps
 
           if (wasTap && renderer && layoutRef.current) {
             const bedId = renderer.getBedAtPoint(touch.clientX, touch.clientY);
@@ -589,14 +634,12 @@ export function GardenView({ onBedSelect }: GardenViewProps = {}) {
                   setLeftPaneVisible(true);
                 }
               }
-            } else {
-              setSelectedBed(null);
             }
+            // Don't deselect on tap - only select
           }
         }
         isTouchDragging = false;
       }
-      lastTouchDistance = 0;
     };
 
     const initRenderer = () => {

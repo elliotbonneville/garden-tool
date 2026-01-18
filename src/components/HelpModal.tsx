@@ -84,6 +84,11 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 description="Drag with one finger"
               />
               <ControlItem
+                icon={<PanIcon />}
+                label="Pan view"
+                description="Drag with two fingers"
+              />
+              <ControlItem
                 icon={<ZoomIcon />}
                 label="Zoom in/out"
                 description="Pinch with two fingers"
