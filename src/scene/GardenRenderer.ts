@@ -1,4 +1,10 @@
 import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { SSAOPass } from "three/addons/postprocessing/SSAOPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import type { Garden, GardenBed, Plant, Path, Fence, BirdNetting } from "../schemas/garden";
 import { FarmerCharacter } from "./FarmerCharacter";
 
@@ -52,9 +58,21 @@ export class GardenRenderer {
   private animationFrameId: number | null = null;
   private sunLight: THREE.DirectionalLight | null = null;
   private gardenCenter: THREE.Vector3 = new THREE.Vector3();
+  private groundMaterials: THREE.ShaderMaterial[] = []; // Track materials that need sun color updates
+
+  // Post-processing
+  private composer: EffectComposer | null = null;
+  private ssaoPass: SSAOPass | null = null;
+  private bloomPass: UnrealBloomPass | null = null;
 
   // Farmer character
   private farmer: FarmerCharacter | null = null;
+
+  // Grid overlay
+  private showGrid = false;
+  private gridGroup: THREE.Group | null = null;
+  private groundGroup: THREE.Group | null = null;
+  private currentGarden: Garden | null = null;
 
   constructor(container: HTMLElement) {
     this.scene = new THREE.Scene();
@@ -72,20 +90,68 @@ export class GardenRenderer {
     this.camera.position.set(45, 35, 45);
     this.camera.lookAt(0, 0, 0);
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: false });
+    // Improved renderer settings for better visual quality
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: "high-performance",
+    });
     this.renderer.setSize(container.clientWidth, container.clientHeight);
-    this.renderer.setPixelRatio(1); // Force 1x for performance
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Up to 2x for quality
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.BasicShadowMap; // Faster shadows
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Soft shadows
+
+    // Tone mapping for better color range
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.3; // Bright exposure
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+
     container.appendChild(this.renderer.domElement);
 
     this.gardenGroup = new THREE.Group();
     this.scene.add(this.gardenGroup);
 
     this.setupLighting();
+    this.setupPostProcessing(container);
     this.setupResizeHandler(container);
     this.loadTextures();
     this.animate();
+  }
+
+  private setupPostProcessing(container: HTMLElement): void {
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    // Create effect composer
+    this.composer = new EffectComposer(this.renderer);
+
+    // Render pass (renders the scene)
+    const renderPass = new RenderPass(this.scene, this.camera);
+    this.composer.addPass(renderPass);
+
+    // SSAO disabled - was making things too dark
+    // this.ssaoPass = new SSAOPass(this.scene, this.camera, width, height);
+    // this.ssaoPass.kernelRadius = 8;
+    // this.ssaoPass.minDistance = 0.001;
+    // this.ssaoPass.maxDistance = 0.05;
+    // this.ssaoPass.output = SSAOPass.OUTPUT.Default;
+    // this.composer.addPass(this.ssaoPass);
+
+    // Bloom pass for subtle glow on bright areas
+    this.bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(width, height),
+      0.08,  // strength - very subtle
+      0.3,   // radius
+      0.92   // threshold - only very bright areas bloom
+    );
+    this.composer.addPass(this.bloomPass);
+
+    // SMAA antialiasing (additional smoothing on top of MSAA)
+    const smaaPass = new SMAAPass();
+    this.composer.addPass(smaaPass);
+
+    // Output pass (applies tone mapping and color space conversion)
+    const outputPass = new OutputPass();
+    this.composer.addPass(outputPass);
   }
 
   private loadTextures(): void {
@@ -137,12 +203,12 @@ export class GardenRenderer {
   }
 
   private setupLighting(): void {
-    // Hemisphere light for natural sky/ground color
-    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x556b2f, 0.6);
+    // Hemisphere light for natural sky/ground color - soft ambient fill
+    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x556b2f, 0.4);
     this.scene.add(hemiLight);
 
-    // Main sun light
-    this.sunLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
+    // Main sun light - softer for natural feel
+    this.sunLight = new THREE.DirectionalLight(0xfff5e6, 0.8);
     this.sunLight.position.set(20, 30, 20);
     this.sunLight.castShadow = true;
     this.sunLight.shadow.mapSize.width = 2048;
@@ -162,49 +228,146 @@ export class GardenRenderer {
     this.scene.add(fillLight);
   }
 
+  // Calculate solar position for Exeter, Rhode Island (41.5776°N, 71.5376°W)
+  // Uses simplified solar position algorithm accurate for garden visualization
+  private calculateSolarPosition(hour: number, dayOfYear: number = 172): { altitude: number; azimuth: number } {
+    const latitude = 41.5776; // Exeter, RI latitude in degrees
+    const latRad = latitude * Math.PI / 180;
+
+    // Solar declination (angle of sun relative to equator)
+    // Ranges from -23.44° (winter solstice) to +23.44° (summer solstice)
+    // dayOfYear 172 = June 21 (summer solstice), 355 = Dec 21 (winter solstice)
+    const declination = 23.44 * Math.sin((2 * Math.PI / 365) * (dayOfYear - 81));
+    const declRad = declination * Math.PI / 180;
+
+    // Hour angle: 0 at solar noon, negative in morning, positive in afternoon
+    // Each hour = 15 degrees (360° / 24 hours)
+    const solarNoon = 12; // Simplified - ignores longitude/timezone offset
+    const hourAngle = (hour - solarNoon) * 15;
+    const hourAngleRad = hourAngle * Math.PI / 180;
+
+    // Solar altitude (elevation angle above horizon)
+    const sinAltitude = Math.sin(latRad) * Math.sin(declRad) +
+                        Math.cos(latRad) * Math.cos(declRad) * Math.cos(hourAngleRad);
+    const altitude = Math.asin(Math.max(-1, Math.min(1, sinAltitude))) * 180 / Math.PI;
+
+    // Solar azimuth (compass direction, 0° = North, 90° = East, 180° = South, 270° = West)
+    const cosAzimuth = (Math.sin(declRad) - Math.sin(latRad) * sinAltitude) /
+                       (Math.cos(latRad) * Math.cos(altitude * Math.PI / 180));
+    let azimuth = Math.acos(Math.max(-1, Math.min(1, cosAzimuth))) * 180 / Math.PI;
+
+    // Azimuth is measured from south in the formula, convert to compass bearing
+    // Morning (hour < noon): azimuth is east of south
+    // Afternoon (hour > noon): azimuth is west of south
+    if (hour < solarNoon) {
+      azimuth = 180 - azimuth; // East of south
+    } else {
+      azimuth = 180 + azimuth; // West of south
+    }
+
+    return { altitude, azimuth };
+  }
+
   // Update sun position based on time of day (0-24 hours)
-  setSunTime(hour: number): void {
+  // Optional dayOfYear parameter: 1-365 (default 172 = summer solstice June 21)
+  setSunTime(hour: number, dayOfYear: number = 172): void {
     if (!this.sunLight) return;
 
-    // Convert hour to angle (6am = sunrise east, 12pm = noon south, 6pm = sunset west)
-    // Hour 6 = 0°, Hour 12 = 90°, Hour 18 = 180°
-    const dayProgress = (hour - 6) / 12; // 0 at 6am, 1 at 6pm
-    const angle = dayProgress * Math.PI; // 0 to PI
+    // Calculate accurate solar position for Exeter, RI
+    const { altitude, azimuth } = this.calculateSolarPosition(hour, dayOfYear);
 
-    // Sun arc: rises in east (positive X), peaks in south, sets in west (negative X)
+    // Convert altitude/azimuth to 3D position
+    // In THREE.js: Y is up, we use X for east-west, Z for north-south
+    // Azimuth: 0° = North (+Z), 90° = East (+X), 180° = South (-Z), 270° = West (-X)
     const radius = 50;
-    const elevation = Math.sin(angle) * radius * 0.8; // Max height at noon
-    const x = Math.cos(angle) * radius;
-    const z = -20; // Slightly south
+    const altRad = altitude * Math.PI / 180;
+    const azimRad = azimuth * Math.PI / 180;
+
+    // Horizontal distance from center (cos of altitude angle)
+    const horizontalDist = Math.cos(altRad) * radius;
+    // Height above ground (sin of altitude angle)
+    const height = Math.sin(altRad) * radius;
+
+    // Convert azimuth to X/Z coordinates
+    // Azimuth 0° = North = +Z, 90° = East = +X, 180° = South = -Z, 270° = West = -X
+    const x = Math.sin(azimRad) * horizontalDist;
+    const z = Math.cos(azimRad) * horizontalDist;
 
     // Position sun relative to garden center
-    this.sunLight.position.set(
-      this.gardenCenter.x + x,
-      Math.max(5, elevation), // Keep minimum height
-      this.gardenCenter.z + z
-    );
+    // Only update if sun is above horizon (altitude > 0)
+    if (altitude > 0) {
+      this.sunLight.position.set(
+        this.gardenCenter.x + x,
+        Math.max(5, height),
+        this.gardenCenter.z + z
+      );
+      this.sunLight.visible = true;
+    } else {
+      // Sun below horizon - keep minimal ambient
+      this.sunLight.visible = false;
+    }
+
     this.sunLight.target.position.copy(this.gardenCenter);
     this.sunLight.target.updateMatrixWorld(true);
     this.sunLight.updateMatrixWorld(true);
     this.sunLight.shadow.camera.updateMatrixWorld(true);
     this.sunLight.shadow.needsUpdate = true;
 
-    // Adjust light color based on time (warmer at sunrise/sunset)
-    const midday = Math.abs(hour - 12);
-    if (midday > 4) {
+    // Adjust light color based on altitude (warmer at low angles = sunrise/sunset)
+    let sunColor: THREE.Color;
+    let intensity: number;
+    if (altitude > 15) {
+      // Midday - neutral warm white, soft intensity
+      sunColor = new THREE.Color(0xfff5e6);
+      intensity = 0.8;
+    } else if (altitude > 5) {
       // Golden hour
-      this.sunLight.color.setHex(0xffcc66);
-      this.sunLight.intensity = 0.8;
+      sunColor = new THREE.Color(0xffcc66);
+      intensity = 0.65;
+    } else if (altitude > 0) {
+      // Sunrise/sunset - deep orange
+      sunColor = new THREE.Color(0xff9944);
+      intensity = 0.45;
     } else {
-      // Midday
-      this.sunLight.color.setHex(0xfff5e6);
-      this.sunLight.intensity = 1.2;
+      // Night - dim blue moonlight
+      sunColor = new THREE.Color(0x4466aa);
+      intensity = 0.12;
     }
 
-    // Update sky color
-    const skyBrightness = Math.max(0.3, Math.sin(angle));
-    const skyColor = new THREE.Color(0x87ceeb).multiplyScalar(skyBrightness);
+    this.sunLight.color.copy(sunColor);
+    this.sunLight.intensity = intensity;
+
+    // Update sky color based on sun altitude
+    let skyColor: THREE.Color;
+    if (altitude > 15) {
+      skyColor = new THREE.Color(0x87ceeb); // Clear blue sky
+    } else if (altitude > 5) {
+      skyColor = new THREE.Color(0x87ceeb).lerp(new THREE.Color(0xffd4a3), 1 - altitude / 15); // Golden
+    } else if (altitude > -5) {
+      skyColor = new THREE.Color(0xffd4a3).lerp(new THREE.Color(0x2a1a4a), 1 - (altitude + 5) / 10); // Dusk/dawn
+    } else {
+      skyColor = new THREE.Color(0x0a0a1a); // Night
+    }
     this.scene.background = skyColor;
+
+    // Update ground materials with sun color for proper lighting
+    for (const material of this.groundMaterials) {
+      if (material.uniforms.sunLightColor) {
+        material.uniforms.sunLightColor.value.copy(sunColor);
+      }
+      if (material.uniforms.sunIntensity) {
+        material.uniforms.sunIntensity.value = intensity;
+      }
+      // Update mist color to match sky
+      if (material.uniforms.mistColor) {
+        material.uniforms.mistColor.value.copy(skyColor);
+      }
+    }
+
+    // Update fog to match sky
+    if (this.scene.fog instanceof THREE.Fog) {
+      this.scene.fog.color.copy(skyColor);
+    }
 
     this.requestRender();
   }
@@ -218,6 +381,18 @@ export class GardenRenderer {
       this.camera.aspect = width / height;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(width, height);
+
+      // Resize post-processing passes
+      if (this.composer) {
+        this.composer.setSize(width, height);
+      }
+      if (this.ssaoPass) {
+        this.ssaoPass.setSize(width, height);
+      }
+      if (this.bloomPass) {
+        this.bloomPass.setSize(width, height);
+      }
+
       this.requestRender();
     });
     resizeObserver.observe(container);
@@ -239,7 +414,12 @@ export class GardenRenderer {
     }
 
     if (this.needsRender) {
-      this.renderer.render(this.scene, this.camera);
+      // Use composer for post-processed rendering
+      if (this.composer) {
+        this.composer.render();
+      } else {
+        this.renderer.render(this.scene, this.camera);
+      }
       this.needsRender = false;
     }
   };
@@ -293,8 +473,18 @@ export class GardenRenderer {
     this.bedMeshes.clear();
     this.bedGroups.clear();
     this.originalMaterials.clear();
+    this.groundMaterials = []; // Clear tracked materials for sun color updates
     this.selectedBedId = null;
     this.pathIndex = 0;
+
+    // Store garden reference for grid toggle
+    this.currentGarden = garden;
+
+    // Clean up grid and ground groups
+    this.gridGroup?.clear();
+    this.gridGroup = null;
+    this.groundGroup = new THREE.Group();
+    this.gardenGroup.add(this.groundGroup);
 
     // Clean up previous farmer
     this.farmer?.dispose();
@@ -415,7 +605,7 @@ export class GardenRenderer {
     outerGrassGeometry.rotateX(-Math.PI / 2);
 
     // Add Perlin noise displacement to outer grass
-    const outerPositions = outerGrassGeometry.attributes.position;
+    const outerPositions = outerGrassGeometry.attributes.position as THREE.BufferAttribute;
     for (let i = 0; i < outerPositions.count; i++) {
       const x = outerPositions.getX(i) + centerX;
       const z = outerPositions.getZ(i) + centerZ;
@@ -425,11 +615,11 @@ export class GardenRenderer {
     outerGrassGeometry.computeVertexNormals();
 
     const outerGrassTexture = this.textures.get("grass") || null;
-    const outerGrassMaterial = this.createGrassMaterial(outerGrassTexture, 0x4a7a4a, 0xffffff);
+    const outerGrassMaterial = this.createGrassMaterial(outerGrassTexture, 0x4a7a4a, 0x889988);
     const outerGrass = new THREE.Mesh(outerGrassGeometry, outerGrassMaterial);
     outerGrass.position.set(centerX, -0.20, centerZ);
     outerGrass.receiveShadow = true;
-    this.gardenGroup.add(outerGrass);
+    this.groundGroup!.add(outerGrass);
 
     // Main garden ground (inside fence)
     const groundGeometry = new THREE.PlaneGeometry(
@@ -441,7 +631,7 @@ export class GardenRenderer {
     groundGeometry.rotateX(-Math.PI / 2);
 
     // Add Perlin noise displacement for organic undulating look
-    const positions = groundGeometry.attributes.position;
+    const positions = groundGeometry.attributes.position as THREE.BufferAttribute;
     for (let i = 0; i < positions.count; i++) {
       const x = positions.getX(i) + centerX;
       const z = positions.getZ(i) + centerZ;
@@ -451,11 +641,118 @@ export class GardenRenderer {
     groundGeometry.computeVertexNormals();
 
     const innerGrassTexture = this.textures.get("grass") || null;
-    const groundMaterial = this.createGrassMaterial(innerGrassTexture, 0x4a7a4a, 0xffffff);
+    const groundMaterial = this.createGrassMaterial(innerGrassTexture, 0x4a7a4a, 0x889988);
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.position.set(centerX, -0.12, centerZ);
     ground.receiveShadow = true;
-    this.gardenGroup.add(ground);
+    this.groundGroup!.add(ground);
+
+    // Add atmospheric mist at terrain edges
+    this.renderEdgeMist(centerX, centerZ, outerGrassRadius);
+  }
+
+  // Render atmospheric mist that fades in at terrain edges
+  private renderEdgeMist(centerX: number, centerZ: number, terrainRadius: number): void {
+    // Mist starts fading in at this distance from center
+    const mistStartRadius = terrainRadius * 0.4;
+    const mistEndRadius = terrainRadius;
+
+    // Create a ring geometry for the mist
+    const mistGeometry = new THREE.RingGeometry(mistStartRadius, mistEndRadius, 128, 8);
+    mistGeometry.rotateX(-Math.PI / 2);
+
+    // Custom shader for smooth radial mist gradient
+    const mistMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        mistColor: { value: new THREE.Color(0x87ceeb) }, // Sky blue, updated with sky
+        mistStartRadius: { value: mistStartRadius },
+        mistEndRadius: { value: mistEndRadius },
+        centerPos: { value: new THREE.Vector2(centerX, centerZ) },
+      },
+      vertexShader: `
+        varying vec3 vWorldPos;
+        void main() {
+          vec4 worldPos = modelMatrix * vec4(position, 1.0);
+          vWorldPos = worldPos.xyz;
+          gl_Position = projectionMatrix * viewMatrix * worldPos;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 mistColor;
+        uniform float mistStartRadius;
+        uniform float mistEndRadius;
+        uniform vec2 centerPos;
+        varying vec3 vWorldPos;
+
+        void main() {
+          // Distance from center
+          float dist = length(vWorldPos.xz - centerPos);
+
+          // Smooth gradient from transparent to opaque
+          float t = smoothstep(mistStartRadius, mistEndRadius, dist);
+
+          // Add some noise for organic look
+          float noise = fract(sin(dot(vWorldPos.xz, vec2(12.9898, 78.233))) * 43758.5453);
+          t = t * (0.85 + noise * 0.15);
+
+          // Fade more aggressively at the very edge
+          float edgeFade = smoothstep(mistEndRadius * 0.9, mistEndRadius, dist);
+          float alpha = mix(t * 0.7, 1.0, edgeFade);
+
+          gl_FragColor = vec4(mistColor, alpha);
+        }
+      `,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+
+    // Track for sky color updates
+    this.groundMaterials.push(mistMaterial);
+
+    const mist = new THREE.Mesh(mistGeometry, mistMaterial);
+    mist.position.set(centerX, 0.5, centerZ); // Slightly above ground
+    mist.renderOrder = 100; // Render after terrain
+    this.groundGroup!.add(mist);
+
+    // Add a second, higher mist layer for more atmosphere
+    const upperMistGeometry = new THREE.RingGeometry(mistStartRadius * 1.2, mistEndRadius, 64, 4);
+    upperMistGeometry.rotateX(-Math.PI / 2);
+
+    const upperMistMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        mistColor: { value: new THREE.Color(0x87ceeb) },
+        mistStartRadius: { value: mistStartRadius * 1.2 },
+        mistEndRadius: { value: mistEndRadius },
+        centerPos: { value: new THREE.Vector2(centerX, centerZ) },
+      },
+      vertexShader: mistMaterial.vertexShader,
+      fragmentShader: `
+        uniform vec3 mistColor;
+        uniform float mistStartRadius;
+        uniform float mistEndRadius;
+        uniform vec2 centerPos;
+        varying vec3 vWorldPos;
+
+        void main() {
+          float dist = length(vWorldPos.xz - centerPos);
+          float t = smoothstep(mistStartRadius, mistEndRadius, dist);
+          // Upper layer is more subtle
+          float alpha = t * 0.4;
+          gl_FragColor = vec4(mistColor, alpha);
+        }
+      `,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+
+    this.groundMaterials.push(upperMistMaterial);
+
+    const upperMist = new THREE.Mesh(upperMistGeometry, upperMistMaterial);
+    upperMist.position.set(centerX, 3.0, centerZ); // Higher layer
+    upperMist.renderOrder = 101;
+    this.groundGroup!.add(upperMist);
   }
 
   // Render fence from schema data with absolute positioning
@@ -1019,8 +1316,8 @@ export class GardenRenderer {
     const soilHeight = bed.dimensions.height - 0.05;
     const dirtTexture = this.getRepeatingTexture("dirt", soilWidth, soilLength);
     const soilMaterial = new THREE.MeshStandardMaterial({
-      color: dirtTexture ? 0xffffff : bed.soilColor,
-      roughness: 1,
+      color: dirtTexture ? 0xffffff : 0xb8956b, // White multiplier to show texture as-is
+      roughness: 0.85,
       map: dirtTexture || undefined,
     });
 
@@ -1043,7 +1340,7 @@ export class GardenRenderer {
     const topGeometry = new THREE.PlaneGeometry(soilWidth, soilLength, segments, segments);
     topGeometry.rotateX(-Math.PI / 2);
 
-    const positions = topGeometry.attributes.position;
+    const positions = topGeometry.attributes.position as THREE.BufferAttribute;
     const noiseScale = 0.8;
     const noiseStrength = 0.25; // ~3 inches of noise variation
     const centerBulge = 0.4; // ~5 inches of center bulge
@@ -1167,17 +1464,17 @@ export class GardenRenderer {
   }
 
   private renderMetalBedFrame(bed: GardenBed, bedGroup: THREE.Group, boardThickness: number): void {
-    // Galvanized metal material - shiny silver/gray with slight roughness
+    // Galvanized metal material - bright silver
     const metalMaterial = new THREE.MeshStandardMaterial({
-      color: 0x8a9a9a, // Silver-gray
+      color: 0xd0d8d8, // Very bright silver
       roughness: 0.4,
-      metalness: 0.8,
+      metalness: 0.6,
       side: THREE.DoubleSide,
     });
 
-    // Top rim material - slightly darker
+    // Top rim material - slightly darker than main panels
     const rimMaterial = new THREE.MeshStandardMaterial({
-      color: 0x6a7a7a,
+      color: 0xb8c0c0,
       roughness: 0.3,
       metalness: 0.9,
       side: THREE.DoubleSide,
@@ -1462,13 +1759,14 @@ export class GardenRenderer {
   private pathIndex = 0;
 
   // Grass uses THREE UV offsets for maximum variation since it covers large areas
+  // Includes sunLightColor uniform for time-of-day lighting
   private createGrassMaterial(texture: THREE.Texture | null, fallbackColor: number, tintColor?: number): THREE.ShaderMaterial | THREE.MeshStandardMaterial {
     if (!texture) {
       return new THREE.MeshStandardMaterial({ color: fallbackColor, roughness: 0.95 });
     }
 
     const tint = new THREE.Color(tintColor ?? 0xffffff);
-    return new THREE.ShaderMaterial({
+    const material = new THREE.ShaderMaterial({
       uniforms: {
         map: { value: texture },
         textureTileSize: { value: TEXTURE_TILE_SIZE },
@@ -1476,6 +1774,8 @@ export class GardenRenderer {
         uvOffset3: { value: new THREE.Vector2(0.23, 0.31) },
         noiseScale: { value: 0.25 },
         tint: { value: tint },
+        sunLightColor: { value: new THREE.Color(0xfff5e6) }, // Warm white default
+        sunIntensity: { value: 1.0 },
       },
       vertexShader: `
         varying vec3 vWorldPos;
@@ -1492,6 +1792,8 @@ export class GardenRenderer {
         uniform vec2 uvOffset3;
         uniform float noiseScale;
         uniform vec3 tint;
+        uniform vec3 sunLightColor;
+        uniform float sunIntensity;
         varying vec3 vWorldPos;
 
         vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -1535,11 +1837,17 @@ export class GardenRenderer {
           vec4 blend12 = mix(color1, color2, noise1);
           vec4 finalColor = mix(blend12, color3, noise2 * 0.5);
 
+          // Apply tint and sun light color
           finalColor.rgb *= tint;
+          finalColor.rgb *= sunLightColor * sunIntensity;
           gl_FragColor = finalColor;
         }
       `,
     });
+
+    // Track this material for sun color updates
+    this.groundMaterials.push(material);
+    return material;
   }
 
   private createMulchMaterial(texture: THREE.Texture | null, fallbackColor: number): THREE.ShaderMaterial | THREE.MeshStandardMaterial {
@@ -1548,7 +1856,7 @@ export class GardenRenderer {
     }
 
     // Custom shader with parallax occlusion mapping for per-pixel depth
-    return new THREE.ShaderMaterial({
+    const material = new THREE.ShaderMaterial({
       uniforms: {
         map: { value: texture },
         textureTileSize: { value: TEXTURE_TILE_SIZE },
@@ -1556,6 +1864,9 @@ export class GardenRenderer {
         noiseScale: { value: 0.5 },
         parallaxScale: { value: 0.004 }, // Depth scale for parallax
         parallaxSteps: { value: 32.0 }, // Ray march steps
+        tint: { value: new THREE.Color(0x887766) }, // Darken paths
+        sunLightColor: { value: new THREE.Color(0xfff5e6) }, // Warm white default
+        sunIntensity: { value: 1.0 },
       },
       vertexShader: `
         varying vec3 vWorldPos;
@@ -1580,6 +1891,9 @@ export class GardenRenderer {
         uniform float noiseScale;
         uniform float parallaxScale;
         uniform float parallaxSteps;
+        uniform vec3 tint;
+        uniform vec3 sunLightColor;
+        uniform float sunIntensity;
         varying vec3 vWorldPos;
         varying vec3 vViewDir;
         varying vec3 vNormal;
@@ -1678,10 +1992,17 @@ export class GardenRenderer {
           float noise = snoise(vWorldPos.xz * noiseScale) * 0.5 + 0.5;
           vec4 finalColor = mix(color1, color2, noise);
 
+          // Apply tint and sun light color
+          finalColor.rgb *= tint;
+          finalColor.rgb *= sunLightColor * sunIntensity;
           gl_FragColor = finalColor;
         }
       `,
     });
+
+    // Track this material for sun color updates
+    this.groundMaterials.push(material);
+    return material;
   }
 
   private renderPath(path: Path): void {
@@ -1716,7 +2037,7 @@ export class GardenRenderer {
       pathGeometry.rotateX(-Math.PI / 2);
 
       // Add Perlin noise displacement
-      const positions = pathGeometry.attributes.position;
+      const positions = pathGeometry.attributes.position as THREE.BufferAttribute;
       for (let j = 0; j < positions.count; j++) {
         const localX = positions.getX(j);
         const localZ = positions.getZ(j);
@@ -1744,7 +2065,7 @@ export class GardenRenderer {
       pathMesh.position.set(centerX, yOffset, centerZ);
       pathMesh.rotation.y = angle;
       pathMesh.receiveShadow = true;
-      this.gardenGroup.add(pathMesh);
+      this.groundGroup!.add(pathMesh);
     }
   }
 
@@ -1758,6 +2079,139 @@ export class GardenRenderer {
 
   getRenderer(): THREE.WebGLRenderer {
     return this.renderer;
+  }
+
+  // Toggle between grass/paths view and measurement grid
+  setShowGrid(show: boolean): void {
+    if (this.showGrid === show) return;
+    this.showGrid = show;
+
+    if (!this.currentGarden) return;
+
+    if (show) {
+      // Hide grass/paths, show grid
+      if (this.groundGroup) {
+        this.groundGroup.visible = false;
+      }
+      if (!this.gridGroup) {
+        this.gridGroup = new THREE.Group();
+        this.gardenGroup.add(this.gridGroup);
+        this.renderGrid(this.currentGarden);
+      }
+      this.gridGroup.visible = true;
+    } else {
+      // Show grass/paths, hide grid
+      if (this.groundGroup) {
+        this.groundGroup.visible = true;
+      }
+      if (this.gridGroup) {
+        this.gridGroup.visible = false;
+      }
+    }
+
+    this.requestRender();
+  }
+
+  // Render measurement grid with feet ticks
+  private renderGrid(garden: Garden): void {
+    if (!this.gridGroup) return;
+
+    const width = garden.dimensions.width;
+    const length = garden.dimensions.length;
+    const centerX = width / 2;
+    const centerZ = length / 2;
+
+    // Flat ground plane (neutral gray)
+    const groundGeometry = new THREE.PlaneGeometry(width + 4, length + 4);
+    groundGeometry.rotateX(-Math.PI / 2);
+    const groundMaterial = new THREE.MeshStandardMaterial({
+      color: 0xe8e8e8,
+      roughness: 0.9,
+    });
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.position.set(centerX, -0.01, centerZ);
+    ground.receiveShadow = true;
+    this.gridGroup.add(ground);
+
+    // Grid lines material
+    const majorLineMaterial = new THREE.LineBasicMaterial({ color: 0x666666, linewidth: 2 });
+    const minorLineMaterial = new THREE.LineBasicMaterial({ color: 0xcccccc, transparent: true, opacity: 0.4 });
+
+    // Draw grid lines - every foot, with major lines every 5 feet
+    // Vertical lines (along X axis)
+    for (let x = 0; x <= width; x++) {
+      const isMajor = x % 5 === 0;
+      const material = isMajor ? majorLineMaterial : minorLineMaterial;
+      const points = [
+        new THREE.Vector3(x, 0.01, 0),
+        new THREE.Vector3(x, 0.01, length),
+      ];
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(geometry, material);
+      this.gridGroup.add(line);
+    }
+
+    // Horizontal lines (along Z axis)
+    for (let z = 0; z <= length; z++) {
+      const isMajor = z % 5 === 0;
+      const material = isMajor ? majorLineMaterial : minorLineMaterial;
+      const points = [
+        new THREE.Vector3(0, 0.01, z),
+        new THREE.Vector3(width, 0.01, z),
+      ];
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(geometry, material);
+      this.gridGroup.add(line);
+    }
+
+    // Create labels for X axis (along bottom, z=0)
+    for (let x = 0; x <= width; x += 5) {
+      const sprite = this.createTextSprite(`${x}'`, 0x333333);
+      sprite.position.set(x, 0.2, -2);
+      sprite.scale.set(4, 2, 1);
+      this.gridGroup.add(sprite);
+    }
+
+    // Create labels for Z axis (along left side, x=0)
+    for (let z = 0; z <= length; z += 5) {
+      const sprite = this.createTextSprite(`${z}'`, 0x333333);
+      sprite.position.set(-2, 0.2, z);
+      sprite.scale.set(4, 2, 1);
+      this.gridGroup.add(sprite);
+    }
+  }
+
+  // Create a text sprite for grid labels
+  private createTextSprite(text: string, _color: number): THREE.Sprite {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
+    canvas.width = 128;
+    canvas.height = 64;
+
+    // Clear canvas to transparent
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw text with black color and stroke for visibility
+    ctx.font = "bold 48px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 4;
+    ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+    ctx.fillStyle = "#222222";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    const material = new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      depthWrite: false,
+      sizeAttenuation: true,
+    });
+
+    return new THREE.Sprite(material);
   }
 
   // Check if a click hit a bed and return its ID
@@ -1791,12 +2245,12 @@ export class GardenRenderer {
     // Visual parameters based on effect type
     const effects = {
       hover: {
-        lift: 0.2,            // Subtle lift
+        lift: 0,              // No lift, just color
         emissiveColor: 0xffcc66, // Warm golden glow
         emissiveIntensity: 0.5,  // Strong glow effect
       },
       selected: {
-        lift: 0.35,           // More pronounced lift
+        lift: 0,              // No lift, just color
         emissiveColor: 0x81c784, // Natural green glow (matches garden theme)
         emissiveIntensity: 0.6,  // Stronger glow for selection
       },
@@ -1904,6 +2358,14 @@ export class GardenRenderer {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
     }
+
+    // Dispose post-processing
+    if (this.composer) {
+      this.composer.dispose();
+      this.composer = null;
+    }
+    this.ssaoPass = null;
+    this.bloomPass = null;
 
     // Dispose of all geometries and materials in the scene
     this.scene.traverse((obj) => {

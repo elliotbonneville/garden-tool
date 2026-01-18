@@ -271,7 +271,7 @@ export class FarmerCharacter {
         "/models/farmer.glb",
         (gltf) => {
           this.model = gltf.scene;
-          this.model.scale.set(6, 6, 6);
+          this.model.scale.set(5, 5, 5);
 
           // Setup animation
           this.mixer = new THREE.AnimationMixer(this.model);

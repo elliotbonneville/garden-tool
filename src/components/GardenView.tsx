@@ -38,7 +38,9 @@ export function GardenView() {
     setSelectedBed,
     setLayoutData,
     sunTime,
+    dayOfYear,
     setLeftPaneVisible,
+    showGrid,
   } = useGardenStore();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -501,7 +503,7 @@ export function GardenView() {
 
       renderer = new GardenRenderer(container);
       renderer.renderGarden(garden);
-      renderer.setSunTime(sunTime);
+      renderer.setSunTime(sunTime, dayOfYear);
       rendererRef.current = renderer;
       container.style.cursor = "grab";
     };
@@ -537,12 +539,19 @@ export function GardenView() {
     }
   }, [selectedBed]);
 
-  // Update sun position when time changes
+  // Update sun position when time or day changes
   useEffect(() => {
     if (rendererRef.current) {
-      rendererRef.current.setSunTime(sunTime);
+      rendererRef.current.setSunTime(sunTime, dayOfYear);
     }
-  }, [sunTime]);
+  }, [sunTime, dayOfYear]);
+
+  // Update grid visibility when showGrid changes
+  useEffect(() => {
+    if (rendererRef.current) {
+      rendererRef.current.setShowGrid(showGrid);
+    }
+  }, [showGrid]);
 
   if (loading) {
     return (
