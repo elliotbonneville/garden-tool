@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:plants": "tsx scripts/generate-plant-billboards.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
+    "openai": "^4.77.0",
     "allotment": "^1.20.5",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
@@ -19,14 +21,16 @@
     "three": "^0.182.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
-    "zod": "^4.3.5",
+    "zod": "^3.23.8",
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@types/node": "^22.10.0",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "@types/react-router-dom": "^5.3.3",
     "@types/three": "^0.182.0",
-    "@vitejs/plugin-react": "^5.1.2"
+    "@vitejs/plugin-react": "^5.1.2",
+    "tsx": "^4.19.0"
   }
 }
