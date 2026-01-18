@@ -438,6 +438,20 @@ export function MobileTopBar({ onOpenResearch, onOpenDetails }: MobileTopBarProp
                 View Controls Help
               </button>
             </div>
+
+            {/* Version number */}
+            <div
+              style={{
+                marginTop: "var(--space-4)",
+                paddingTop: "var(--space-3)",
+                borderTop: "1px solid var(--bg-tertiary)",
+                textAlign: "center",
+                fontSize: "var(--text-xs)",
+                color: "var(--text-tertiary)",
+              }}
+            >
+              Garden Plotter v0.0.1
+            </div>
           </div>
         )}
       </div>
