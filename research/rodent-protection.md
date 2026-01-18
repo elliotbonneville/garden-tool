@@ -4,16 +4,23 @@ title: Rodent Protection
 
 # Rodent Protection - Hardware Cloth
 
-## UPDATE: Metal Beds Simplify This
+## The Plan: Full Floor Coverage
 
-With **galvanized metal beds**, rodent protection is much simpler:
-- Metal sides go to ground level - rodents can't chew through
-- Only need hardware cloth on the **bottom** (no buried sides)
-- No 24" digging required
-- Saves $600-1,500 in materials and significant labor
+The rodent protection system has three components:
 
-## The Plan
-Lay hardware cloth flat under each bed before filling with soil.
+1. **Pressure-treated 2x6 baseboard** along entire fence perimeter
+2. **1/4" hardware cloth** wraps around the baseboard bottom edge
+3. **Hardware cloth extends under entire enclosure** (full floor coverage)
+
+This approach provides complete exclusion - rodents cannot burrow under the fence or into any part of the garden.
+
+### Why Full Floor vs. Individual Beds?
+
+With **galvanized metal beds**, rodents can't chew through the sides. But they could still:
+- Burrow up between beds in pathway areas
+- Access areas where we don't want them (compost, perennial plantings)
+
+Full floor coverage eliminates all entry points once and for all.
 
 ## Mesh Size
 
@@ -26,23 +33,22 @@ Lay hardware cloth flat under each bed before filling with soil.
 
 **Recommendation:** Use **1/4" hardware cloth** - stops everything including baby voles.
 
-## Depth Considerations
+## Installation Method
 
-For raised beds, you have two options:
+### Fence Baseboard + Wrap System
 
-### Option A: Flat Bottom Installation (Simpler)
-- Lay hardware cloth flat on the ground under the bed
-- Extend 6" past bed edges, fold up against sides
-- No digging required
-- Works because beds are enclosed boxes
+1. **Install pressure-treated 2x6 baseboard** along bottom of fence perimeter
+2. **Staple hardware cloth to inside of baseboard** near top edge
+3. **Wrap cloth around bottom edge** of baseboard (under the 2x6)
+4. **Extend cloth inward** across entire garden floor
+5. **Overlap seams 6"** and secure with landscape staples
+6. **Cover with 4-6" wood chips** for paths, soil for beds
 
-### Option B: Buried Perimeter + Bottom (Your Plan)
-- Dig 24" down around perimeter
-- Install mesh on bottom AND sides
-- More labor but maximum protection
-- Overkill for most situations but won't hurt
-
-**Note:** 12" depth is usually sufficient for burial. 24" is extra insurance but adds significant labor cost.
+### Why This Works
+- Hardware cloth is protected by baseboard (no exposed edges)
+- Wrap-around prevents rodents from pushing under
+- No digging required - cloth sits on existing ground
+- Full floor = no weak points anywhere
 
 ## Material Options
 
@@ -54,13 +60,13 @@ For raised beds, you have two options:
 
 **Recommendation:** Since you're hiring labor and want longevity, consider stainless steel. The material cost difference is minor compared to labor - do it once right.
 
-## Quantity Needed (Metal Beds = Bottom Only)
+## Quantity Needed (Full Floor Coverage)
 
-For 10 beds at 4x8 ft:
+For 40x40 ft garden:
 
-- Bed footprint: 4x8 = 32 sq ft
-- Add overlap to fold up sides: ~40 sq ft per bed
-- **10 beds: ~400 sq ft of mesh**
+- Floor area: 40 x 40 = **1,600 sq ft**
+- Add 10% for overlaps: **~1,760 sq ft of mesh**
+- Baseboard lumber: 160 linear ft of 2x6 pressure-treated
 
 ## Cost Estimate
 
@@ -68,19 +74,24 @@ For 10 beds at 4x8 ft:
 - Galvanized: ~$1.00-1.50/sq ft (buy rolls, not small pieces)
 - Stainless: ~$3-5/sq ft
 
-| Material | 400 sq ft | Notes |
-|----------|-----------|-------|
-| Galvanized | $400-600 | Good for 5-10 years |
-| Stainless | $1,200-2,000 | 15+ years, overkill |
+| Material | ~1,800 sq ft | Notes |
+|----------|--------------|-------|
+| Galvanized | $1,800-2,700 | Good for 5-10 years |
+| Stainless | $5,400-9,000 | 15+ years, overkill |
 
-**Recommendation:** Galvanized is fine. By the time it degrades, root systems are established and rodents are less of a threat.
+### Baseboard Lumber
+- 160 linear ft of 2x6 pressure-treated: ~$200-300
+
+**Recommendation:** Galvanized is fine. Full floor coverage is more material than per-bed, but provides complete protection for paths and all areas. By the time mesh degrades, ecosystem is established.
 
 ## Installation Tips
 
 1. **Wear leather gloves** - cut edges are razor sharp
-2. **Overlap seams 4-6"** - no gaps for critters
-3. **Secure with galvanized staples** to wood frames
-4. **Fold up sides** 3-6" against bed walls
+2. **Install baseboard first** - gives you something to staple to
+3. **Overlap seams 6"** - no gaps for critters
+4. **Use galvanized staples** on baseboard, landscape staples on ground
+5. **Work from one corner** - roll out cloth in strips, overlap as you go
+6. **Cut around bed locations** if pre-planned, or just lay under beds
 
 ## Sources
 - [SF Gate - Protect Raised Beds from Burrowing Rodents](https://homeguides.sfgate.com/protect-raised-bed-gardens-burrowing-rodents-89474.html)

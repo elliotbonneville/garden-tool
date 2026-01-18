@@ -61,6 +61,13 @@ export const FenceGateSchema = z.object({
   width: z.number().positive(),
 });
 
+export const FenceBaseboardSchema = z.object({
+  enabled: z.boolean().default(false),
+  height: z.number().positive().default(0.5).describe("Height of baseboard in feet (e.g., 0.5 = 6 inches)"),
+  thickness: z.number().positive().default(0.17).describe("Thickness in feet (2x6 = ~0.5ft wide, ~0.17ft thick)"),
+  material: z.enum(["pressure_treated", "cedar", "composite"]).default("pressure_treated"),
+});
+
 export const FenceSchema = z.object({
   type: z.enum(["deer_mesh", "wire", "wood", "none"]),
   height: z.number().positive(),
@@ -70,6 +77,7 @@ export const FenceSchema = z.object({
     length: z.number().positive(), // Z extent
   }),
   gates: z.array(FenceGateSchema).default([]),
+  baseboard: FenceBaseboardSchema.optional().describe("Pressure-treated lumber along bottom for hardware cloth attachment"),
 });
 
 // Scattered plant for rendering (positioned in world space, not in a bed)
@@ -120,6 +128,7 @@ export type BedFrameMaterial = z.infer<typeof BedFrameMaterialSchema>;
 export type GardenBed = z.infer<typeof GardenBedSchema>;
 export type Path = z.infer<typeof PathSchema>;
 export type FenceGate = z.infer<typeof FenceGateSchema>;
+export type FenceBaseboard = z.infer<typeof FenceBaseboardSchema>;
 export type Fence = z.infer<typeof FenceSchema>;
 export type ScatteredPlantRender = z.infer<typeof ScatteredPlantRenderSchema>;
 export type BirdNettingSupportPostRender = z.infer<typeof BirdNettingSupportPostRenderSchema>;

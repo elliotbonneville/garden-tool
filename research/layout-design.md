@@ -71,8 +71,7 @@ ft  │  └───────┘  └───────┘  └───�
 - **Size:** 4ft x 8ft each = 32 sq ft per bed
 - **Total:** 448 sq ft of intensive growing
 - **Bed height:** 17" galvanized metal ([Vegega](https://www.vegega.com/) or [Vego Garden](https://www.vegogarden.com/))
-- **Pit depth:** 18" excavated underneath each bed for hugelkultur logs
-- **Total growing depth:** 35" (18" logs in pit + 17" soil in bed)
+- **Fill:** Quality compost/soil mix topped with 4-6" wood chip mulch (pure Back to Eden)
 - **Path width:** 2ft between all beds and rows
 
 ### Why 4ft Wide?
@@ -185,14 +184,13 @@ Sources:
 
 ## Materials Estimate (Raised Beds)
 
-### RECOMMENDATION: 17" Galvanized Metal Beds + Pit Excavation
+### RECOMMENDATION: 17" Galvanized Metal Beds (Pure Back to Eden)
 
 **Why this approach wins:**
 - 20-30 year lifespan (longer than cedar)
 - No rot, no termites, no maintenance
-- Pits allow for large (18" diameter) hugelkultur logs
-- Cheaper than 32" tall beds even with excavation cost
-- Better hugelkultur performance (logs insulated by earth)
+- Simple setup - no excavation needed
+- Pure BTE method reduces watering and weeding dramatically
 
 ### Per 4x8 Bed (14 beds total)
 
@@ -200,31 +198,23 @@ Sources:
 | Material | Per Bed | 14 Beds |
 |----------|---------|---------|
 | [Vegega 17" 4x8](https://www.vegega.com/products/17-tall-4x8-raised-garden-bed) or [Vego Garden](https://www.vegogarden.com/products/9-in-1-modular-raised-garden-bed) | $120-180 | $1,680-2,520 |
-| 1/4" hardware cloth (inside bed) | $30-45 | $420-630 |
-| **Per bed total** | **$150-225** | **$2,100-3,150** |
+| 1/4" hardware cloth (bottom) | $20-35 | $280-490 |
+| **Per bed total** | **$140-215** | **$1,960-3,010** |
 
 **Bulk discounts:** Contact Vegega or Vego Garden for 10+ bed pricing. Use code `Sub10` at Vegega for 10% off.
 
-### Pit Excavation (for 18" diameter logs)
-
-| Item | Details |
-|------|---------|
-| Pit size per bed | 4x8 ft x 18" deep |
-| Volume per pit | ~1.8 cubic yards |
-| Total excavation | ~25 cubic yards (14 beds) |
-| Equipment | Mini excavator (few hours) |
-| Labor cost | $300-600 total |
-
 ### Fill Material Per Bed
 
-For hugelkultur/BTE with pit excavation:
-| Layer | Location | Material | Depth |
-|-------|----------|----------|-------|
-| **Bottom** | In pit | Logs (18" diameter) | 18" |
-| **Middle** | In bed | Leaves/branches/compost | 6-8" |
-| **Top** | In bed | Mushroom compost + soil | 8-10" |
+For pure Back to Eden method:
+| Layer | Material | Depth |
+|-------|----------|-------|
+| **Bottom** | Hardware cloth | - |
+| **Middle** | Quality compost/soil mix | 12-14" |
+| **Top** | Wood chip mulch | 4-6" |
 
-**Mushroom compost tip:** Buy in bulk (cubic yard) - much cheaper than bags. One cubic yard fills ~3-4 beds (top layer). **TEST pH BEFORE BUYING** - see [soil-ph-composition.md](soil-ph-composition.md).
+**Mushroom compost tip:** Buy in bulk (cubic yard) - much cheaper than bags. One cubic yard fills ~3-4 beds (main layer). **TEST pH BEFORE BUYING** - see [soil-ph-composition.md](soil-ph-composition.md).
+
+**Wood chips:** Free from local arborists or ChipDrop.com. Need ~4-6 cubic yards total for beds and paths.
 
 ---
 

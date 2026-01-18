@@ -24,7 +24,7 @@ The compact layout uses **12 standard 4x8 ft beds** - the most common and cost-e
 
 ## Recommended Products
 
-### Primary: Vegega 17" Tall (Best for Hugelkultur)
+### Primary: Vegega 17" Tall (Recommended for Back to Eden)
 
 | Product | Dimensions | Price | Link |
 |---------|------------|-------|------|
@@ -48,7 +48,7 @@ The compact layout uses **12 standard 4x8 ft beds** - the most common and cost-e
 **Lifespan:** 20+ years
 **Available at:** Home Depot, Lowe's, Amazon
 
-### Budget Option (NOT for Hugelkultur)
+### Budget Option (12" Height)
 
 | Product | Dimensions | Price | Link |
 |---------|------------|-------|------|
@@ -56,7 +56,7 @@ The compact layout uses **12 standard 4x8 ft beds** - the most common and cost-e
 | Land Guard 8x4 | 8x4 ft, **12" tall** | ~$70-90 | [Amazon](https://www.amazon.com/Land-Guard-Galvanized-Bed%EF%BC%8C8%C3%974%C3%971-Vegetables/dp/B096THJ8B6) |
 | FOYUEE 8x4 | 8x4 ft, **12" tall** | ~$60-80 | [Amazon](https://www.amazon.com/Galvanized-Raised-Vegetables-Planter-8x4x1ft/dp/B07T499RHJ) |
 
-⚠️ **Warning:** 12" height is too shallow for hugelkultur with 18" logs. Use pit excavation or choose 17"+ beds.
+**Note:** 12" height is adequate for most crops. 17" recommended for deeper root crops and more mulch capacity.
 
 ### Extra Tall: 32" Options
 
@@ -65,7 +65,7 @@ The compact layout uses **12 standard 4x8 ft beds** - the most common and cost-e
 | Vegega 32" 8x4 | 8x4 ft, 32" tall | ~$250-300 | [Vegega 32"](https://www.vegega.com/products/32-tall-8x4-metal-raised-beds) |
 | Vego Garden 32" 10-in-1 | Configurable, 32" tall | ~$200-280 | [Vego 32"](https://www.vegogarden.com/products/32-extra-tall-10-in-1-modular-raised-garden-bed-kit) |
 
-Use 32" beds if you want hugelkultur **without** pit excavation.
+Use 32" beds for accessibility (less bending) or if you want extra soil depth for deep-rooted crops.
 
 ---
 
@@ -123,17 +123,17 @@ Place two 4x12 sections side-by-side:
 
 ---
 
-## Pit Excavation Requirement
+## Back to Eden Fill Depths
 
-For hugelkultur with 18" diameter logs:
+For pure Back to Eden method:
 
-| Bed Height | Pit Depth | Total Depth | Works? |
-|------------|-----------|-------------|--------|
-| 12" | 18" | 30" | ⚠️ Only 12" soil above logs |
-| 17" | 18" | 35" | ✓ 17" soil above logs |
-| 32" | 0" | 32" | ✓ No pit needed |
+| Bed Height | Soil Depth | Mulch Depth | Notes |
+|------------|------------|-------------|-------|
+| 12" | 8-10" | 2-4" | Adequate for most crops |
+| 17" | 12-14" | 4-6" | **Recommended** - good depth + mulch |
+| 32" | 24-28" | 4-6" | Extra deep for accessibility |
 
-**Recommendation:** Use 17" beds + 18" pit excavation for best results.
+**Recommendation:** Use 17" beds with 12-14" compost/soil and 4-6" wood chip mulch.
 
 ---
 

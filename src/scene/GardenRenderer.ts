@@ -180,6 +180,13 @@ export class GardenRenderer {
     dirtTexture.colorSpace = THREE.SRGBColorSpace;
     this.textures.set("dirt", dirtTexture);
 
+    // Load moss texture for path patches
+    const mossTexture = this.textureLoader.load("/assets/moss.png", onTextureLoad);
+    mossTexture.wrapS = THREE.RepeatWrapping;
+    mossTexture.wrapT = THREE.RepeatWrapping;
+    mossTexture.colorSpace = THREE.SRGBColorSpace;
+    this.textures.set("moss", mossTexture);
+
     // Load fence mesh texture (with alpha channel preserved)
     const fenceTexture = this.textureLoader.load("/assets/fence.png", onTextureLoad);
     fenceTexture.wrapS = THREE.RepeatWrapping;
@@ -941,6 +948,37 @@ export class GardenRenderer {
       rail.rotation.y = angle;
       rail.castShadow = true;
       this.gardenGroup.add(rail);
+    }
+
+    // Render baseboard if enabled (pressure-treated lumber along bottom)
+    if (fence.baseboard?.enabled) {
+      const baseboardHeight = fence.baseboard.height || 0.5; // Default 6 inches
+      const baseboardThickness = fence.baseboard.thickness || 0.17; // 2x6 thickness
+
+      // Pressure-treated wood has greenish tint
+      const baseboardMaterial = new THREE.MeshStandardMaterial({
+        color: 0x5a6b4a, // Greenish-brown for pressure treated
+        roughness: 0.9,
+        metalness: 0.0,
+      });
+
+      for (const side of sides) {
+        const sx = side.start[0];
+        const sz = side.start[1];
+        const ex = side.end[0];
+        const ez = side.end[1];
+        const length = Math.sqrt((ex - sx) ** 2 + (ez - sz) ** 2);
+        const angle = Math.atan2(ex - sx, ez - sz);
+
+        // Baseboard runs along bottom of fence
+        const baseboardGeometry = new THREE.BoxGeometry(baseboardThickness, baseboardHeight, length);
+        const baseboard = new THREE.Mesh(baseboardGeometry, baseboardMaterial);
+        baseboard.position.set((sx + ex) / 2, baseboardHeight / 2, (sz + ez) / 2);
+        baseboard.rotation.y = angle;
+        baseboard.castShadow = true;
+        baseboard.receiveShadow = true;
+        this.gardenGroup.add(baseboard);
+      }
     }
   }
 
@@ -1850,7 +1888,7 @@ export class GardenRenderer {
     return material;
   }
 
-  private createMulchMaterial(texture: THREE.Texture | null, fallbackColor: number): THREE.ShaderMaterial | THREE.MeshStandardMaterial {
+  private createMulchMaterial(texture: THREE.Texture | null, fallbackColor: number, mossTexture?: THREE.Texture | null): THREE.ShaderMaterial | THREE.MeshStandardMaterial {
     if (!texture) {
       return new THREE.MeshStandardMaterial({ color: fallbackColor, roughness: 0.95 });
     }
@@ -1859,6 +1897,8 @@ export class GardenRenderer {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         map: { value: texture },
+        mossMap: { value: mossTexture || null },
+        hasMoss: { value: mossTexture ? 1.0 : 0.0 },
         textureTileSize: { value: TEXTURE_TILE_SIZE },
         uvOffset2: { value: new THREE.Vector2(0.37, 0.53) },
         noiseScale: { value: 0.5 },
@@ -1886,6 +1926,8 @@ export class GardenRenderer {
       `,
       fragmentShader: `
         uniform sampler2D map;
+        uniform sampler2D mossMap;
+        uniform float hasMoss;
         uniform float textureTileSize;
         uniform vec2 uvOffset2;
         uniform float noiseScale;
@@ -1995,6 +2037,28 @@ export class GardenRenderer {
           // Apply tint and sun light color
           finalColor.rgb *= tint;
           finalColor.rgb *= sunLightColor * sunIntensity;
+
+          // Blend moss patches on top using noise-based masking
+          if (hasMoss > 0.5) {
+            vec2 mossUV = vWorldPos.xz / (textureTileSize * 0.05); // Moss tiles smaller for detail
+            vec4 mossColor = texture2D(mossMap, mossUV);
+
+            // Multi-octave noise for organic patch shapes
+            float mossNoise = snoise(vWorldPos.xz * 1.5) * 0.5 + 0.5;
+            mossNoise += snoise(vWorldPos.xz * 4.0) * 0.25;
+            mossNoise *= snoise(vWorldPos.xz * 0.3 + vec2(17.3, 31.7)) * 0.5 + 0.5; // Large-scale variation
+            mossNoise *= snoise(vWorldPos.xz * 0.08 + vec2(53.1, 11.9)) * 0.5 + 0.5; // Even larger-scale variation
+            mossNoise = smoothstep(0.35, 0.50, mossNoise); // Threshold for patches
+
+            // Use moss texture brightness as alpha (darker = more opaque moss)
+            float mossBrightness = (mossColor.r + mossColor.g + mossColor.b) / 3.0;
+            float mossAlpha = mossNoise * (1.0 - smoothstep(0.3, 0.7, mossBrightness));
+
+            // Blend moss on top of mulch (darker, deeper green)
+            vec3 mossTinted = mossColor.rgb * vec3(0.3, 0.7, 0.25);
+            finalColor.rgb = mix(finalColor.rgb, mossTinted * sunLightColor * sunIntensity, mossAlpha);
+          }
+
           gl_FragColor = finalColor;
         }
       `,
@@ -2053,7 +2117,8 @@ export class GardenRenderer {
       let pathMaterial: THREE.ShaderMaterial | THREE.MeshStandardMaterial;
       if (path.material === "wood") {
         const woodChipsTexture = this.getRepeatingTexture("wood-chips", path.width, length);
-        pathMaterial = this.createMulchMaterial(woodChipsTexture, pathColors[path.material]!);
+        const mossTexture = this.textures.get("moss") || null;
+        pathMaterial = this.createMulchMaterial(woodChipsTexture, pathColors[path.material]!, mossTexture);
       } else {
         pathMaterial = new THREE.MeshStandardMaterial({
           color: pathColors[path.material],

@@ -98,7 +98,8 @@ export const FenceSchema = z.object({
 export const RodentProtectionSchema = z.object({
   type: z.enum(["hardware_cloth", "none"]),
   mesh_size_inches: z.number(),
-  installation: z.enum(["bottom_only", "bottom_and_buried_sides"]),
+  installation: z.enum(["bottom_only", "bottom_and_buried_sides", "full_perimeter_and_floor"]),
+  notes: z.string().optional().describe("Additional notes about the installation"),
 });
 
 // Support post for bird netting structure
@@ -265,6 +266,7 @@ export const ScatteredPlantsConfigSchema = z.object({
 export const MaterialsBudgetSchema = z.object({
   beds: z.number(),
   fence: z.number(),
+  fence_baseboard: z.number().optional().describe("Pressure-treated lumber for fence baseboard"),
   hardware_cloth: z.number(),
   soil_compost: z.number(),
   irrigation: z.number(),

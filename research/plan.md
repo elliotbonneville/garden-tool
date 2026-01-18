@@ -107,19 +107,19 @@ title: Exeter RI Garden Research Plan
 
 ## Key Decisions Made
 
-### Growing Method: Back to Eden Style
+### Growing Method: Pure Back to Eden
 - Wood chip mulching for moisture retention and weed suppression
-- Raised beds with hugelkultur base (logs underneath)
-- Mushroom soil/compost on top
+- Raised beds filled with quality compost/soil mix (no hugelkultur - not worth the complexity)
+- Deep wood chip mulch on top (4-6")
 - This method is LOW MAINTENANCE once established - good fit for time constraints
 - **Watering:** Dramatically reduced after Year 1 - some BTE gardeners water only a few times per YEAR
 
 ### Build Specifications
 - **Bed material:** Pre-made galvanized metal beds (20-30 year lifespan) - see [bed-materials-comparison.md](bed-materials-comparison.md)
 - **Bed height:** 17" (Vegega or Vego Garden recommended)
-- **Hugelkultur approach:** Dig 18" pits under each bed for logs (traditional method)
-- **Why pits:** Your logs are 18" diameter - too large for beds alone. Pits are cheaper than 32" beds and provide better moisture retention.
-- **Rodent protection:** 1/4" hardware cloth inside beds on top of logs (metal sides block burrowing)
+- **Fill:** Quality compost/soil mix, topped with 4-6" wood chip mulch
+- **Fence baseboard:** Pressure-treated 2x6 lumber along bottom of fence perimeter
+- **Rodent protection:** 1/4" hardware cloth wraps around fence baseboard and extends under entire enclosure (full floor coverage)
 - **Labor:** Hiring contractors (not DIY)
 
 ### Special Requirements
@@ -151,17 +151,18 @@ title: Exeter RI Garden Research Plan
 
 ## Quick Summary
 
-### Estimated Budget (Hired Labor): $6,300 - $10,100
-- Materials: $2,500-4,000
+### Estimated Budget (Hired Labor): $8,000 - $12,000
+- Materials: $5,650-8,960
   - Deer fence: $1,000-1,500
-  - **Galvanized metal beds (14 @ $150):** $1,680-2,100 ([Vegega](https://www.vegega.com/) or [Vego Garden](https://www.vegogarden.com/))
-  - Hardware cloth (rodent): $400-600 (inside beds, on top of logs)
-  - Soil/compost: $400-800
+  - Fence baseboard (PT 2x6): $200-300
+  - **Galvanized metal beds (14 @ $150):** $1,680-2,520 ([Vegega](https://www.vegega.com/) or [Vego Garden](https://www.vegogarden.com/))
+  - Hardware cloth (full floor): $1,800-2,700 (~1,800 sq ft)
+  - Soil/compost: $500-1,000
+  - Wood chips (mulch): $100-200 (or free from arborists)
   - Bird netting: $150-300
   - Irrigation (optional): $150-300
-- Labor: $3,800-6,100
-  - **Pit excavation (18" deep, 14 pits):** $300-600 (mini excavator)
-  - Site prep, fence, bed assembly, hardware cloth install
+- Labor: $2,500-6,640
+  - Site prep, fence, baseboard, full floor hardware cloth, bed assembly
   - (Less labor - no carpentry, just assembly)
 
 ### Expected Annual Return: $1,000-2,000 in produce value
@@ -200,7 +201,7 @@ title: Exeter RI Garden Research Plan
 2. **Measure exact plot** - confirm 40x40 or adjust
 3. **Get soil/compost pH tested BEFORE buying bulk** - URI Extension $15-20
 4. **Order deer fence materials** - long lead item
-5. **Source free logs/chips** - start collecting for hugelkultur
+5. **Source free wood chips** - contact local arborists (ChipDrop, tree services)
 6. **Get bulk compost quote** - local landscape supply (ask for pH!)
 
 ## Resources

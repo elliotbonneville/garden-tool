@@ -39,9 +39,9 @@ This is not cost-efficient. Let's look at alternatives.
 
 | Height | Per Bed | 10 Beds | 14 Beds | Notes |
 |--------|---------|---------|---------|-------|
-| 12" | ~$70-80 | $700-800 | $980-1,120 | Too shallow for hugelkultur |
-| 17" | ~$120-180 | $1,200-1,800 | $1,680-2,520 | **RECOMMENDED** with pit excavation |
-| 32" | ~$200-280 | $2,000-2,800 | $2,800-3,920 | Alternative if no pit |
+| 12" | ~$70-80 | $700-800 | $980-1,120 | Adequate for most crops |
+| 17" | ~$120-180 | $1,200-1,800 | $1,680-2,520 | **RECOMMENDED** - good depth for BTE |
+| 32" | ~$200-280 | $2,000-2,800 | $2,800-3,920 | Extra depth (less bending) |
 
 ### Recommended Products (17" Height)
 
@@ -55,7 +55,7 @@ This is not cost-efficient. Let's look at alternatives.
 - Vegega: `Sub10` for 10% off (newsletter signup)
 - Both brands offer bulk discounts for 10+ beds - contact directly
 
-### Budget Options (12" - not recommended for hugelkultur)
+### Budget Options (12")
 
 | Brand | Product | Price | Link |
 |-------|---------|-------|------|
@@ -73,51 +73,6 @@ This is not cost-efficient. Let's look at alternatives.
 - Can heat up in summer (mulch helps)
 - Less "rustic" look (if you care)
 - Fixed sizes (less customizable)
-
----
-
-## CRITICAL: Hugelkultur with Large Logs
-
-**Problem:** Your logs are ~18" in diameter. A 17" bed can't accommodate them.
-
-**Solution:** Dig pits underneath the beds (traditional hugelkultur method).
-
-### Why Pit Excavation is Better
-
-| Factor | 32" Tall Bed | 17" Bed + 18" Pit |
-|--------|--------------|-------------------|
-| Bed cost (14 beds) | ~$2,800-3,900 | ~$1,680-2,520 |
-| Logs insulated by earth | No | Yes (better moisture retention) |
-| Soil depth above logs | ~14" | ~17" |
-| True hugelkultur design | Partial | Yes |
-| Extra labor | None | Excavation (~$300-600) |
-| **Net cost** | Higher | **$500-1,000 cheaper** |
-
-### How It Works
-
-1. **Mark bed locations** (4x8 ft rectangles)
-2. **Excavate 18" deep pits** at each location
-3. **Place logs in pits** (they're now below grade)
-4. **Set 17" metal bed on top** (edges sit on undisturbed soil)
-5. **Lay hardware cloth** across bottom inside bed
-6. **Fill with soil mix** on top of logs
-
-### Excavation Details
-
-- **Volume per pit:** 4x8x1.5ft = 48 cubic feet = 1.8 cubic yards
-- **Total for 14 pits:** ~25 cubic yards of soil removal
-- **Equipment:** Mini excavator (few hours work in clay)
-- **Disposal:** Haul off or mound elsewhere on property
-- **Estimated labor cost:** $300-600 (added to contractor quote)
-
-### Benefits of Below-Grade Logs
-
-- **Moisture reservoir:** Surrounding earth keeps logs damp longer
-- **Temperature stability:** Earth insulates against freeze/thaw
-- **Better decomposition:** Contact with native soil microbes
-- **More growing depth:** Full 17" of soil above logs vs 14" with tall beds
-
-**This is the traditional hugelkultur method** - logs are meant to be buried, not sitting in a container.
 
 ---
 
@@ -210,47 +165,44 @@ If you still want wood, use construction-grade lumber instead of cedar.
 
 ## Recommendation
 
-### Best Value: 17" Metal Beds + Pit Excavation for Hugelkultur
+### Best Value: 17" Metal Beds for Pure Back to Eden
 
 | Item | Cost |
 |------|------|
 | 14 beds @ $150 each (Vegega/Vego) | $1,680-2,100 |
 | Shipping (often free) | $0 |
-| Pit excavation labor (mini excavator) | $300-600 |
 | Assembly labor (1-2 hrs/bed) | Included in project labor |
-| **TOTAL** | **$1,980-2,700** |
+| **TOTAL** | **$1,680-2,100** |
 
 **Compare to cedar: $9,000-12,000**
-**Compare to 32" metal beds: $2,800-3,900**
 
-**You save: $7,000-9,000 vs cedar, $500-1,200 vs tall beds**
+**You save: $7,000-10,000 vs cedar**
 
 ### This Changes Your Total Budget
 
-| Original Estimate | With Metal Beds + Pits |
-|-------------------|------------------------|
+| Original Estimate | With Metal Beds |
+|-------------------|-----------------|
 | Materials: $4,000-6,000 | Materials: $2,500-4,000 |
-| Labor: $4,000-6,000 | Labor: $3,800-6,100 (adds excavation) |
-| **Total: $8,000-12,000** | **Total: $6,300-10,100** |
+| Labor: $4,000-6,000 | Labor: $3,000-5,000 |
+| **Total: $8,000-12,000** | **Total: $5,500-9,000** |
 
 ### Why This Approach Works Best
 
-1. **True hugelkultur:** Logs buried in earth, not sitting in a container
-2. **Cost effective:** Cheaper than 32" beds even with excavation
-3. **Better performance:** Earth-insulated logs retain moisture longer
-4. **Full soil depth:** 17" of growing medium above logs
+1. **Simple:** No excavation, just fill and mulch
+2. **Cost effective:** Far cheaper than cedar or custom builds
+3. **Low maintenance:** Metal lasts 20-30 years, BTE method reduces watering
+4. **Good depth:** 17" is plenty for most vegetables with quality soil
 
 ---
 
 ## Hardware Cloth Note
 
 Metal beds work fine with hardware cloth:
-- Lay cloth flat on ground
-- Set bed on top
-- Fold cloth up against inside walls
+- Lay cloth flat at bottom of bed
+- Fold edges up against inside walls a few inches
 - Secure with clips or screws
 
-No need to bury 24" deep since the metal sides go to ground level - rodents can't chew through metal.
+Metal sides block rodents from chewing through - hardware cloth on bottom prevents burrowing up from below.
 
 ---
 

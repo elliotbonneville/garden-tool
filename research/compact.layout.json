@@ -18,7 +18,7 @@
 
   "summary": {
     "difficulty": "intermediate",
-    "overview": "## Back to Eden Garden for 2 Families (7 people)\n\nThis garden uses the **Back to Eden** method with **hugelkultur base** - meaning significantly less watering, no tilling, and improving soil over time. The buried logs act as a water reservoir, and the wood chip mulch suppresses weeds and retains moisture.\n\n### Philosophy\n- **Low water**: After establishment, the hugelkultur base and mulch mean you may only need to water during extended dry spells\n- **No-till**: Never disturb the soil layers - just add more compost and mulch on top each year\n- **Feed the soil**: The decomposing wood feeds soil biology for years\n\n### What to Expect Year 1\nYear 1 is the hardest - you're building infrastructure and the hugelkultur is still \"cooking.\" Expect:\n- Heavy initial labor for bed construction and log burial\n- Nitrogen tie-up as wood decomposes (add extra compost)\n- Learning curve with pest management\n\n### Years 2+\nThe garden gets **easier every year** as:\n- Soil biology establishes\n- Wood chips break down into rich compost\n- You learn your microclimates\n- Perennials mature and produce more",
+    "overview": "## Back to Eden Garden for 2 Families (7 people)\n\nThis garden uses the **pure Back to Eden** method - quality compost/soil topped with deep wood chip mulch. This means significantly less watering, no tilling, and improving soil over time. The wood chip mulch suppresses weeds, retains moisture, and feeds the soil as it decomposes.\n\n### Philosophy\n- **Low water**: After establishment, the deep mulch means you may only need to water during extended dry spells\n- **No-till**: Never disturb the soil layers - just add more compost and mulch on top each year\n- **Feed the soil**: The decomposing wood chips feed soil biology continuously\n\n### What to Expect Year 1\nYear 1 is the hardest - you're building infrastructure and the soil ecosystem is establishing. Expect:\n- Initial labor for bed construction and filling\n- Learning curve with pest management\n- Some settling of soil/mulch layers\n\n### Years 2+\nThe garden gets **easier every year** as:\n- Soil biology establishes\n- Wood chips break down into rich compost\n- You learn your microclimates\n- Perennials mature and produce more",
     "time_commitment": {
       "peak_season_hours_per_week": 6,
       "off_season_hours_per_week": 1,
@@ -28,7 +28,7 @@
     "water_requirements": {
       "gallons_per_week_peak": 150,
       "gallons_per_week_average": 50,
-      "notes": "Back to Eden method dramatically reduces watering. The hugelkultur base acts as a sponge, and wood chip mulch prevents evaporation. After establishment (year 2+), you may only need supplemental water during droughts. Drip irrigation with timer handles most needs automatically."
+      "notes": "Back to Eden method dramatically reduces watering. The deep wood chip mulch prevents evaporation and builds water-retaining organic matter in the soil. After establishment (year 2+), you may only need supplemental water during droughts. Drip irrigation with timer handles most needs automatically."
     },
     "tips": [
       "**Morning harvest**: Pick vegetables in the morning when sugar content is highest",
@@ -70,13 +70,9 @@
   "growing_method": {
     "type": "back_to_eden",
     "mulch_type": "wood_chips",
-    "hugelkultur": {
-      "enabled": true,
-      "log_diameter_in": 18,
-      "pit_depth_in": 18,
-      "notes": "Excavate 18\" pits under each bed for logs"
-    },
-    "base_layers": ["logs", "branches", "leaves", "mushroom_compost", "wood_chips"]
+    "mulch_depth_in": 6,
+    "base_layers": ["hardware_cloth", "compost_soil_mix", "wood_chips"],
+    "notes": "Pure Back to Eden - no hugelkultur. Fill beds with quality compost/soil, top with 4-6 inches wood chip mulch."
   },
 
   "beds": [
@@ -160,7 +156,7 @@
     {
       "id": "bed-08",
       "name": "Root Vegetables",
-      "description": "Underground crops that need deep, loose, rock-free soil. The hugelkultur base helps!\n\n### Layout\n- **Carrots**: Center (need deepest soil)\n- **Parsnips**: Next to carrots (similar needs, longer season)\n- **Beets/Turnips**: Edges (shallower roots)\n- **Radishes**: Interplant as quick crop\n\n### Cautions\n- Soil **must** be loose and rock-free for straight roots\n- Thin ruthlessly - crowded roots fork\n- Radishes ready in 25-30 days\n- Parsnips need full season (100+ days)",
+      "description": "Underground crops that need deep, loose, rock-free soil. The 17\" bed depth provides plenty of room.\n\n### Layout\n- **Carrots**: Center (need deepest soil)\n- **Parsnips**: Next to carrots (similar needs, longer season)\n- **Beets/Turnips**: Edges (shallower roots)\n- **Radishes**: Interplant as quick crop\n\n### Cautions\n- Soil **must** be loose and rock-free for straight roots\n- Thin ruthlessly - crowded roots fork\n- Radishes ready in 25-30 days\n- Parsnips need full season (100+ days)",
       "type": "vegetable",
       "position": { "x": 30, "y": 16 },
       "dimensions": { "width": 4, "length": 8, "height": 17 },
@@ -221,6 +217,46 @@
   },
 
   "explicit_paths": [
+    {
+      "id": "path-west",
+      "name": "West perimeter path",
+      "points": [
+        { "x": 3, "y": 0 },
+        { "x": 3, "y": 40 }
+      ],
+      "width_ft": 6,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-east",
+      "name": "East perimeter path",
+      "points": [
+        { "x": 37, "y": 0 },
+        { "x": 37, "y": 40 }
+      ],
+      "width_ft": 6,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-north",
+      "name": "North perimeter path",
+      "points": [
+        { "x": 0, "y": 2.5 },
+        { "x": 40, "y": 2.5 }
+      ],
+      "width_ft": 5,
+      "material": "wood_chips"
+    },
+    {
+      "id": "path-south",
+      "name": "South perimeter path",
+      "points": [
+        { "x": 0, "y": 37.5 },
+        { "x": 40, "y": 37.5 }
+      ],
+      "width_ft": 5,
+      "material": "wood_chips"
+    },
     {
       "id": "path-col-1-2",
       "name": "Path between columns 1 & 2",
@@ -324,12 +360,19 @@
           "offset_ft": 20,
           "width_ft": 4
         }
-      ]
+      ],
+      "baseboard": {
+        "enabled": true,
+        "height_in": 6,
+        "material": "pressure_treated_2x6",
+        "purpose": "Hardware cloth attachment point - cloth wraps around bottom edge and extends under entire enclosure"
+      }
     },
     "rodent": {
       "type": "hardware_cloth",
       "mesh_size_inches": 0.25,
-      "installation": "bottom_only"
+      "installation": "full_perimeter_and_floor",
+      "notes": "Hardware cloth wraps around fence baseboard bottom edge, then extends across entire enclosure floor under mulch/paths"
     },
     "bird": {
       "type": "netting_full_garden",
@@ -351,17 +394,18 @@
     "materials": {
       "beds": 2400,
       "fence": 1250,
-      "hardware_cloth": 500,
+      "fence_baseboard": 250,
+      "hardware_cloth": 2250,
       "soil_compost": 800,
       "irrigation": 250,
       "bird_netting": 150
     },
     "labor": {
-      "estimated_hours": 46,
+      "estimated_hours": 65,
       "rate_per_hour": 50,
-      "total": 2300
+      "total": 3250
     },
-    "total": 7650
+    "total": 10600
   },
 
   "timeline": {

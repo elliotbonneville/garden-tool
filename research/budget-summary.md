@@ -4,58 +4,59 @@ title: Budget Summary
 
 # Garden Budget Summary
 
-## UPDATED: Hired Labor + Pit Excavation for Hugelkultur
+## UPDATED: Hired Labor + Pure Back to Eden Method
 
-You're hiring contractors and using 17" metal beds with 18" excavated pits underneath for your large (18" diameter) logs. This is the traditional hugelkultur method and is more cost-effective than using 32" tall beds.
+You're hiring contractors and using 17" metal beds filled with quality compost/soil mix, topped with deep wood chip mulch. Pure Back to Eden (no hugelkultur) - simpler to build, less labor, same low-maintenance benefits.
 
 ---
 
 ## One-Time Infrastructure Costs (WITH LABOR)
 
-### Materials (UPDATED - Metal Beds + Pit Excavation)
+### Materials (UPDATED - Metal Beds + Pure BTE)
 
 | Item | Low Est. | High Est. | Notes |
 |------|----------|-----------|-------|
 | **Deer Fence (8ft, 160 linear ft)** | $1,000 | $1,500 | Poly mesh, posts, gate, hardware |
+| **Fence Baseboard (PT 2x6, 160 lin ft)** | $200 | $300 | Pressure-treated lumber for hardware cloth attachment |
 | **Galvanized Metal Beds (14 x 4x8x17")** | $1,680 | $2,520 | [Vegega](https://www.vegega.com/) or [Vego Garden](https://www.vegogarden.com/), 20-30 yr lifespan |
-| **Hardware Cloth (1/4" mesh)** | $400 | $600 | Inside beds, on top of logs (metal sides stop rodents) |
-| **Bed Fill (bulk compost)** | $400 | $800 | Mushroom compost, delivered (logs are free) |
+| **Hardware Cloth (1/4" mesh, full floor)** | $1,800 | $2,700 | ~1,800 sq ft - wraps around baseboard & covers entire enclosure |
+| **Bed Fill (bulk compost/soil)** | $500 | $1,000 | Mushroom compost + topsoil mix, delivered |
+| **Wood Chips (mulch)** | $100 | $200 | 4-6" deep, or free from arborists |
 | **Drip Irrigation** | $150 | $300 | Optional with BTE |
 | **Bird Netting + Frame** | $150 | $300 | For berry area |
 | **Peat Moss (pH buffer)** | $50 | $100 | Counteracts mushroom compost alkalinity |
 | **Soil Testing (URI Extension)** | $20 | $40 | Test compost before buying + beds after |
-| **MATERIALS SUBTOTAL** | **$3,850** | **$6,160** | |
+| **MATERIALS SUBTOTAL** | **$5,650** | **$8,960** | |
 
 **Note:** Cedar would have cost $9,000-12,000 for the beds alone. Metal saves $7,500+.
-**Note:** 32" tall beds would have cost $2,800-3,900. Pit excavation saves $500-1,000 and provides better hugelkultur performance.
 
 ### Labor (Contractor Rates) - UPDATED
 
 | Task | Hours Est. | Rate | Cost Range |
 |------|------------|------|------------|
 | **Site prep & layout** | 4-8 | $50-80/hr | $200 - $640 |
-| **Pit excavation (14 pits, 18" deep)** | 4-8 | $75-100/hr | $300 - $800 |
 | **Deer fence installation** | 8-16 | $50-80/hr | $400 - $1,280 |
-| **Hardware cloth install** | 4-6 | $50-80/hr | $200 - $480 |
+| **Baseboard install (PT 2x6)** | 4-6 | $50-80/hr | $200 - $480 |
+| **Hardware cloth (full floor)** | 8-12 | $50-80/hr | $400 - $960 |
 | **Metal bed assembly (14 beds)** | 14-21 | $50-80/hr | $700 - $1,680 |
-| **Log placement in pits** | 2-4 | $50-80/hr | $100 - $320 |
 | **Soil/compost filling** | 6-10 | $50-80/hr | $300 - $800 |
+| **Wood chip mulching** | 2-4 | $50-80/hr | $100 - $320 |
 | **Irrigation install (optional)** | 4-6 | $50-80/hr | $200 - $480 |
-| **LABOR SUBTOTAL** | **46-79 hrs** | | **$2,400 - $6,480** |
+| **LABOR SUBTOTAL** | **50-83 hrs** | | **$2,500 - $6,640** |
 
-**Note:** Pit excavation requires mini excavator (~$300-600 including operator). Metal beds = no carpentry, just assembly.
+**Note:** Metal beds = no carpentry, just assembly. Full floor hardware cloth takes more time than per-bed, but provides complete rodent exclusion.
 
 ### Total Project Cost (Hired Out) - REVISED
 
 | Scenario | Materials | Labor | **TOTAL** |
 |----------|-----------|-------|-----------|
-| **Budget** | $3,850 | $2,400 | **$6,250** |
-| **Mid-Range** | $5,000 | $4,400 | **$9,400** |
-| **Premium** | $6,160 | $6,480 | **$12,640** |
+| **Budget** | $5,650 | $2,500 | **$8,150** |
+| **Mid-Range** | $7,300 | $4,500 | **$11,800** |
+| **Premium** | $8,960 | $6,640 | **$15,600** |
 
-**Realistic expectation: $6,500 - $10,000 all-in**
+**Realistic expectation: $8,000 - $12,000 all-in**
 
-(Down from $9,000-15,000 with cedar or 32" tall beds)
+(Full floor hardware cloth adds ~$1,500-2,200 vs per-bed approach, but provides complete rodent exclusion for the entire garden.)
 
 ---
 
@@ -163,8 +164,7 @@ Based on average yields:
 ## Cost-Saving Strategies
 
 ### Free/Cheap Materials
-- **Logs for hugelkultur:** Tree services often give away
-- **Wood chips:** ChipDrop.com or local arborists (free delivery)
+- **Wood chips:** ChipDrop.com or local arborists (free delivery) - key for BTE method
 - **Leaves:** Neighbors bag them for you in fall
 - **Cardboard:** Free weed barrier from stores
 - **Compost:** Start a pile now for next year

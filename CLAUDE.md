@@ -7,10 +7,10 @@ This is a garden planning application for a **Back to Eden style raised bed gard
 ### Key Specs
 - **Location:** Exeter, RI (USDA Zone 6b)
 - **Size:** 40x40 ft (1,600 sq ft)
-- **Method:** Back to Eden (wood chip mulch, hugelkultur base)
-- **Beds:** 10-14 galvanized metal raised beds (17-18" tall)
+- **Method:** Pure Back to Eden (wood chip mulch on quality soil - no hugelkultur)
+- **Beds:** 14 galvanized metal raised beds (17" tall)
 - **Protection:** 8ft deer fence, hardware cloth for rodents, bird netting for berries
-- **Budget:** $6,000-10,000 (hired labor)
+- **Budget:** $5,500-9,000 (hired labor)
 - **Timeline:** Build Feb-Apr 2025, plant May 2025
 
 ---
@@ -177,9 +177,10 @@ These are separate concerns - layout.ts is for planning, garden.ts is for displa
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
 | Bed material | Galvanized metal | 20-30yr lifespan, $1,500 vs $9,000+ for cedar |
-| Bed height | 17-18" | Enough depth for hugelkultur + good ergonomics |
+| Bed height | 17" | Good depth for BTE soil/mulch + good ergonomics |
+| Growing method | Pure Back to Eden | Wood chip mulch on soil (no hugelkultur - not worth complexity) |
 | Deer fence | 8ft poly mesh | Only reliable option, ~$1,200-1,500 |
-| Rodent protection | 1/4" hardware cloth, bottom only | Metal sides block burrowing |
+| Rodent protection | 1/4" hardware cloth | Bottom of beds, metal sides block burrowing |
 | Irrigation | Soaker hose or drip (optional) | BTE reduces water needs significantly |
 | Labor | Hired contractors | User time-constrained |
 

@@ -162,7 +162,7 @@
       "price_usd": 280,
       "price_note": "estimate, check website",
       "url": "https://www.vegega.com/products/32-tall-8x4-metal-raised-beds",
-      "notes": "Use if skipping pit excavation for hugelkultur"
+      "notes": "Extra tall option for accessibility or deeper root crops"
     },
 
     "vego-17-9in1": {
@@ -225,7 +225,7 @@
       "price_usd": 120,
       "price_note": "estimate, check Amazon",
       "url": "https://www.amazon.com/Land-Guard-12%C3%974%C3%971ft-Galvanized-Vegetables/dp/B09Y8LNCF6",
-      "warning": "Only 12\" tall - too shallow for hugelkultur with 18\" logs"
+      "notes": "Budget option - 12\" height adequate for most crops"
     },
 
     "landguard-8x4": {
@@ -242,7 +242,7 @@
       "price_usd": 80,
       "price_note": "estimate, check Amazon",
       "url": "https://www.amazon.com/Land-Guard-Galvanized-Bed%EF%BC%8C8%C3%974%C3%971-Vegetables/dp/B096THJ8B6",
-      "warning": "Only 12\" tall - too shallow for hugelkultur with 18\" logs"
+      "notes": "Budget option - 12\" height adequate for most crops"
     },
 
     "foyuee-8x4": {
@@ -258,7 +258,7 @@
       "price_usd": 70,
       "price_note": "estimate, check Amazon",
       "url": "https://www.amazon.com/Galvanized-Raised-Vegetables-Planter-8x4x1ft/dp/B07T499RHJ",
-      "warning": "Only 12\" tall - too shallow for hugelkultur with 18\" logs"
+      "notes": "Budget option - 12\" height adequate for most crops"
     }
   },
 
@@ -272,12 +272,10 @@
     }
   },
 
-  "hugelkultur_requirements": {
-    "log_diameter_in": 18,
+  "back_to_eden_setup": {
     "recommended_bed_height_in": 17,
-    "pit_depth_in": 18,
-    "total_depth_in": 35,
-    "soil_above_logs_in": 17,
-    "notes": "With 18\" logs and 17\" beds, excavate 18\" pits for proper hugelkultur"
+    "soil_depth_in": 12,
+    "mulch_depth_in": 5,
+    "notes": "Fill beds with quality compost/soil mix, top with 4-6 inches wood chip mulch"
   }
 }
