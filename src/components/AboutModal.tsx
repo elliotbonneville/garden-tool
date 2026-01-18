@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { CloseButton } from "./ui/CloseButton";
 
 const STORAGE_KEY = "garden-about-dismissed";
 
@@ -48,8 +49,13 @@ export function AboutModal() {
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Close button */}
+        <div style={{ position: "absolute", top: 12, right: 12 }}>
+          <CloseButton onClick={handleDismiss} size="small" />
+        </div>
+
         {/* Header */}
-        <div style={{ marginBottom: "var(--space-6)" }}>
+        <div style={{ marginBottom: "var(--space-6)", paddingRight: "var(--space-6)" }}>
           <h2
             style={{
               fontFamily: "var(--font-display)",

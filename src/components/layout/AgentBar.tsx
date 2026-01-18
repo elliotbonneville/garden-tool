@@ -37,14 +37,25 @@ function saveConversations(store: ConversationsStore) {
   }
 }
 
-export function AgentBar() {
+interface AgentBarProps {
+  forceExpanded?: boolean;
+  onClose?: () => void;
+}
+
+export function AgentBar({ forceExpanded, onClose }: AgentBarProps = {}) {
   const {
-    agentBarExpanded: isExpanded,
+    agentBarExpanded,
     setAgentBarExpanded: setIsExpanded,
     agentBarFullscreen: isFullScreen,
     setAgentBarFullscreen: setIsFullScreen,
     closeAgentBar,
   } = useGardenStore();
+
+  // Use forceExpanded if provided, otherwise use store state
+  const isExpanded = forceExpanded ?? agentBarExpanded;
+
+  // Handle close - use custom handler if provided
+  const handleClose = onClose ?? closeAgentBar;
   const [showConversationList, setShowConversationList] = useState(false);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -494,7 +505,7 @@ export function AgentBar() {
 
               {/* Close button */}
               <button
-                onClick={closeAgentBar}
+                onClick={handleClose}
                 aria-label="Close chat"
                 style={{
                   display: "flex",

@@ -11,7 +11,7 @@ type MobileView = "garden" | "details" | "research" | "chat";
 
 export function MobileLayout() {
   const [activeView, setActiveView] = useState<MobileView>("garden");
-  const { selectedBed, agentBarExpanded, setAgentBarExpanded } = useGardenStore();
+  const { selectedBed, setAgentBarExpanded } = useGardenStore();
 
   // Handlers to open views (passed to MobileTopBar)
   const handleOpenResearch = () => {
@@ -22,20 +22,18 @@ export function MobileLayout() {
     setActiveView("details");
   };
 
+  const handleOpenChat = () => {
+    setActiveView("chat");
+    setAgentBarExpanded(true);
+  };
+
+  const handleCloseChat = () => {
+    setActiveView("garden");
+    setAgentBarExpanded(false);
+  };
+
   // The active view is what the user selected
   const effectiveView = activeView;
-
-  // If agent bar is expanded, show it fullscreen
-  if (agentBarExpanded) {
-    return (
-      <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-        <MobileTopBar onOpenResearch={handleOpenResearch} onOpenDetails={handleOpenDetails} />
-        <div style={{ flex: 1, overflow: "hidden" }}>
-          <AgentBar />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div
@@ -71,7 +69,7 @@ export function MobileLayout() {
             background: "var(--bg-primary)",
           }}
         >
-          <BedDetailsPanel />
+          <BedDetailsPanel onClose={() => setActiveView("garden")} />
         </div>
 
         {/* Research Panel */}
@@ -100,7 +98,7 @@ export function MobileLayout() {
             background: "var(--bg-elevated)",
           }}
         >
-          <AgentBar />
+          <AgentBar forceExpanded onClose={handleCloseChat} />
         </div>
       </div>
 
@@ -129,10 +127,7 @@ export function MobileLayout() {
           icon={<ChatIcon />}
           label="Chat"
           active={effectiveView === "chat"}
-          onClick={() => {
-            setActiveView("chat");
-            setAgentBarExpanded(true);
-          }}
+          onClick={handleOpenChat}
         />
       </nav>
     </div>

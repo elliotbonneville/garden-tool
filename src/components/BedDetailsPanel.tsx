@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useGardenStore } from "../store/gardenStore";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { CloseButton } from "./ui/CloseButton";
 import type { LayoutBed } from "../schemas/layout";
 
 // Format crop name for display
@@ -25,7 +26,11 @@ function formatDate(dateStr: string): string {
   }
 }
 
-export function BedDetailsPanel() {
+interface BedDetailsPanelProps {
+  onClose?: () => void;
+}
+
+export function BedDetailsPanel({ onClose }: BedDetailsPanelProps = {}) {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const {
@@ -42,6 +47,30 @@ export function BedDetailsPanel() {
     padding: isMobile ? "var(--space-4)" : "var(--space-5)",
     gridColumns: isMobile ? "1fr" : "1fr 1fr",
   };
+
+  // Mobile header with close button
+  const MobileHeader = () => (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "12px 16px",
+        borderBottom: "1px solid var(--bg-tertiary)",
+        background: "var(--bg-primary)",
+      }}
+    >
+      <span
+        style={{
+          fontWeight: "var(--weight-semibold)",
+          color: "var(--text-primary)",
+        }}
+      >
+        Garden Details
+      </span>
+      <CloseButton onClick={onClose!} size="small" />
+    </div>
+  );
 
   // No layout loaded
   if (!layoutData) {
@@ -485,6 +514,7 @@ export function BedDetailsPanel() {
       fontFamily: "var(--font-body)",
       background: "var(--bg-primary)",
     }}>
+      {isMobile && onClose && <MobileHeader />}
       <TabBar />
       <div style={{ flex: 1, overflow: "auto" }}>
         {detailsTab === "overview" && <OverviewContent />}
