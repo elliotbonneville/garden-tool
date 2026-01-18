@@ -1,9 +1,10 @@
 import { z } from "zod";
+import { generateUUID } from "../utils/uuid";
 
 // Tool call record
 export const ToolCallSchema = z.object({
   name: z.string(),
-  input: z.record(z.unknown()),
+  input: z.record(z.string(), z.unknown()),
 });
 
 export type ToolCall = z.infer<typeof ToolCallSchema>;
@@ -45,7 +46,7 @@ export const CONVERSATIONS_STORAGE_KEY = "garden-assistant-conversations";
 export function createConversation(title?: string): Conversation {
   const now = new Date().toISOString();
   return {
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     title: title || `Chat ${new Date().toLocaleDateString()}`,
     createdAt: now,
     updatedAt: now,

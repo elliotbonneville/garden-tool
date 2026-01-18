@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { sendMessage, type ToolCall } from "../../services/anthropic";
+import { generateUUID } from "../../utils/uuid";
 import {
   type ConversationsStore,
   type Message,
@@ -10,6 +11,7 @@ import {
   generateTitle,
   ConversationsStoreSchema,
 } from "../../schemas/conversations";
+import { useGardenStore } from "../../store/gardenStore";
 
 // Load conversations from localStorage
 function loadConversations(): ConversationsStore {
@@ -36,8 +38,13 @@ function saveConversations(store: ConversationsStore) {
 }
 
 export function AgentBar() {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false);
+  const {
+    agentBarExpanded: isExpanded,
+    setAgentBarExpanded: setIsExpanded,
+    agentBarFullscreen: isFullScreen,
+    setAgentBarFullscreen: setIsFullScreen,
+    closeAgentBar,
+  } = useGardenStore();
   const [showConversationList, setShowConversationList] = useState(false);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -140,7 +147,7 @@ export function AgentBar() {
     }
 
     const userMessage: Message = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       role: "user",
       content: input.trim(),
       timestamp: new Date().toISOString(),
@@ -188,7 +195,7 @@ export function AgentBar() {
       });
 
       const assistantMessage: Message = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         role: "assistant",
         content: response.content,
         timestamp: new Date().toISOString(),
@@ -197,7 +204,7 @@ export function AgentBar() {
       updateMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       const errorMessage: Message = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         role: "assistant",
         content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : "Unknown error"}`,
         timestamp: new Date().toISOString(),
@@ -216,30 +223,19 @@ export function AgentBar() {
   };
 
   const toggleFullScreen = () => {
-    setIsFullScreen((prev) => !prev);
-    setIsExpanded(true);
-  };
-
-  // Calculate height based on state
-  const getHeight = () => {
-    if (isFullScreen) return "calc(100vh - var(--topbar-height))";
-    if (isExpanded) return Math.min(500, 72 + messages.length * 80 + 120) + "px";
-    return "var(--agentbar-height)";
+    setIsFullScreen(!isFullScreen);
   };
 
   return (
     <div
       style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
+        position: "relative",
+        flexShrink: 0,
         background: "var(--bg-elevated)",
         borderTop: "1px solid var(--bg-tertiary)",
         boxShadow: "0 -4px 20px rgba(45, 58, 45, 0.08)",
-        zIndex: 30,
-        transition: "height var(--transition-slow)",
-        height: getHeight(),
+        zIndex: 20,
+        height: isExpanded ? "100%" : "var(--agentbar-height)",
         display: "flex",
         flexDirection: "column",
       }}
@@ -292,7 +288,7 @@ export function AgentBar() {
                     e.currentTarget.style.background = "transparent";
                   }}
                 >
-                  <span style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ maxWidth: "min(40vw, 200px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {activeConversation?.title || "New Chat"}
                   </span>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -307,8 +303,9 @@ export function AgentBar() {
                       position: "absolute",
                       top: "calc(100% + 4px)",
                       left: 0,
-                      minWidth: 280,
-                      maxHeight: 300,
+                      width: "min(90vw, 400px)",
+                      maxWidth: 600,
+                      maxHeight: "min(300px, 60vh)",
                       overflow: "auto",
                       background: "var(--bg-elevated)",
                       border: "1px solid var(--bg-tertiary)",
@@ -457,7 +454,7 @@ export function AgentBar() {
               )}
             </div>
 
-            <div style={{ display: "flex", gap: "var(--space-2)" }}>
+            <div style={{ display: "flex", gap: "var(--space-1)" }}>
               {/* Full screen toggle */}
               <button
                 onClick={toggleFullScreen}
@@ -466,8 +463,8 @@ export function AgentBar() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  width: 28,
-                  height: 28,
+                  width: 40,
+                  height: 40,
                   background: "transparent",
                   border: "none",
                   color: "var(--text-tertiary)",
@@ -495,19 +492,16 @@ export function AgentBar() {
                 )}
               </button>
 
-              {/* Collapse button */}
+              {/* Close button */}
               <button
-                onClick={() => {
-                  setIsExpanded(false);
-                  setIsFullScreen(false);
-                }}
-                aria-label="Collapse chat"
+                onClick={closeAgentBar}
+                aria-label="Close chat"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  width: 28,
-                  height: 28,
+                  width: 40,
+                  height: 40,
                   background: "transparent",
                   border: "none",
                   color: "var(--text-tertiary)",
@@ -524,8 +518,8 @@ export function AgentBar() {
                   e.currentTarget.style.color = "var(--text-tertiary)";
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M18 15l-6-6-6 6" />
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M1 1l12 12M13 1L1 13" />
                 </svg>
               </button>
             </div>
@@ -536,7 +530,7 @@ export function AgentBar() {
             style={{
               flex: 1,
               overflow: "auto",
-              padding: "var(--space-4) var(--space-5)",
+              padding: "var(--space-4) var(--space-3)",
               display: "flex",
               flexDirection: "column",
               gap: "var(--space-3)",
@@ -908,11 +902,14 @@ export function AgentBar() {
       {/* Input bar */}
       <form
         onSubmit={handleSubmit}
+        className="safe-area-bottom"
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "var(--space-3)",
-          padding: "var(--space-3) var(--space-5)",
+          gap: "var(--space-2)",
+          padding: "var(--space-3)",
+          paddingLeft: "var(--space-3)",
+          paddingRight: "var(--space-3)",
           flexShrink: 0,
           borderTop: isExpanded ? "1px solid var(--bg-tertiary)" : "none",
         }}
@@ -921,7 +918,7 @@ export function AgentBar() {
         <button
           type="button"
           onClick={() => {
-            if (!isExpanded && (messages.length > 0 || store.conversations.length > 0)) {
+            if (!isExpanded) {
               setIsExpanded(true);
             }
           }}
@@ -935,18 +932,18 @@ export function AgentBar() {
             borderRadius: "var(--border-radius)",
             flexShrink: 0,
             border: "none",
-            cursor: !isExpanded && (messages.length > 0 || store.conversations.length > 0) ? "pointer" : "default",
+            cursor: !isExpanded ? "pointer" : "default",
             transition: "transform var(--transition-fast)",
           }}
           onMouseEnter={(e) => {
-            if (!isExpanded && (messages.length > 0 || store.conversations.length > 0)) {
+            if (!isExpanded) {
               e.currentTarget.style.transform = "scale(1.05)";
             }
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = "scale(1)";
           }}
-          aria-label={!isExpanded && (messages.length > 0 || store.conversations.length > 0) ? "Open chat" : undefined}
+          aria-label={!isExpanded ? "Open chat" : undefined}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-inverted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2L2 7l10 5 10-5-10-5z" />
@@ -966,11 +963,13 @@ export function AgentBar() {
           disabled={isLoading}
           style={{
             flex: 1,
-            padding: "var(--space-3) var(--space-4)",
+            minWidth: 0,
+            padding: "var(--space-3)",
+            minHeight: 44,
             background: "var(--bg-secondary)",
             border: "1px solid var(--bg-tertiary)",
             borderRadius: "var(--border-radius)",
-            fontSize: "var(--text-base)",
+            fontSize: "16px", // Prevents iOS zoom on focus
             fontFamily: "var(--font-body)",
             color: "var(--text-primary)",
             outline: "none",
@@ -998,8 +997,8 @@ export function AgentBar() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             background: input.trim() && !isLoading ? "var(--accent-primary)" : "var(--bg-tertiary)",
             border: "none",
             borderRadius: "var(--border-radius)",

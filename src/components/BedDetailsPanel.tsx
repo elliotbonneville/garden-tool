@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useGardenStore } from "../store/gardenStore";
+import { useIsMobile } from "../hooks/useIsMobile";
 import type { LayoutBed } from "../schemas/layout";
 
 // Format crop name for display
@@ -26,6 +27,7 @@ function formatDate(dateStr: string): string {
 
 export function BedDetailsPanel() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const {
     selectedBed: bed,
     setSelectedBed,
@@ -34,6 +36,12 @@ export function BedDetailsPanel() {
     setDetailsTab,
     setRightPaneVisible,
   } = useGardenStore();
+
+  // Responsive spacing
+  const spacing = {
+    padding: isMobile ? "var(--space-4)" : "var(--space-5)",
+    gridColumns: isMobile ? "1fr" : "1fr 1fr",
+  };
 
   // No layout loaded
   if (!layoutData) {
@@ -70,7 +78,8 @@ export function BedDetailsPanel() {
           onClick={() => setDetailsTab(tab)}
           style={{
             flex: 1,
-            padding: "var(--space-3) var(--space-4)",
+            padding: isMobile ? "var(--space-4) var(--space-3)" : "var(--space-3) var(--space-4)",
+            minHeight: isMobile ? 48 : 40,
             background: "transparent",
             border: "none",
             borderBottom: detailsTab === tab ? "2px solid var(--accent-primary)" : "2px solid transparent",
@@ -91,7 +100,7 @@ export function BedDetailsPanel() {
 
   // Overview tab content
   const OverviewContent = () => (
-    <div style={{ padding: "var(--space-5)" }}>
+    <div style={{ padding: spacing.padding }}>
       {/* Garden header */}
       <div style={{ marginBottom: "var(--space-6)" }}>
         <h2 style={{
@@ -132,7 +141,7 @@ export function BedDetailsPanel() {
       {/* Time commitment */}
       {summary?.time_commitment && (
         <Section title="Time Commitment">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: spacing.gridColumns, gap: "var(--space-3)" }}>
             <StatCard label="Peak Season" value={`${summary.time_commitment.peak_season_hours_per_week} hrs/week`} />
             <StatCard label="Off Season" value={`${summary.time_commitment.off_season_hours_per_week} hrs/week`} />
             <StatCard label="Spring Setup" value={`${summary.time_commitment.spring_setup_hours} hrs`} />
@@ -159,7 +168,7 @@ export function BedDetailsPanel() {
 
       {/* Timeline */}
       <Section title="Timeline">
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: spacing.gridColumns, gap: "var(--space-3)" }}>
           <StatCard label="Planting Date" value={formatDate(timeline.planting_date)} />
           <StatCard label="First Harvest" value={formatDate(timeline.first_harvest)} />
           <StatCard label="Last Frost" value={climate.last_frost} />
@@ -238,7 +247,7 @@ export function BedDetailsPanel() {
       <div>
         {/* Bed header */}
         <div style={{
-          padding: "var(--space-5)",
+          padding: spacing.padding,
           borderBottom: "1px solid var(--bg-tertiary)",
           display: "flex",
           alignItems: "flex-start",
@@ -290,10 +299,10 @@ export function BedDetailsPanel() {
           </button>
         </div>
 
-        <div style={{ padding: "var(--space-5)" }}>
+        <div style={{ padding: spacing.padding }}>
           {/* Dimensions */}
           <Section title="Dimensions">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: spacing.gridColumns, gap: "var(--space-3)" }}>
               <StatCard label="Width" value={`${bed.dimensions.width} ft`} />
               <StatCard label="Length" value={`${bed.dimensions.length} ft`} />
               <StatCard label="Height" value={`${bed.dimensions.height || 12} in`} />
@@ -384,10 +393,10 @@ export function BedDetailsPanel() {
     const uniqueCrops = new Set(beds.flatMap(b => b.crops.map(c => c.split("_")[0]))).size;
 
     return (
-      <div style={{ padding: "var(--space-5)" }}>
+      <div style={{ padding: spacing.padding }}>
         {/* Garden overview stats */}
         <Section title="Garden Overview">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: spacing.gridColumns, gap: "var(--space-3)" }}>
             <StatCard label="Total Area" value={`${site.total_sqft} sq ft`} />
             <StatCard label="Growing Area" value={`${totalBedArea} sq ft`} />
             <StatCard label="Total Beds" value={`${beds.length}`} />
@@ -397,7 +406,7 @@ export function BedDetailsPanel() {
 
         {/* Crop diversity */}
         <Section title="Crop Diversity">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: spacing.gridColumns, gap: "var(--space-3)" }}>
             <StatCard label="Total Plantings" value={`${totalCrops}`} />
             <StatCard label="Unique Crops" value={`${uniqueCrops}`} />
           </div>
@@ -405,7 +414,7 @@ export function BedDetailsPanel() {
 
         {/* Budget */}
         <Section title="Budget">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: spacing.gridColumns, gap: "var(--space-3)" }}>
             <StatCard
               label="Materials"
               value={`$${budget.materials.beds + budget.materials.fence + budget.materials.hardware_cloth + budget.materials.soil_compost + budget.materials.irrigation + budget.materials.bird_netting}`}

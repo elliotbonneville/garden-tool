@@ -4,6 +4,9 @@ import { GardenRenderer } from "../scene/GardenRenderer";
 import { type Garden, type GardenBed, type Plant, type PlantType, type Fence, type BirdNetting } from "../schemas/garden";
 import { GardenLayoutSchema, type GardenLayout } from "../schemas/layout";
 import { useGardenStore } from "../store/gardenStore";
+import { generateUUID } from "../utils/uuid";
+import { useIsMobile } from "../hooks/useIsMobile";
+import { HelpModal } from "./HelpModal";
 
 // Dynamically import all layout JSON files from research directory
 const layoutModules = import.meta.glob("../../research/*.layout.json", { eager: false });
@@ -31,7 +34,11 @@ availableLayouts.sort((a, b) => a.name.localeCompare(b.name));
 // Export for use in other components
 export { availableLayouts };
 
-export function GardenView() {
+interface GardenViewProps {
+  onBedSelect?: () => void;
+}
+
+export function GardenView({ onBedSelect }: GardenViewProps = {}) {
   const {
     selectedLayout,
     selectedBed,
@@ -50,6 +57,8 @@ export function GardenView() {
   const [garden, setGarden] = useState<Garden | null>(null);
   const [rawLayoutData, setRawLayoutData] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   // Load layout data when selection changes
   useEffect(() => {
@@ -124,7 +133,7 @@ export function GardenView() {
             const angle = (j / plantsPerCrop) * Math.PI * 2 + i * 0.5;
             const radius = Math.min(bed.dimensions.width, bed.dimensions.length) * 0.25;
             plants.push({
-              id: crypto.randomUUID(),
+              id: generateUUID(),
               name: crop.replace(/_/g, " "),
               type: plantType,
               position: {
@@ -172,7 +181,7 @@ export function GardenView() {
         const centerX = siteW / 2;
 
         paths.push({
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           points: [
             { x: centerX, y: 0, z: 2 },
             { x: centerX, y: 0, z: siteL - 2 },
@@ -189,7 +198,7 @@ export function GardenView() {
           const pathZ = (maxBedBottom + nextRowY) / 2;
 
           paths.push({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             points: [
               { x: 2, y: 0, z: pathZ },
               { x: siteW - 2, y: 0, z: pathZ },
@@ -331,7 +340,7 @@ export function GardenView() {
             }
 
             scatteredPlants.push({
-              id: crypto.randomUUID(),
+              id: generateUUID(),
               name: plantConfig.type,
               type: "flower",
               position: { x, y: 0, z },
@@ -344,7 +353,7 @@ export function GardenView() {
       }
 
       setGarden({
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         name: layout.metadata.name,
         dimensions: { width: siteW, length: siteL },
         beds,
@@ -446,9 +455,13 @@ export function GardenView() {
         if (bedId) {
           const bed = layoutRef.current.beds.find(b => b.id === bedId);
           setSelectedBed(bed || null);
-          // Open the left drawer to show bed details
+          // Open the details view/drawer
           if (bed) {
-            setLeftPaneVisible(true);
+            if (onBedSelect) {
+              onBedSelect();
+            } else {
+              setLeftPaneVisible(true);
+            }
           }
         } else {
           setSelectedBed(null);
@@ -494,6 +507,98 @@ export function GardenView() {
       renderer.requestRender();
     };
 
+    // Touch event handling for mobile
+    let touchStartPosition = { x: 0, y: 0 };
+    let lastTouchDistance = 0;
+    let isTouchDragging = false;
+
+    const getTouchDistance = (touches: TouchList) => {
+      if (touches.length < 2) return 0;
+      const dx = touches[0]!.clientX - touches[1]!.clientX;
+      const dy = touches[0]!.clientY - touches[1]!.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        isTouchDragging = true;
+        touchStartPosition = { x: e.touches[0]!.clientX, y: e.touches[0]!.clientY };
+        previousMousePosition = { x: e.touches[0]!.clientX, y: e.touches[0]!.clientY };
+      } else if (e.touches.length === 2) {
+        lastTouchDistance = getTouchDistance(e.touches);
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!renderer) return;
+      e.preventDefault();
+
+      if (e.touches.length === 1 && isTouchDragging) {
+        // Single finger drag = rotate
+        const touch = e.touches[0]!;
+        const camera = renderer.getCamera();
+        const deltaX = touch.clientX - previousMousePosition.x;
+        const deltaY = touch.clientY - previousMousePosition.y;
+
+        const offset = camera.position.clone().sub(gardenCenter);
+        const spherical = new THREE.Spherical().setFromVector3(offset);
+        spherical.theta -= deltaX * 0.01;
+        spherical.phi -= deltaY * 0.01;
+        spherical.phi = Math.max(0.1, Math.min(Math.PI / 2 - 0.1, spherical.phi));
+        offset.setFromSpherical(spherical);
+        camera.position.copy(gardenCenter).add(offset);
+        camera.lookAt(gardenCenter);
+
+        previousMousePosition = { x: touch.clientX, y: touch.clientY };
+        renderer.requestRender();
+      } else if (e.touches.length === 2) {
+        // Two finger pinch = zoom
+        const newDistance = getTouchDistance(e.touches);
+        if (lastTouchDistance > 0) {
+          const camera = renderer.getCamera();
+          const offset = camera.position.clone().sub(gardenCenter);
+          const distance = offset.length();
+          const scale = lastTouchDistance / newDistance;
+          const newDist = distance * scale;
+          offset.setLength(Math.max(15, Math.min(120, newDist)));
+          camera.position.copy(gardenCenter).add(offset);
+          renderer.requestRender();
+        }
+        lastTouchDistance = newDistance;
+      }
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length === 0 && isTouchDragging) {
+        // Check if it was a tap (not a drag)
+        const touch = e.changedTouches[0];
+        if (touch) {
+          const dx = touch.clientX - touchStartPosition.x;
+          const dy = touch.clientY - touchStartPosition.y;
+          const wasTap = Math.sqrt(dx * dx + dy * dy) < 10;
+
+          if (wasTap && renderer && layoutRef.current) {
+            const bedId = renderer.getBedAtPoint(touch.clientX, touch.clientY);
+            if (bedId) {
+              const bed = layoutRef.current.beds.find(b => b.id === bedId);
+              setSelectedBed(bed || null);
+              if (bed) {
+                if (onBedSelect) {
+                  onBedSelect();
+                } else {
+                  setLeftPaneVisible(true);
+                }
+              }
+            } else {
+              setSelectedBed(null);
+            }
+          }
+        }
+        isTouchDragging = false;
+      }
+      lastTouchDistance = 0;
+    };
+
     const initRenderer = () => {
       if (renderer) return;
       if (container.clientWidth === 0 || container.clientHeight === 0) {
@@ -517,6 +622,11 @@ export function GardenView() {
     container.addEventListener("click", onClick);
     container.addEventListener("wheel", onWheel, { passive: false });
 
+    // Touch events for mobile
+    container.addEventListener("touchstart", onTouchStart, { passive: true });
+    container.addEventListener("touchmove", onTouchMove, { passive: false });
+    container.addEventListener("touchend", onTouchEnd, { passive: true });
+
     return () => {
       container.removeEventListener("mousedown", onMouseDown);
       container.removeEventListener("mousemove", onMouseMove);
@@ -524,6 +634,9 @@ export function GardenView() {
       container.removeEventListener("mouseleave", onMouseLeave);
       container.removeEventListener("click", onClick);
       container.removeEventListener("wheel", onWheel);
+      container.removeEventListener("touchstart", onTouchStart);
+      container.removeEventListener("touchmove", onTouchMove);
+      container.removeEventListener("touchend", onTouchEnd);
       if (renderer) {
         renderer.dispose();
         rendererRef.current = null;
@@ -593,21 +706,55 @@ export function GardenView() {
 
   return (
     <div ref={containerRef} style={{ width: "100%", height: "100%", position: "relative" }}>
-      {/* Simple controls hint */}
-      <div style={{
-        position: "absolute",
-        bottom: 16,
-        left: 16,
-        background: "rgba(0,0,0,0.6)",
-        borderRadius: 4,
-        padding: "6px 10px",
-        fontFamily: "system-ui, sans-serif",
-        fontSize: 11,
-        color: "#fff",
-        zIndex: 10,
-      }}>
-        Drag to rotate · Shift+drag to pan · Scroll to zoom · Click bed to select
-      </div>
+      {/* Controls hint - different for mobile vs desktop */}
+      {isMobile ? (
+        // Mobile: show help button
+        <button
+          onClick={() => setHelpOpen(true)}
+          aria-label="Show controls help"
+          style={{
+            position: "absolute",
+            bottom: 16,
+            left: 16,
+            width: 44,
+            height: 44,
+            background: "rgba(0,0,0,0.6)",
+            border: "none",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            cursor: "pointer",
+            zIndex: 10,
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+        </button>
+      ) : (
+        // Desktop: show text hint
+        <div style={{
+          position: "absolute",
+          bottom: 16,
+          left: 16,
+          background: "rgba(0,0,0,0.6)",
+          borderRadius: 4,
+          padding: "6px 10px",
+          fontFamily: "system-ui, sans-serif",
+          fontSize: 11,
+          color: "#fff",
+          zIndex: 10,
+        }}>
+          Drag to rotate · Shift+drag to pan · Scroll to zoom · Click bed to select
+        </div>
+      )}
+
+      {/* Help Modal */}
+      <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   );
 }

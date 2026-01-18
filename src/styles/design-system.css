@@ -98,6 +98,22 @@
   --border-radius-lg: 12px;
   --border-radius-xl: 16px;
 
+  /* Mobile breakpoints (for reference in JS) */
+  --breakpoint-mobile: 480px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+
+  /* Mobile-specific spacing (reduced) */
+  --space-mobile-1: 4px;
+  --space-mobile-2: 6px;
+  --space-mobile-3: 10px;
+  --space-mobile-4: 14px;
+  --space-mobile-5: 16px;
+  --space-mobile-6: 20px;
+
+  /* Touch target minimum */
+  --touch-target-min: 44px;
+
   /* ----------------------------------------
      Shadows
      ---------------------------------------- */
@@ -282,5 +298,166 @@ h3, .heading-3 {
   }
   50% {
     opacity: 0.5;
+  }
+}
+
+/* ============================================
+   Allotment Overrides
+   ============================================ */
+
+/* Container for allotment - clips sash to bounds */
+.allotment-container {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
+
+/* Ensure sash stays within container */
+[class*="split-view"] {
+  contain: layout;
+}
+
+/* Style the resize sash */
+.sash {
+  z-index: 5 !important;
+  background: transparent !important;
+  transition: background var(--transition-fast) !important;
+}
+
+.sash:hover,
+.sash.hover {
+  background: var(--accent-primary) !important;
+}
+
+.sash.disabled {
+  pointer-events: none !important;
+}
+
+/* Sash container should not escape */
+.sash-container {
+  z-index: 5 !important;
+}
+
+/* ============================================
+   Mobile Responsive Styles
+   ============================================ */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+  :root {
+    --topbar-height: 52px;
+    --agentbar-height: 64px;
+    --text-base: 16px;
+    --text-lg: 18px;
+    --text-xl: 22px;
+  }
+
+  /* Reduce padding on panels */
+  .mobile-padding {
+    padding: var(--space-4) !important;
+  }
+
+  /* Make grids single column on tablet */
+  .responsive-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Hide on mobile */
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  /* Show on mobile */
+  .show-on-mobile {
+    display: flex !important;
+  }
+
+  /* Larger scrollbar for touch */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+  :root {
+    --topbar-height: 48px;
+    --agentbar-height: 60px;
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 15px;
+    --text-lg: 17px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+  }
+
+  /* Even smaller padding on phones */
+  .mobile-padding {
+    padding: var(--space-3) !important;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch targets */
+  button,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+
+  /* Remove hover effects that don't work on touch */
+  .no-touch-hover:hover {
+    background: inherit !important;
+  }
+}
+
+/* Mobile navigation bar styles */
+.mobile-nav-bar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--bg-tertiary);
+  padding: var(--space-2) 0;
+  padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  min-width: 64px;
+}
+
+.mobile-nav-item.active {
+  color: var(--accent-primary);
+}
+
+.mobile-nav-item svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Safe area insets for notched phones */
+@supports (padding: max(0px)) {
+  .safe-area-top {
+    padding-top: max(var(--space-2), env(safe-area-inset-top));
+  }
+
+  .safe-area-bottom {
+    padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
   }
 }
